@@ -4,11 +4,13 @@ A personal command center for everything: job applications, work, reminders, hou
 
 ## Features
 
+- **Dashboard sticky notes** — pin any note and it shows up right on the Today dashboard; add notes straight from the dashboard with the ＋ card
+- **Light mode by default** + a soft, easy-on-the-eyes dark mode — toggle with the 🌙/☀️ button (your choice is remembered)
 - **Spaces** — sidebar sections for Job Applications, Work, Reminders, Household, Personal (add/edit/delete your own, with custom emoji, color and pipeline stages)
 - **Three views per space** — ☑ Tasks (grouped by Overdue / Today / Upcoming), ▦ Board (drag cards between pipeline stages, e.g. Applied → Interview → Offer), 🗒 Notes (sticky notes with colors + pinning)
-- **Today dashboard** — greeting, stats, everything due across all spaces
 - **Smart quick-add** — type `Call recruiter tomorrow !high` and Orbit parses the date and priority (`today`, `tomorrow`, `next week`, `!high !med !low`)
-- **Extras** — search (`/`), keyboard `n` for new task, confetti on completing tasks, undo for deletes, JSON export/import backups
+- **Modern animations** — staggered card entrances, smooth theme crossfade, spring checkboxes, confetti on completing tasks (respects reduced-motion settings)
+- **Extras** — search (`/`), keyboard `n` for new task, undo for deletes, JSON export/import backups
 
 ## Run it
 
@@ -27,12 +29,14 @@ cd orbit-todo
 vercel            # log in, accept defaults → get a live URL
 vercel --prod     # production deploy
 ```
-Or drag the `orbit-todo` folder onto https://vercel.com/new.
+Or push this folder to GitHub and import the repo at https://vercel.com/new — every push then auto-deploys.
 
 ## Your data
 
 Data is stored in the browser's `localStorage`, tied to the URL you use. If you switch between `file://`, `localhost` and a deployed URL, each keeps its own copy — use **Export** (sidebar) on one and **Import** on the other to move data. Export regularly to back up.
 
+**Never store passwords in notes** — this file and your notes seeded in it live in your GitHub repo. Use a password manager for credentials.
+
 ## Customizing
 
-Everything lives in one `index.html` — colors are CSS variables in `:root` at the top, app logic is the single `<script>` at the bottom.
+Everything lives in one `index.html` — light theme colors are in `:root` and dark theme colors in `html[data-theme="dark"]` at the top, app logic is the single `<script>` at the bottom.

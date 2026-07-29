@@ -288,6 +288,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 
 /* ============ notes ============ */
 .notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:14px}
+.notes-grid.dash{margin-bottom:10px}
 .note{
   --nc:#8b7cff;position:relative;border-radius:16px;padding:15px 16px;min-height:150px;cursor:pointer;
   background:color-mix(in srgb,var(--nc) 10%,var(--note-base));
@@ -416,7 +417,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 "use strict";
 /* ================================================================
    Orbit — a personal command center for tasks & notes
-   Light mode by default · dark mode toggle · data in localStorage
+   Light mode default · dark mode toggle · dashboard sticky notes
    ================================================================ */
 
 /* ---------------- helpers ---------------- */
@@ -463,7 +464,7 @@ function seed(){
   const pers = {id:uid(), name:"Personal", icon:"🌱", color:"#fb7185", stages:stdStages(), notes:[]};
 
   pers.notes.push({id:uid(), title:"Welcome to Orbit 🪐", color:"#8b7cff", pinned:true, createdAt:Date.now(),
-    body:"Quick tips:\n• Every space has Tasks, a Board (pipeline) and Notes.\n• Drag cards between stages on the Board.\n• Quick-add understands \"!high !med !low\", \"today\" and \"tomorrow\".\n• Click any task to edit details.\n• Use the 🌙/☀️ button up top to switch themes.\n• Your data lives in this browser — use Export for backups."});
+    body:"Quick tips:\n• Every space has Tasks, a Board (pipeline) and Notes.\n• Pinned notes show up right on the Today dashboard.\n• Drag cards between stages on the Board.\n• Quick-add understands \"!high !med !low\", \"today\" and \"tomorrow\".\n• Use the 🌙/☀️ button up top to switch themes.\n• Your data lives in this browser — use Export for backups."});
 
   const tasks = [
     {id:uid(), spaceId:jobs.id, title:"Security Engineer — Acme Corp", desc:"Referred by Sam. Follow up if no reply by Friday.", due:addDays(3), priority:3, stage:jobs.stages[1].id, done:false, createdAt:Date.now(), completedAt:null},
@@ -492,6 +493,31 @@ function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }c
 let state = loadState() || seed();
 save();
 
+/* ---------------- one-time starter notes (Joshua's list) ---------------- */
+(function seedStarterNotes(){
+  const FLAG = "orbit-starter-v1";
+  try{ if(localStorage.getItem(FLAG)) return; }catch(e){ return; }
+  let sp = state.spaces.find(s=>/remind/i.test(s.name)) || state.spaces[0];
+  if(!sp) return;
+  if(!sp.notes) sp.notes = [];
+  const t0 = Date.now();
+  let i = 0;
+  const mk = (title, body, color)=>({id:uid(), title:title, body:body, color:color, pinned:true, createdAt:t0 - (i++)});
+  sp.notes.push(
+    mk("To-do dump", "Buy Paracetamol & Cetirizine & give stuffs\nPrep edits in DaVinci for travel\nApply for work\nStudy for certifications & use Udemy\nLeverage Claude Code for projects\nUpdate job portals", "#fbbf24"),
+    mk("Certifications to get", "CompTIA Security+\nCCNA\nMicrosoft Azure\nCEH\nCISSP\nTrendAI certifications", "#8b7cff"),
+    mk("Daily checklist", "Snacks — Chuckie & KitKat\nLunch\nGym\nClean house\nExternal certs practice (TryHackMe, HTB)", "#34d399"),
+    mk("Vietnam trip 🇻🇳", "Travel tax\nE-Travel (PH)\nArrival card & departure card\nHealth declaration", "#38d6f5"),
+    mk("NEP contacts — Oct 21, 2025", "Sir Bobby — 0917 577 2007 · Teams & Viber (soft skills)\nSir John O — 0917 5100 755 (technical)\nMa'am Jane — 0917 794 1696 (manager)", "#fb7185"),
+    mk("NEP rules", "1. Be on time — advise if late or absent\n2. Always take down notes\n3. Always participate (no raising hands / no grades)\n4. Be respectful\n5. Have fun!\n\nWe are Cybersec Engineers 🛡", "#94a3b8"),
+    mk("Who is Trend Micro", "3CIT — Customer, Change, Collaboration, Innovation, Trustworthiness\nFAIL — First Attempt In Learning\nDPE — 2 teams: Consumer (home users, small biz) & Corporate (businesses)\nDPE profile — Customer success is my success, AI adoption, growth mindset, continuous self-led learning\nCombined Technical Support Expert + DevOps Engineer\nNEP — New Engineer Training Program (soft skills + technical)\nTFD — combined soft skills & technical training", "#8b7cff"),
+    mk("Typing test (Typing Cat)", "July 7, 2026\n38 wpm · 86% acc\n39 wpm · 99% acc\n41 wpm · 99% acc", "#fbbf24"),
+    mk("My account", "Email — joshua_dia@trendmicro.com\nPassword — not stored here on purpose: this file lives in a public GitHub repo. Keep passwords in a password manager.", "#94a3b8")
+  );
+  try{ localStorage.setItem(FLAG, "1"); }catch(e){}
+  save();
+})();
+
 /* ---------------- ui state ---------------- */
 let ui = { view:"today", spaceId:null, tab:"tasks", search:"", collapsed:{}, dragTask:null };
 let undoBuf = null;
@@ -500,6 +526,7 @@ let undoTimer = null;
 const getSpace  = id=>state.spaces.find(s=>s.id===id);
 const spaceOf   = t=>getSpace(t.spaceId) || state.spaces[0];
 const openCount = id=>state.tasks.filter(t=>t.spaceId===id && !t.done).length;
+const defaultNotesSpaceId = ()=>{ const r = state.spaces.find(s=>/remind/i.test(s.name)); return (r || state.spaces[0]).id; };
 const matches   = t=>{ if(!ui.search) return true; const q=ui.search.toLowerCase(); return (t.title+" "+(t.desc||"")).toLowerCase().includes(q); };
 const noteMatches = n=>{ if(!ui.search) return true; const q=ui.search.toLowerCase(); return ((n.title||"")+" "+(n.body||"")).toLowerCase().includes(q); };
 
@@ -660,6 +687,25 @@ function renderToday(){
       stat(open.length,"Open tasks","var(--cyan)")+
     '</div>';
 
+  /* pinned sticky notes — always visible on the dashboard */
+  const pinned = [];
+  state.spaces.forEach(s=>(s.notes||[]).forEach(n=>{ if(n.pinned && noteMatches(n)) pinned.push({n:n, s:s}); }));
+  pinned.sort((a,b)=>b.n.createdAt-a.n.createdAt);
+  const notesCol = isCollapsed("today:notes", false);
+  h += '<div class="group-head '+(notesCol?"collapsed":"")+'" data-act="collapse" data-key="today:notes">'+
+       '<span class="chev">▼</span><span class="dot" style="--gc:var(--accent)"></span>Pinned notes <span class="gcnt">'+pinned.length+'</span></div>';
+  if(!notesCol){
+    h += '<div class="notes-grid dash">'+
+      '<div class="note add-note" data-act="new-dash-note" role="button" tabindex="0"><span class="big">＋</span>New note</div>'+
+      pinned.map((p,i)=>'<div class="note" style="--nc:'+esc(p.n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+p.n.id+'" data-space="'+p.s.id+'">'+
+        '<span class="pin">📌</span>'+
+        '<div class="n-title">'+esc(p.n.title||"Untitled")+'</div>'+
+        '<div class="n-body">'+esc(p.n.body||"")+'</div>'+
+        '<div class="n-date">'+esc(p.s.icon+" "+p.s.name)+'</div>'+
+      '</div>').join("")+
+    '</div>';
+  }
+
   if(!overdue.length && !dueToday.length && !week.length){
     h += '<div class="empty"><span class="art">🪐</span><h3>'+(ui.search?"No matches":"All clear")+'</h3><p>'+
       (ui.search?"Nothing due matches your search.":"Nothing due in the next 7 days. Add tasks in any space, or enjoy the calm.")+'</p></div>';
@@ -772,14 +818,14 @@ function renderNotesView(s){
   const notes = s.notes.filter(noteMatches).sort((a,b)=>((b.pinned?1:0)-(a.pinned?1:0)) || (b.createdAt-a.createdAt));
   let h = '<div class="view-inner"><div class="notes-grid">'+
     '<div class="note add-note" data-act="new-note" role="button" tabindex="0"><span class="big">＋</span>New note</div>'+
-    notes.map((n,i)=>'<div class="note" style="--nc:'+esc(n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+n.id+'">'+
+    notes.map((n,i)=>'<div class="note" style="--nc:'+esc(n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+n.id+'" data-space="'+s.id+'">'+
       (n.pinned?'<span class="pin">📌</span>':'')+
       '<div class="n-title">'+esc(n.title||"Untitled")+'</div>'+
       '<div class="n-body">'+esc(n.body||"")+'</div>'+
       '<div class="n-date">'+new Date(n.createdAt).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+'</div>'+
     '</div>').join("")+
   '</div>';
-  if(!notes.length) h += '<div class="empty"><span class="art">🗒</span><h3>'+(ui.search?"No matching notes":"No notes yet")+'</h3><p>Sticky notes for ideas, lists, links — anything you want to keep.</p></div>';
+  if(!notes.length) h += '<div class="empty"><span class="art">🗒</span><h3>'+(ui.search?"No matching notes":"No notes yet")+'</h3><p>Sticky notes for ideas, lists, links — anything you want to keep. Pin one to see it on the dashboard.</p></div>';
   h += '</div>';
   $("#view").innerHTML = h;
 }
@@ -879,21 +925,25 @@ function openSpaceModal(spaceId){
     '</form>');
 }
 
-function openNoteModal(spaceId, noteId){
+function openNoteModal(spaceId, noteId, defPinned){
   const sp = getSpace(spaceId); if(!sp) return;
   if(!sp.notes) sp.notes = [];
   const n = noteId ? sp.notes.find(x=>x.id===noteId) : null;
   const color = n ? (n.color||"#8b7cff") : NOTE_COLORS[Math.floor(Math.random()*NOTE_COLORS.length)];
+  const isPinned = n ? !!n.pinned : !!defPinned;
   modalShell(
     '<h2>'+(n?"Edit note":"New note")+'</h2>'+
     '<form data-form="note" data-id="'+(n?n.id:"")+'" data-space="'+sp.id+'">'+
       '<input class="f-title" name="title" placeholder="Note title" value="'+esc(n?n.title:"")+'" autocomplete="off">'+
-      '<textarea name="body" placeholder="Write anything — ideas, lists, links, meeting notes…" style="min-height:160px">'+esc(n?n.body:"")+'</textarea>'+
+      '<textarea name="body" placeholder="Write or paste anything — ideas, lists, links, meeting notes…" style="min-height:160px">'+esc(n?n.body:"")+'</textarea>'+
       '<div class="f-grid">'+
+        (n ? "" : '<label class="f-field"><span>Space</span><select name="nspace">'+
+          state.spaces.map(s=>'<option value="'+s.id+'"'+(s.id===sp.id?" selected":"")+'>'+esc(s.icon+" "+s.name)+'</option>').join("")+
+        '</select></label>')+
         '<div class="f-field"><span>Color</span><div class="swatches">'+
           NOTE_COLORS.map(c=>'<button type="button" class="swatch'+(c===color?" active":"")+'" style="background:'+c+';--swc:'+c+'" data-act="swatch" data-c="'+c+'"></button>').join("")+
         '</div><input type="hidden" name="color" value="'+color+'"></div>'+
-        '<div class="f-field"><span>Options</span><label class="pin-toggle"><input type="checkbox" name="pinned"'+(n&&n.pinned?" checked":"")+'> 📌 Pin to top</label></div>'+
+        '<div class="f-field"><span>Options</span><label class="pin-toggle"><input type="checkbox" name="pinned"'+(isPinned?" checked":"")+'> 📌 Pin — shows on dashboard</label></div>'+
       '</div>'+
       '<div class="m-foot">'+
         (n?'<button type="button" class="btn danger" data-act="del-note" data-id="'+n.id+'" data-space="'+sp.id+'">Delete</button>':"")+
@@ -970,7 +1020,8 @@ function submitSpace(f){
 }
 
 function submitNote(f){
-  const sp = getSpace(f.dataset.space); if(!sp) return;
+  const nspSel = f.elements["nspace"];
+  const sp = getSpace((nspSel && nspSel.value) || f.dataset.space); if(!sp) return;
   if(!sp.notes) sp.notes = [];
   const title = f.elements["title"].value.trim();
   const body  = f.elements["body"].value.trim();
@@ -1079,7 +1130,8 @@ document.addEventListener("click", e=>{
       break;
     }
     case "new-note": openNoteModal(ui.spaceId, null); break;
-    case "open-note": openNoteModal(ui.spaceId, el.dataset.id); break;
+    case "new-dash-note": openNoteModal(defaultNotesSpaceId(), null, true); break;
+    case "open-note": openNoteModal(el.dataset.space || ui.spaceId, el.dataset.id); break;
     case "del-note": {
       const sp = getSpace(el.dataset.space);
       if(sp && sp.notes) sp.notes = sp.notes.filter(n=>n.id!==el.dataset.id);
