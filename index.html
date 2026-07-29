@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbit — Tasks & Notes</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪐</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ tokens & reset ============ */
+:root{
+  --bg:#08080e; --bg2:#0d0d17;
+  --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.08);
+  --border:rgba(255,255,255,.09); --border2:rgba(255,255,255,.16);
+  --text:#eceaf6; --muted:#8d8ba3; --faint:#5b5972;
+  --accent:#8b7cff;
+  --rose:#fb7185; --amber:#fbbf24; --cyan:#38d6f5; --green:#34d399;
+  --radius:16px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:var(--bg); color:var(--text);
+  font-size:15px; line-height:1.45; overflow:hidden;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+::selection{background:color-mix(in srgb,var(--accent) 40%,transparent)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2);background-clip:content-box}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* ============ ambient glow ============ */
+#bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+#bg-glow::before,#bg-glow::after{
+  content:"";position:absolute;width:55vw;height:55vw;border-radius:50%;
+  filter:blur(140px);opacity:.16;animation:drift 24s ease-in-out infinite alternate;
+}
+#bg-glow::before{background:#7c6cff;top:-22vw;left:-14vw}
+#bg-glow::after{background:#1eb8d8;bottom:-26vw;right:-14vw;animation-delay:-12s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(5vw,4vh) scale(1.15)}}
+
+/* ============ layout ============ */
+#app{position:relative;z-index:1;display:flex;height:100vh}
+#main{flex:1;display:flex;flex-direction:column;min-width:0}
+#view{flex:1;overflow-y:auto;padding:26px 30px 60px;scroll-behavior:smooth}
+.view-inner{max-width:860px;margin:0 auto}
+.view-inner.wide{max-width:1400px}
+
+/* ============ sidebar ============ */
+#sidebar{
+  width:268px;flex-shrink:0;display:flex;flex-direction:column;
+  background:rgba(13,13,23,.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-right:1px solid var(--border);padding:22px 14px 14px;
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+}
+.logo{display:flex;align-items:center;gap:10px;padding:0 10px 20px;user-select:none}
+.logo svg{flex-shrink:0}
+.logo .word{font-size:20px;font-weight:700;letter-spacing:.4px;background:linear-gradient(90deg,#a99cff,#54dcf7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo .tag{font-size:10.5px;color:var(--faint);letter-spacing:.6px;margin-top:1px}
+.sb-scroll{flex:1;overflow-y:auto;padding:2px 2px 10px}
+.sb-label{font-size:10.5px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);padding:16px 12px 7px;display:flex;align-items:center;justify-content:space-between}
+.sb-label button{color:var(--faint);font-size:15px;line-height:1;padding:2px 6px;border-radius:8px}
+.sb-label button:hover{color:var(--text);background:var(--panel2)}
+.nav-item{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:9px 12px;border-radius:12px;color:var(--muted);font-weight:500;
+  margin-bottom:2px;position:relative;transition:background .15s,color .15s;
+}
+.nav-item:hover{background:var(--panel);color:var(--text)}
+.nav-item.active{background:linear-gradient(90deg,color-mix(in srgb,var(--ac,var(--accent)) 20%,transparent),color-mix(in srgb,var(--ac,var(--accent)) 4%,transparent));color:var(--text)}
+.nav-item.active::before{content:"";position:absolute;left:0;top:22%;bottom:22%;width:3px;border-radius:3px;background:var(--ac,var(--accent))}
+.nav-item .ico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:15px;background:color-mix(in srgb,var(--ac,var(--accent)) 16%,transparent);flex-shrink:0}
+.nav-item .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-item .cnt{font-size:11.5px;font-weight:600;color:var(--muted);background:var(--panel2);border-radius:999px;padding:1px 8px;min-width:22px;text-align:center}
+.nav-item.active .cnt{background:color-mix(in srgb,var(--ac,var(--accent)) 28%,transparent);color:var(--text)}
+.nav-item .bar{position:absolute;left:51px;right:14px;bottom:5px;height:2px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden}
+.nav-item .bar i{display:block;height:100%;border-radius:2px;background:var(--ac,var(--accent));transition:width .4s ease}
+.sb-foot{border-top:1px solid var(--border);padding:12px 6px 2px;display:flex;flex-direction:column;gap:8px}
+.sb-foot .row{display:flex;gap:8px}
+.sb-foot .mini{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:7px 0;transition:.15s}
+.sb-foot .mini:hover{color:var(--text);border-color:var(--border2);background:var(--panel2)}
+.sb-foot .hint{font-size:10.5px;color:var(--faint);text-align:center}
+#sb-backdrop{display:none}
+
+/* ============ topbar ============ */
+#topbar{
+  display:flex;align-items:center;gap:12px;padding:14px 24px;
+  border-bottom:1px solid var(--border);
+  background:rgba(8,8,14,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  position:relative;z-index:5;flex-wrap:wrap;
+}
+.tb-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;min-width:0}
+.tb-title .emoji{font-size:19px}
+.tb-spacer{flex:1}
+.searchwrap{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:7px 12px;width:230px;transition:border-color .15s}
+.searchwrap:focus-within{border-color:color-mix(in srgb,var(--accent) 60%,transparent)}
+.searchwrap svg{flex-shrink:0;opacity:.5}
+.searchwrap input{background:none;border:none;outline:none;width:100%;font-size:13.5px}
+.searchwrap input::placeholder{color:var(--faint)}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:12px;padding:8px 15px;font-size:13.5px;font-weight:600;transition:.15s;border:1px solid transparent}
+.btn.primary{background:var(--accent);color:#0b0b14;box-shadow:0 6px 22px color-mix(in srgb,var(--accent) 35%,transparent)}
+.btn.primary:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.btn.ghost{background:var(--panel);border-color:var(--border);color:var(--muted)}
+.btn.ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn.danger{background:color-mix(in srgb,var(--rose) 15%,transparent);color:var(--rose);border-color:color-mix(in srgb,var(--rose) 30%,transparent)}
+.btn.danger:hover{background:color-mix(in srgb,var(--rose) 25%,transparent)}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;color:var(--muted);transition:.15s;flex-shrink:0}
+.icon-btn:hover{background:var(--panel2);color:var(--text)}
+#menu-btn{display:none}
+
+/* ============ tabs row ============ */
+.tabsrow{padding:12px 30px 0}
+.tabsrow .inner{max-width:860px;margin:0 auto;width:100%;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tabsrow.wide .inner{max-width:1400px}
+.tabs{display:inline-flex;gap:4px;background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:4px}
+.tabs button{padding:6px 16px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s;display:flex;align-items:center;gap:6px}
+.tabs button:hover{color:var(--text)}
+.tabs button.active{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--text)}
+.prog-wrap{display:flex;align-items:center;gap:10px;margin-left:auto;color:var(--muted);font-size:12.5px}
+.prog-track{width:110px;height:5px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}
+.prog-track i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#fff));transition:width .5s ease}
+
+/* ============ today / greeting ============ */
+.greet h1{font-size:28px;font-weight:800;letter-spacing:-.3px}
+.greet h1 .uname{cursor:pointer;border-bottom:2px dotted var(--faint)}
+.greet h1 .uname:hover{color:var(--accent)}
+.greet .sub{color:var(--muted);margin-top:3px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin:22px 0 8px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:15px 17px;transition:.2s;position:relative;overflow:hidden}
+.stat:hover{transform:translateY(-2px);border-color:var(--border2)}
+.stat .num{font-size:27px;font-weight:800;line-height:1.1;color:var(--sc,var(--text))}
+.stat .lbl{font-size:12px;color:var(--muted);margin-top:3px}
+.stat::after{content:"";position:absolute;top:0;right:0;width:64px;height:64px;border-radius:50%;background:var(--sc,var(--accent));opacity:.12;filter:blur(24px)}
+
+/* ============ groups & task rows ============ */
+.group-head{
+  display:flex;align-items:center;gap:8px;margin:22px 0 9px;
+  font-size:11.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);
+  cursor:pointer;user-select:none;
+}
+.group-head .chev{transition:transform .2s;font-size:10px;color:var(--faint)}
+.group-head.collapsed .chev{transform:rotate(-90deg)}
+.group-head .gcnt{color:var(--faint);font-weight:600}
+.group-head .dot{width:7px;height:7px;border-radius:50%;background:var(--gc,var(--faint))}
+.group-head .clear-done{margin-left:auto;font-size:11px;letter-spacing:.4px;color:var(--faint);text-transform:none;padding:3px 9px;border-radius:8px}
+.group-head .clear-done:hover{color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
+
+.task{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--panel);border:1px solid var(--border);border-radius:14px;
+  padding:12px 14px;margin-bottom:8px;cursor:pointer;
+  transition:transform .15s,border-color .15s,background .15s,opacity .3s;
+  animation:fadeUp .25s ease both;
+}
+.task:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));background:var(--panel2)}
+.task.done{opacity:.5}
+.task.done .t-title{text-decoration:line-through;text-decoration-color:var(--muted)}
+.check{
+  width:22px;height:22px;border-radius:50%;border:2px solid var(--faint);flex-shrink:0;margin-top:2px;
+  display:grid;place-items:center;font-size:12px;font-weight:800;color:#0b0b14;
+  transition:.18s;background:transparent;
+}
+.check:hover{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 15%,transparent)}
+.task.done .check,.card.done .check{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#fff));border-color:transparent;animation:pop .3s ease}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.t-main{flex:1;min-width:0}
+.t-title{font-weight:600;font-size:14.5px;word-break:break-word}
+.t-desc{font-size:12.5px;color:var(--muted);margin-top:2px;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.t-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.t-chips:empty{display:none}
+.chip{font-size:11px;font-weight:600;padding:2.5px 9px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--muted);display:inline-flex;align-items:center;gap:5px;line-height:1.5}
+.chip.due.today{background:color-mix(in srgb,var(--amber) 16%,transparent);color:var(--amber)}
+.chip.due.overdue{background:color-mix(in srgb,var(--rose) 16%,transparent);color:var(--rose)}
+.chip.pri.p3{background:color-mix(in srgb,var(--rose) 15%,transparent);color:var(--rose)}
+.chip.pri.p2{background:color-mix(in srgb,var(--amber) 15%,transparent);color:var(--amber)}
+.chip.pri.p1{background:color-mix(in srgb,var(--cyan) 15%,transparent);color:var(--cyan)}
+.chip.stage{background:color-mix(in srgb,var(--accent) 15%,transparent);color:color-mix(in srgb,var(--accent) 70%,#fff)}
+.chip.space-chip{background:color-mix(in srgb,var(--c) 15%,transparent);color:color-mix(in srgb,var(--c) 75%,#fff)}
+.task .del{opacity:0;width:30px;height:30px;font-size:14px}
+.task:hover .del{opacity:.55}
+.task .del:hover{opacity:1;color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+/* ============ quick add ============ */
+.quickadd{
+  display:flex;align-items:center;gap:10px;background:var(--panel);
+  border:1px solid var(--border);border-radius:14px;padding:5px 6px 5px 16px;margin-bottom:6px;
+  transition:border-color .15s;
+}
+.quickadd:focus-within{border-color:color-mix(in srgb,var(--accent) 55%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 10%,transparent)}
+.quickadd .plus{color:var(--accent);font-size:19px;font-weight:600}
+.quickadd input{flex:1;background:none;border:none;outline:none;padding:9px 0;font-size:14px}
+.quickadd input::placeholder{color:var(--faint)}
+.quickadd button{background:color-mix(in srgb,var(--accent) 20%,transparent);color:color-mix(in srgb,var(--accent) 75%,#fff);font-weight:700;font-size:13px;border-radius:10px;padding:8px 15px;transition:.15s}
+.quickadd button:hover{background:color-mix(in srgb,var(--accent) 32%,transparent)}
+
+/* ============ board ============ */
+.board{display:flex;gap:14px;align-items:flex-start;overflow-x:auto;padding-bottom:20px;min-height:60vh}
+.col{flex:0 0 268px;background:rgba(255,255,255,.028);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;max-height:calc(100vh - 235px)}
+.col-head{display:flex;align-items:center;gap:8px;padding:13px 15px 9px;font-weight:700;font-size:13.5px}
+.col-head .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.col-head .count{margin-left:auto;font-size:11.5px;color:var(--muted);background:var(--panel2);padding:1px 8px;border-radius:999px}
+.col-body{flex:1;overflow-y:auto;padding:4px 9px;display:flex;flex-direction:column;gap:8px;min-height:70px;border-radius:12px;transition:background .15s}
+.col-body.drop-hint{background:color-mix(in srgb,var(--accent) 8%,transparent);outline:2px dashed color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:-4px}
+.card{
+  background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:11px 12px;
+  cursor:grab;transition:transform .15s,border-color .15s;animation:fadeUp .25s ease both;
+}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--border));transform:translateY(-1px)}
+.card:active{cursor:grabbing}
+.card.dragging{opacity:.35;transform:rotate(2deg) scale(.98)}
+.card.done{opacity:.45}
+.card.done .c-title{text-decoration:line-through}
+.card-top{display:flex;align-items:flex-start;gap:9px}
+.card .check{width:18px;height:18px;font-size:10px;margin-top:1px}
+.c-title{font-weight:600;font-size:13.5px;flex:1;word-break:break-word}
+.card .t-chips{margin-top:8px}
+.col-add{margin:6px 9px 10px;padding:8px;border-radius:10px;border:1px dashed var(--border2);color:var(--faint);font-size:12.5px;font-weight:600;transition:.15s}
+.col-add:hover{color:var(--text);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.col.ghost-col{background:none;border:1px dashed var(--border);justify-content:center;min-height:120px}
+.col.ghost-col button{padding:20px;color:var(--faint);font-weight:600;font-size:13px;width:100%;height:100%}
+.col.ghost-col button:hover{color:var(--text)}
+
+/* ============ notes ============ */
+.notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:14px}
+.note{
+  --nc:#8b7cff;position:relative;border-radius:16px;padding:15px 16px;min-height:150px;cursor:pointer;
+  background:color-mix(in srgb,var(--nc) 10%,rgba(255,255,255,.02));
+  border:1px solid color-mix(in srgb,var(--nc) 30%,transparent);
+  display:flex;flex-direction:column;gap:7px;transition:transform .18s,box-shadow .18s;
+  animation:fadeUp .25s ease both;
+}
+.note:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.note .pin{position:absolute;top:10px;right:12px;font-size:13px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+.n-title{font-weight:700;font-size:14.5px;color:color-mix(in srgb,var(--nc) 65%,#fff);padding-right:18px;word-break:break-word}
+.n-body{font-size:12.8px;color:var(--muted);white-space:pre-wrap;flex:1;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.n-date{font-size:10.5px;color:var(--faint)}
+.note.add-note{border-style:dashed;background:none;align-items:center;justify-content:center;color:var(--faint);font-weight:600;font-size:13.5px;gap:4px}
+.note.add-note:hover{color:var(--text);border-color:var(--accent);transform:none}
+.note.add-note .big{font-size:26px;color:var(--accent)}
+
+/* ============ empty state ============ */
+.empty{text-align:center;padding:56px 20px;color:var(--muted);animation:fadeUp .3s ease both}
+.empty .art{font-size:44px;margin-bottom:12px;display:block;filter:saturate(.85)}
+.empty h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.empty p{font-size:13px;color:var(--faint)}
+
+/* ============ modal ============ */
+#modal-root .overlay{
+  position:fixed;inset:0;z-index:50;background:rgba(4,4,9,.62);
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  display:grid;place-items:center;padding:18px;animation:fadeIn .15s ease;
+}
+@keyframes fadeIn{from{opacity:0}}
+.modal{
+  width:min(540px,94vw);max-height:88vh;overflow-y:auto;
+  background:#13131f;border:1px solid var(--border2);border-radius:20px;padding:24px;
+  box-shadow:0 30px 90px rgba(0,0,0,.6);animation:zoomIn .18s cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes zoomIn{from{opacity:0;transform:scale(.94) translateY(8px)}}
+.modal h2{font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.f-title{width:100%;background:none;border:none;outline:none;font-size:19px;font-weight:700;padding:4px 0 10px;border-bottom:1px solid var(--border)}
+.f-title::placeholder{color:var(--faint)}
+.modal textarea{
+  width:100%;min-height:92px;resize:vertical;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:11px 13px;font-size:13.5px;outline:none;margin-top:14px;line-height:1.5;font-family:inherit;
+}
+.modal textarea:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.f-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:15px}
+.f-field{display:flex;flex-direction:column;gap:6px}
+.f-field>span{font-size:11.5px;font-weight:600;color:var(--muted);letter-spacing:.4px}
+.f-field input,.f-field select{
+  background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:8.5px 11px;
+  font-size:13.5px;outline:none;width:100%;
+}
+.f-field input:focus,.f-field select:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.f-field select option{background:#15151f}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;padding:7.5px 4px;border-radius:10px;background:var(--panel);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--muted);transition:.13s}
+.seg button:hover{color:var(--text)}
+.seg button.active{border-color:transparent}
+.seg button[data-v="0"].active{background:var(--panel2);color:var(--text)}
+.seg button[data-v="1"].active{background:color-mix(in srgb,var(--cyan) 22%,transparent);color:var(--cyan)}
+.seg button[data-v="2"].active{background:color-mix(in srgb,var(--amber) 22%,transparent);color:var(--amber)}
+.seg button[data-v="3"].active{background:color-mix(in srgb,var(--rose) 22%,transparent);color:var(--rose)}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;transition:.13s}
+.swatch:hover{transform:scale(1.12)}
+.swatch.active{border-color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--swc) 40%,transparent)}
+.stage-list{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+.stage-row{display:flex;gap:7px;align-items:center}
+.stage-row input{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:7.5px 11px;font-size:13px;outline:none}
+.stage-row input:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.stage-row .rm{width:30px;height:30px;border-radius:9px;color:var(--faint);font-size:15px;flex-shrink:0}
+.stage-row .rm:hover{color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
+.add-stage{align-self:flex-start;font-size:12.5px;font-weight:600;color:var(--accent);padding:6px 10px;border-radius:9px;margin-top:2px}
+.add-stage:hover{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.m-foot{display:flex;align-items:center;gap:10px;margin-top:20px}
+.m-foot .grow{flex:1}
+.pin-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.pin-toggle input{accent-color:var(--accent);width:15px;height:15px}
+
+/* ============ toast ============ */
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);z-index:80;
+  background:#191927;border:1px solid var(--border2);border-radius:13px;padding:10px 16px;
+  font-size:13.5px;display:flex;align-items:center;gap:12px;
+  opacity:0;pointer-events:none;transition:.25s;box-shadow:0 14px 40px rgba(0,0,0,.5);
+}
+#toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast button{color:var(--accent);font-weight:700;font-size:13px}
+#toast button:hover{text-decoration:underline}
+
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:90}
+
+/* ============ responsive ============ */
+@media(max-width:880px){
+  #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:40;transform:translateX(-105%);box-shadow:20px 0 60px rgba(0,0,0,.5)}
+  body.sb-open #sidebar{transform:none}
+  #sb-backdrop{display:none;position:fixed;inset:0;z-index:35;background:rgba(0,0,0,.5)}
+  body.sb-open #sb-backdrop{display:block}
+  #menu-btn{display:inline-flex}
+  #view{padding:20px 16px 60px}
+  .tabsrow{padding:12px 16px 0}
+  .searchwrap{width:150px}
+  .f-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="bg-glow"></div>
+<div id="app">
+  <aside id="sidebar"></aside>
+  <div id="sb-backdrop"></div>
+  <main id="main">
+    <header id="topbar"></header>
+    <div id="tabsrow-slot"></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="modal-root"></div>
+<div id="toast"></div>
+<canvas id="confetti-canvas"></canvas>
+<input type="file" id="import-file" hidden accept="application/json,.json">
+<script>
+"use strict";
+/* ================================================================
+   Orbit — a personal command center for tasks & notes
+   Everything is stored in your browser (localStorage).
+   ================================================================ */
+
+/* ---------------- helpers ---------------- */
+const $  = (s, el=document)=>el.querySelector(s);
+const $$ = (s, el=document)=>Array.from(el.querySelectorAll(s));
+const uid = ()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const esc = s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n=>String(n).padStart(2,"0");
+const dstr = d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const todayStr = ()=>dstr(new Date());
+const addDays = n=>{const d=new Date();d.setDate(d.getDate()+n);return dstr(d);};
+const parseDay = s=>{const p=s.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]);};
+const dayDiff = due=>Math.round((parseDay(due)-parseDay(todayStr()))/864e5);
+
+function fmtDue(due){
+  if(!due) return "";
+  const diff = dayDiff(due);
+  if(diff===0) return "Today";
+  if(diff===1) return "Tomorrow";
+  if(diff===-1) return "Yesterday";
+  if(diff<0) return (-diff)+"d overdue";
+  const d = parseDay(due);
+  const opts = {weekday:"short", month:"short", day:"numeric"};
+  if(d.getFullYear()!==new Date().getFullYear()) opts.year = "numeric";
+  return d.toLocaleDateString(undefined, opts);
+}
+const dueClass = t=>(!t.due||t.done) ? "" : (dayDiff(t.due)<0 ? "overdue" : dayDiff(t.due)===0 ? "today" : "");
+
+const PRI_NAMES  = ["None","Low","Medium","High"];
+const SPACE_COLORS = ["#8b7cff","#38d6f5","#34d399","#fbbf24","#fb7185","#f472b6","#a3e635","#fb923c"];
+const NOTE_COLORS  = ["#fbbf24","#8b7cff","#38d6f5","#34d399","#fb7185","#e2e8f0"];
+const EMOJIS = "💼 🖥 🏠 ⏰ 🌱 📚 💪 ✈️ 💰 🎯 🛒 ❤️".split(" ");
+
+/* ---------------- seed data ---------------- */
+function stdStages(){ return [{id:uid(),name:"To do"},{id:uid(),name:"Doing"},{id:uid(),name:"Done"}]; }
+
+function seed(){
+  const jobs = {id:uid(), name:"Job Applications", icon:"💼", color:"#8b7cff",
+    stages:[{id:uid(),name:"Wishlist"},{id:uid(),name:"Applied"},{id:uid(),name:"Interview"},{id:uid(),name:"Offer"},{id:uid(),name:"Rejected"}], notes:[]};
+  const work = {id:uid(), name:"Work", icon:"🖥", color:"#38d6f5", stages:stdStages(), notes:[]};
+  const rem  = {id:uid(), name:"Reminders", icon:"⏰", color:"#fbbf24", stages:stdStages(), notes:[]};
+  const home = {id:uid(), name:"Household", icon:"🏠", color:"#34d399", stages:stdStages(), notes:[]};
+  const pers = {id:uid(), name:"Personal", icon:"🌱", color:"#fb7185", stages:stdStages(), notes:[]};
+
+  pers.notes.push({id:uid(), title:"Welcome to Orbit 🪐", color:"#8b7cff", pinned:true, createdAt:Date.now(),
+    body:"Quick tips:\n• Every space has Tasks, a Board (pipeline) and Notes.\n• Drag cards between stages on the Board.\n• Quick-add understands \"!high !med !low\", \"today\" and \"tomorrow\".\n• Click any task to edit details.\n• Your data lives in this browser — use Export for backups."});
+
+  const tasks = [
+    {id:uid(), spaceId:jobs.id, title:"Security Engineer — Acme Corp", desc:"Referred by Sam. Follow up if no reply by Friday.", due:addDays(3), priority:3, stage:jobs.stages[1].id, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:jobs.id, title:"Update resume with latest projects", desc:"", due:null, priority:2, stage:jobs.stages[0].id, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:work.id, title:"Prepare quarterly report", desc:"", due:todayStr(), priority:3, stage:work.stages[0].id, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:work.id, title:"Try the Board tab → drag me between stages", desc:"", due:null, priority:0, stage:work.stages[1].id, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:home.id, title:"Fix the kitchen faucet leak", desc:"", due:null, priority:1, stage:home.stages[0].id, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:rem.id, title:"Renew driver's license", desc:"", due:addDays(10), priority:2, stage:rem.stages[0].id, done:false, createdAt:Date.now(), completedAt:null}
+  ];
+  return {userName:"Joshua", spaces:[jobs,work,rem,home,pers], tasks};
+}
+
+/* ---------------- storage ---------------- */
+const STORE_KEY = "orbit-v1";
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return null;
+    const d = JSON.parse(raw);
+    if(!d || !Array.isArray(d.spaces) || !Array.isArray(d.tasks)) return null;
+    return d;
+  }catch(e){ return null; }
+}
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+let state = loadState() || seed();
+save();
+
+/* ---------------- ui state ---------------- */
+let ui = { view:"today", spaceId:null, tab:"tasks", search:"", collapsed:{}, dragTask:null };
+let undoBuf = null; // {tasks:[...]} for undo
+let undoTimer = null;
+
+const getSpace  = id=>state.spaces.find(s=>s.id===id);
+const spaceOf   = t=>getSpace(t.spaceId) || state.spaces[0];
+const openCount = id=>state.tasks.filter(t=>t.spaceId===id && !t.done).length;
+const matches   = t=>{ if(!ui.search) return true; const q=ui.search.toLowerCase(); return (t.title+" "+(t.desc||"")).toLowerCase().includes(q); };
+const noteMatches = n=>{ if(!ui.search) return true; const q=ui.search.toLowerCase(); return ((n.title||"")+" "+(n.body||"")).toLowerCase().includes(q); };
+
+function currentAccent(){
+  if(ui.view==="space"){ const s=getSpace(ui.spaceId); if(s) return s.color; }
+  return "#8b7cff";
+}
+
+/* ---------------- chrome: sidebar ---------------- */
+const LOGO_SVG = '<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="olg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a99cff"/><stop offset="1" stop-color="#54dcf7"/></linearGradient></defs><circle cx="16" cy="16" r="7.2" fill="url(#olg)"/><ellipse cx="16" cy="16" rx="13.5" ry="5" fill="none" stroke="url(#olg)" stroke-width="1.7" transform="rotate(-18 16 16)" opacity=".85"/><circle cx="27.2" cy="11.4" r="1.6" fill="#54dcf7"/></svg>';
+const SEARCH_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+const MENU_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+
+function renderSidebar(){
+  const todayCnt = state.tasks.filter(t=>!t.done && t.due && dayDiff(t.due)<=0).length;
+  const spacesHtml = state.spaces.map(s=>{
+    const total = state.tasks.filter(t=>t.spaceId===s.id).length;
+    const done  = state.tasks.filter(t=>t.spaceId===s.id && t.done).length;
+    const pct   = total ? Math.round(done/total*100) : 0;
+    const active = ui.view==="space" && ui.spaceId===s.id;
+    return '<button class="nav-item '+(active?"active":"")+'" style="--ac:'+s.color+'" data-act="nav-space" data-id="'+s.id+'">'+
+      '<span class="ico">'+esc(s.icon)+'</span><span class="nm">'+esc(s.name)+'</span>'+
+      '<span class="cnt">'+openCount(s.id)+'</span>'+
+      (total? '<span class="bar"><i style="width:'+pct+'%"></i></span>':'')+
+    '</button>';
+  }).join("");
+
+  $("#sidebar").innerHTML =
+    '<div class="logo">'+LOGO_SVG+'<div><div class="word">Orbit</div><div class="tag">EVERYTHING, IN ORBIT</div></div></div>'+
+    '<div class="sb-scroll">'+
+      '<button class="nav-item '+(ui.view==="today"?"active":"")+'" style="--ac:#8b7cff" data-act="nav-today">'+
+        '<span class="ico">☀️</span><span class="nm">Today</span><span class="cnt">'+todayCnt+'</span></button>'+
+      '<div class="sb-label"><span>Spaces</span><button data-act="new-space" title="New space">＋</button></div>'+
+      spacesHtml+
+    '</div>'+
+    '<div class="sb-foot">'+
+      '<div class="row"><button class="mini" data-act="export">⬇ Export</button><button class="mini" data-act="import">⬆ Import</button></div>'+
+      '<div class="hint">Data is saved in this browser · Export to back up</div>'+
+    '</div>';
+}
+
+/* ---------------- chrome: topbar & tabs ---------------- */
+function renderTopbar(){
+  let title, emoji;
+  if(ui.view==="today"){ title="Today"; emoji="☀️"; }
+  else { const s=getSpace(ui.spaceId); title=s?s.name:"—"; emoji=s?s.icon:""; }
+  $("#topbar").innerHTML =
+    '<button class="icon-btn" id="menu-btn" data-act="toggle-sb">'+MENU_SVG+'</button>'+
+    '<div class="tb-title"><span class="emoji">'+esc(emoji)+'</span> '+esc(title)+'</div>'+
+    '<div class="tb-spacer"></div>'+
+    '<div class="searchwrap">'+SEARCH_SVG+'<input id="search" placeholder="Search…  ( / )" value="'+esc(ui.search)+'" autocomplete="off"></div>'+
+    '<button class="btn primary" data-act="new-task">＋ New task</button>';
+}
+
+function renderTabs(){
+  const slot = $("#tabsrow-slot");
+  if(ui.view!=="space"){ slot.innerHTML=""; return; }
+  const s = getSpace(ui.spaceId); if(!s){ slot.innerHTML=""; return; }
+  const total = state.tasks.filter(t=>t.spaceId===s.id).length;
+  const done  = state.tasks.filter(t=>t.spaceId===s.id && t.done).length;
+  const pct   = total ? Math.round(done/total*100) : 0;
+  const tab = n=>'<button class="'+(ui.tab===n?"active":"")+'" data-act="tab" data-tab="'+n+'">';
+  slot.innerHTML =
+    '<div class="tabsrow '+(ui.tab==="board"?"wide":"")+'"><div class="inner">'+
+      '<div class="tabs">'+
+        tab("tasks")+'☑ Tasks</button>'+
+        tab("board")+'▦ Board</button>'+
+        tab("notes")+'🗒 Notes</button>'+
+      '</div>'+
+      '<div class="prog-wrap"><span>'+done+' / '+total+' done</span><span class="prog-track"><i style="width:'+pct+'%"></i></span>'+
+      '<button class="icon-btn" data-act="edit-space" title="Space settings">⚙</button></div>'+
+    '</div></div>';
+}
+
+/* ---------------- task row ---------------- */
+function chipsHtml(t, withSpace){
+  const sp = spaceOf(t);
+  const st = sp.stages.find(x=>x.id===t.stage);
+  let h = "";
+  if(withSpace) h += '<span class="chip space-chip" style="--c:'+sp.color+'">'+esc(sp.icon)+' '+esc(sp.name)+'</span>';
+  if(t.due) h += '<span class="chip due '+dueClass(t)+'">📅 '+fmtDue(t.due)+'</span>';
+  if(t.priority) h += '<span class="chip pri p'+t.priority+'">⚑ '+PRI_NAMES[t.priority]+'</span>';
+  if(st && !withSpace) h += '<span class="chip stage">'+esc(st.name)+'</span>';
+  return h;
+}
+
+function taskRow(t, withSpace){
+  return '<div class="task '+(t.done?"done":"")+'" data-act="open-task" data-id="'+t.id+'">'+
+    '<button class="check" data-act="toggle" data-id="'+t.id+'" title="Mark done">'+(t.done?"✓":"")+'</button>'+
+    '<div class="t-main">'+
+      '<div class="t-title">'+esc(t.title)+'</div>'+
+      (t.desc?'<div class="t-desc">'+esc(t.desc)+'</div>':'')+
+      '<div class="t-chips">'+chipsHtml(t, withSpace)+'</div>'+
+    '</div>'+
+    '<button class="icon-btn del" data-act="del-task" data-id="'+t.id+'" title="Delete">✕</button>'+
+  '</div>';
+}
+
+function sortTasks(a,b){
+  if(!!a.due!==!!b.due) return a.due?-1:1;
+  if(a.due&&b.due&&a.due!==b.due) return a.due<b.due?-1:1;
+  if(a.priority!==b.priority) return b.priority-a.priority;
+  return a.createdAt-b.createdAt;
+}
+
+function isCollapsed(key, def){ return key in ui.collapsed ? ui.collapsed[key] : def; }
+
+function groupSection(key, label, dotColor, tasks, withSpace, extras){
+  if(!tasks.length) return "";
+  const col = isCollapsed(key, key.endsWith(":done"));
+  return '<div class="group-head '+(col?"collapsed":"")+'" data-act="collapse" data-key="'+key+'">'+
+      '<span class="chev">▼</span><span class="dot" style="--gc:'+dotColor+'"></span>'+label+
+      ' <span class="gcnt">'+tasks.length+'</span>'+(extras||"")+
+    '</div>'+
+    (col ? "" : tasks.map(t=>taskRow(t, withSpace)).join(""));
+}
+
+/* ---------------- today view ---------------- */
+function renderToday(){
+  const hr = new Date().getHours();
+  const greet = hr<5?"Up late":hr<12?"Good morning":hr<18?"Good afternoon":"Good evening";
+  const dateLine = new Date().toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"});
+  const open = state.tasks.filter(t=>!t.done);
+  const overdue  = open.filter(t=>t.due && dayDiff(t.due)<0 && matches(t)).sort(sortTasks);
+  const dueToday = open.filter(t=>t.due && dayDiff(t.due)===0 && matches(t)).sort(sortTasks);
+  const week     = open.filter(t=>t.due && dayDiff(t.due)>0 && dayDiff(t.due)<=7 && matches(t)).sort(sortTasks);
+  const doneToday = state.tasks.filter(t=>t.done && t.completedAt===todayStr()).length;
+
+  const stat = (n,l,c)=>'<div class="stat" style="--sc:'+c+'"><div class="num">'+n+'</div><div class="lbl">'+l+'</div></div>';
+  let h = '<div class="view-inner">'+
+    '<div class="greet"><h1>'+greet+', <span class="uname" data-act="rename-user" title="Click to change name">'+esc(state.userName)+'</span> ✨</h1>'+
+    '<div class="sub">'+dateLine+'</div></div>'+
+    '<div class="stats">'+
+      stat(dueToday.length,"Due today","#fbbf24")+
+      stat(overdue.length,"Overdue","#fb7185")+
+      stat(doneToday,"Done today","#34d399")+
+      stat(open.length,"Open tasks","#38d6f5")+
+    '</div>';
+
+  if(!overdue.length && !dueToday.length && !week.length){
+    h += '<div class="empty"><span class="art">🪐</span><h3>'+(ui.search?"No matches":"All clear")+'</h3><p>'+
+      (ui.search?"Nothing due matches your search.":"Nothing due in the next 7 days. Add tasks in any space, or enjoy the calm.")+'</p></div>';
+  } else {
+    h += groupSection("today:od","Overdue","#fb7185",overdue,true);
+    h += groupSection("today:dt","Due today","#fbbf24",dueToday,true);
+    h += groupSection("today:wk","Next 7 days","#38d6f5",week,true);
+  }
+  h += '</div>';
+  $("#view").innerHTML = h;
+}
+
+/* ---------------- list view ---------------- */
+function renderListView(s){
+  const ts = state.tasks.filter(t=>t.spaceId===s.id && matches(t));
+  const open = ts.filter(t=>!t.done);
+  const overdue  = open.filter(t=>t.due && dayDiff(t.due)<0).sort(sortTasks);
+  const dueToday = open.filter(t=>t.due && dayDiff(t.due)===0).sort(sortTasks);
+  const upcoming = open.filter(t=>t.due && dayDiff(t.due)>0).sort(sortTasks);
+  const nodate   = open.filter(t=>!t.due).sort(sortTasks);
+  const done     = ts.filter(t=>t.done).sort((a,b)=>(b.completedAt||"").localeCompare(a.completedAt||""));
+
+  let h = '<div class="view-inner">'+
+    '<form class="quickadd" data-form="quickadd" data-space="'+s.id+'">'+
+      '<span class="plus">＋</span>'+
+      '<input name="qa" placeholder=\'Add to '+esc(s.name)+'…  try "Call recruiter tomorrow !high"\' autocomplete="off">'+
+      '<button type="submit">Add</button>'+
+    '</form>';
+
+  if(!ts.length){
+    h += '<div class="empty"><span class="art">'+esc(s.icon)+'</span><h3>'+(ui.search?"No matches":"Nothing here yet")+'</h3><p>'+
+      (ui.search?"Try a different search.":"Add your first task above — it takes two seconds.")+'</p></div>';
+  } else {
+    h += groupSection(s.id+":od","Overdue","#fb7185",overdue,false);
+    h += groupSection(s.id+":dt","Today","#fbbf24",dueToday,false);
+    h += groupSection(s.id+":up","Upcoming","#38d6f5",upcoming,false);
+    h += groupSection(s.id+":nd","No due date","#8d8ba3",nodate,false);
+    h += groupSection(s.id+":done","Completed","#34d399",done,false,
+      '<button class="clear-done" data-act="clear-done" data-id="'+s.id+'">Clear completed</button>');
+  }
+  h += '</div>';
+  $("#view").innerHTML = h;
+  const qa=$("#view .quickadd input"); if(qa && ui._focusQA){ qa.focus(); ui._focusQA=false; }
+}
+
+/* ---------------- board view ---------------- */
+function boardChips(t){
+  let h = "";
+  if(t.due) h += '<span class="chip due '+dueClass(t)+'">📅 '+fmtDue(t.due)+'</span>';
+  if(t.priority) h += '<span class="chip pri p'+t.priority+'">⚑ '+PRI_NAMES[t.priority]+'</span>';
+  return h;
+}
+
+function cardHtml(t){
+  return '<div class="card '+(t.done?"done":"")+'" draggable="true" data-act="open-task" data-id="'+t.id+'">'+
+    '<div class="card-top">'+
+      '<button class="check" data-act="toggle" data-id="'+t.id+'">'+(t.done?"✓":"")+'</button>'+
+      '<div class="c-title">'+esc(t.title)+'</div>'+
+    '</div>'+
+    (t.due||t.priority ? '<div class="t-chips">'+boardChips(t)+'</div>' : '')+
+  '</div>';
+}
+
+function renderBoardView(s){
+  const cols = s.stages.map(st=>{
+    const cards = state.tasks
+      .filter(t=>t.spaceId===s.id && t.stage===st.id && matches(t))
+      .sort((a,b)=>(a.done-b.done)||sortTasks(a,b));
+    return '<div class="col">'+
+      '<div class="col-head"><span class="dot"></span>'+esc(st.name)+'<span class="count">'+cards.length+'</span></div>'+
+      '<div class="col-body" data-stage="'+st.id+'">'+cards.map(cardHtml).join("")+'</div>'+
+      '<button class="col-add" data-act="col-add" data-stage="'+st.id+'">＋ Add task</button>'+
+    '</div>';
+  }).join("");
+  $("#view").innerHTML = '<div class="view-inner wide"><div class="board">'+cols+
+    '<div class="col ghost-col"><button data-act="edit-space">＋ Add / edit stages</button></div>'+
+  '</div></div>';
+}
+
+function bindBoardDnD(){
+  $$("#view .card").forEach(c=>{
+    c.addEventListener("dragstart",e=>{
+      ui.dragTask = c.dataset.id;
+      c.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      try{ e.dataTransfer.setData("text/plain", c.dataset.id); }catch(_){}
+    });
+    c.addEventListener("dragend",()=>{
+      ui.dragTask = null; ui._justDragged = true;
+      setTimeout(()=>{ ui._justDragged = false; }, 80);
+      c.classList.remove("dragging");
+      $$("#view .col-body").forEach(b=>b.classList.remove("drop-hint"));
+    });
+  });
+  $$("#view .col-body").forEach(b=>{
+    b.addEventListener("dragover",e=>{ e.preventDefault(); e.dataTransfer.dropEffect="move"; b.classList.add("drop-hint"); });
+    b.addEventListener("dragleave",()=>b.classList.remove("drop-hint"));
+    b.addEventListener("drop",e=>{
+      e.preventDefault(); b.classList.remove("drop-hint");
+      let id = ui.dragTask; try{ id = id || e.dataTransfer.getData("text/plain"); }catch(_){}
+      const t = state.tasks.find(x=>x.id===id);
+      if(t && t.stage!==b.dataset.stage){ t.stage = b.dataset.stage; save(); render(); }
+    });
+  });
+}
+
+/* ---------------- notes view ---------------- */
+function renderNotesView(s){
+  if(!s.notes) s.notes = [];
+  const notes = s.notes.filter(noteMatches).sort((a,b)=>((b.pinned?1:0)-(a.pinned?1:0)) || (b.createdAt-a.createdAt));
+  let h = '<div class="view-inner"><div class="notes-grid">'+
+    '<div class="note add-note" data-act="new-note" role="button" tabindex="0"><span class="big">＋</span>New note</div>'+
+    notes.map(n=>'<div class="note" style="--nc:'+esc(n.color||"#8b7cff")+'" data-act="open-note" data-id="'+n.id+'">'+
+      (n.pinned?'<span class="pin">📌</span>':'')+
+      '<div class="n-title">'+esc(n.title||"Untitled")+'</div>'+
+      '<div class="n-body">'+esc(n.body||"")+'</div>'+
+      '<div class="n-date">'+new Date(n.createdAt).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+'</div>'+
+    '</div>').join("")+
+  '</div>';
+  if(!notes.length) h += '<div class="empty"><span class="art">🗒</span><h3>'+(ui.search?"No matching notes":"No notes yet")+'</h3><p>Sticky notes for ideas, lists, links — anything you want to keep.</p></div>';
+  h += '</div>';
+  $("#view").innerHTML = h;
+}
+
+/* ---------------- render root ---------------- */
+function renderView(){
+  if(ui.view==="space" && !getSpace(ui.spaceId)){ ui.view="today"; ui.spaceId=null; }
+  document.documentElement.style.setProperty("--accent", currentAccent());
+  if(ui.view==="today"){ renderToday(); return; }
+  const s = getSpace(ui.spaceId);
+  if(ui.tab==="board"){ renderBoardView(s); bindBoardDnD(); }
+  else if(ui.tab==="notes"){ renderNotesView(s); }
+  else { renderListView(s); }
+}
+function render(){ renderSidebar(); renderTopbar(); renderTabs(); renderView(); }
+
+/* ---------------- quick add parsing ---------------- */
+function parseQuick(text){
+  let due = null, pri = 0, s = text;
+  s = s.replace(/\s*!(high|hi|med|medium|low)\b/ig, (m,p)=>{ pri = {high:3,hi:3,med:2,medium:2,low:1}[p.toLowerCase()]||0; return ""; });
+  s = s.replace(/\s*\b(today|tonight)\b/ig, ()=>{ due = todayStr(); return ""; });
+  s = s.replace(/\s*\b(tomorrow|tmr)\b/ig, ()=>{ due = addDays(1); return ""; });
+  s = s.replace(/\s*\bnext week\b/ig, ()=>{ due = addDays(7); return ""; });
+  return { title: s.replace(/\s+/g," ").trim(), due, priority: pri };
+}
+
+/* ---------------- modals ---------------- */
+function modalShell(inner){ $("#modal-root").innerHTML = '<div class="overlay"><div class="modal">'+inner+'</div></div>'; }
+function closeModal(){ $("#modal-root").innerHTML = ""; }
+
+function openTaskModal(taskId, spaceId, stageId){
+  const t = taskId ? state.tasks.find(x=>x.id===taskId) : null;
+  const sid = t ? t.spaceId : (spaceId || (ui.view==="space" ? ui.spaceId : state.spaces[0].id));
+  const sp = getSpace(sid) || state.spaces[0];
+  const stage = t ? t.stage : (stageId || sp.stages[0].id);
+  const pri = t ? t.priority : 0;
+  const spaceOpts = state.spaces.map(s=>'<option value="'+s.id+'"'+(s.id===sp.id?" selected":"")+'>'+esc(s.icon+" "+s.name)+'</option>').join("");
+  const stageOpts = sp.stages.map(st=>'<option value="'+st.id+'"'+(st.id===stage?" selected":"")+'>'+esc(st.name)+'</option>').join("");
+  modalShell(
+    '<h2>'+(t?"Edit task":"New task")+'</h2>'+
+    '<form data-form="task" data-id="'+(t?t.id:"")+'">'+
+      '<input class="f-title" name="title" placeholder="What needs doing?" value="'+esc(t?t.title:"")+'" required autocomplete="off">'+
+      '<textarea name="desc" placeholder="Notes, links, details…">'+esc(t?t.desc:"")+'</textarea>'+
+      '<div class="f-grid">'+
+        '<label class="f-field"><span>Due date</span><input type="date" name="due" value="'+(t&&t.due?t.due:"")+'"></label>'+
+        '<div class="f-field"><span>Priority</span><div class="seg">'+
+          [0,1,2,3].map(v=>'<button type="button" data-act="seg-pri" data-v="'+v+'" class="'+(v===pri?"active":"")+'">'+PRI_NAMES[v]+'</button>').join("")+
+        '</div><input type="hidden" name="priority" value="'+pri+'"></div>'+
+        '<label class="f-field"><span>Space</span><select name="space" id="tf-space">'+spaceOpts+'</select></label>'+
+        '<label class="f-field"><span>Stage</span><select name="stage" id="tf-stage">'+stageOpts+'</select></label>'+
+      '</div>'+
+      '<div class="m-foot">'+
+        (t?'<button type="button" class="btn danger" data-act="modal-del-task" data-id="'+t.id+'">Delete</button>':"")+
+        '<span class="grow"></span>'+
+        '<button type="button" class="btn ghost" data-act="close-modal">Cancel</button>'+
+        '<button type="submit" class="btn primary">'+(t?"Save":"Add task")+'</button>'+
+      '</div>'+
+    '</form>');
+  const sel = $("#tf-space");
+  if(sel) sel.addEventListener("change", e=>{
+    const ns = getSpace(e.target.value);
+    $("#tf-stage").innerHTML = ns.stages.map(st=>'<option value="'+st.id+'">'+esc(st.name)+'</option>').join("");
+  });
+  setTimeout(()=>{ const f=$("#modal-root .f-title"); if(f) f.focus(); }, 40);
+}
+
+function stageRowHtml(id, name){
+  return '<div class="stage-row" data-sid="'+id+'"><input value="'+esc(name)+'" placeholder="Stage name"><button type="button" class="rm" data-act="stage-del" title="Remove stage">✕</button></div>';
+}
+
+function openSpaceModal(spaceId){
+  const s = spaceId ? getSpace(spaceId) : null;
+  const color = s ? s.color : SPACE_COLORS[state.spaces.length % SPACE_COLORS.length];
+  const stages = s ? s.stages : [{id:"new",name:"To do"},{id:"new",name:"Doing"},{id:"new",name:"Done"}];
+  modalShell(
+    '<h2>'+(s?"Edit space":"New space")+'</h2>'+
+    '<form data-form="space" data-id="'+(s?s.id:"")+'">'+
+      '<input class="f-title" name="name" placeholder="Space name (e.g. Fitness, Travel…)" value="'+esc(s?s.name:"")+'" required autocomplete="off">'+
+      '<div class="f-grid">'+
+        '<label class="f-field"><span>Icon (emoji)</span><input name="icon" value="'+esc(s?s.icon:EMOJIS[Math.floor(Math.random()*EMOJIS.length)])+'" maxlength="4"></label>'+
+        '<div class="f-field"><span>Color</span><div class="swatches">'+
+          SPACE_COLORS.map(c=>'<button type="button" class="swatch'+(c===color?" active":"")+'" style="background:'+c+';--swc:'+c+'" data-act="swatch" data-c="'+c+'" title="'+c+'"></button>').join("")+
+        '</div><input type="hidden" name="color" value="'+color+'"></div>'+
+      '</div>'+
+      '<div class="f-field" style="margin-top:15px"><span>Pipeline stages (columns on the Board)</span>'+
+        '<div class="stage-list" id="stage-list">'+stages.map(st=>stageRowHtml(st.id, st.name)).join("")+'</div>'+
+        '<button type="button" class="add-stage" data-act="stage-add">＋ Add stage</button>'+
+      '</div>'+
+      '<div class="m-foot">'+
+        (s?'<button type="button" class="btn danger" data-act="del-space" data-id="'+s.id+'">Delete space</button>':"")+
+        '<span class="grow"></span>'+
+        '<button type="button" class="btn ghost" data-act="close-modal">Cancel</button>'+
+        '<button type="submit" class="btn primary">'+(s?"Save":"Create space")+'</button>'+
+      '</div>'+
+    '</form>');
+}
+
+function openNoteModal(spaceId, noteId){
+  const sp = getSpace(spaceId); if(!sp) return;
+  if(!sp.notes) sp.notes = [];
+  const n = noteId ? sp.notes.find(x=>x.id===noteId) : null;
+  const color = n ? (n.color||"#8b7cff") : NOTE_COLORS[Math.floor(Math.random()*NOTE_COLORS.length)];
+  modalShell(
+    '<h2>'+(n?"Edit note":"New note")+'</h2>'+
+    '<form data-form="note" data-id="'+(n?n.id:"")+'" data-space="'+sp.id+'">'+
+      '<input class="f-title" name="title" placeholder="Note title" value="'+esc(n?n.title:"")+'" autocomplete="off">'+
+      '<textarea name="body" placeholder="Write anything — ideas, lists, links, meeting notes…" style="min-height:160px">'+esc(n?n.body:"")+'</textarea>'+
+      '<div class="f-grid">'+
+        '<div class="f-field"><span>Color</span><div class="swatches">'+
+          NOTE_COLORS.map(c=>'<button type="button" class="swatch'+(c===color?" active":"")+'" style="background:'+c+';--swc:'+c+'" data-act="swatch" data-c="'+c+'"></button>').join("")+
+        '</div><input type="hidden" name="color" value="'+color+'"></div>'+
+        '<div class="f-field"><span>Options</span><label class="pin-toggle"><input type="checkbox" name="pinned"'+(n&&n.pinned?" checked":"")+'> 📌 Pin to top</label></div>'+
+      '</div>'+
+      '<div class="m-foot">'+
+        (n?'<button type="button" class="btn danger" data-act="del-note" data-id="'+n.id+'" data-space="'+sp.id+'">Delete</button>':"")+
+        '<span class="grow"></span>'+
+        '<button type="button" class="btn ghost" data-act="close-modal">Cancel</button>'+
+        '<button type="submit" class="btn primary">'+(n?"Save":"Add note")+'</button>'+
+      '</div>'+
+    '</form>');
+  setTimeout(()=>{ const f=$("#modal-root .f-title"); if(f) f.focus(); }, 40);
+}
+
+/* ---------------- mutations ---------------- */
+function toggleTask(id, el){
+  const t = state.tasks.find(x=>x.id===id); if(!t) return;
+  t.done = !t.done;
+  t.completedAt = t.done ? todayStr() : null;
+  save();
+  if(t.done && el){
+    const r = el.getBoundingClientRect();
+    confettiBurst(r.left + r.width/2, r.top + r.height/2, spaceOf(t).color);
+  }
+  render();
+}
+
+function deleteTasks(ids, msg){
+  const removed = state.tasks.filter(t=>ids.includes(t.id));
+  if(!removed.length) return;
+  state.tasks = state.tasks.filter(t=>!ids.includes(t.id));
+  undoBuf = {tasks:removed};
+  save(); render();
+  showToast(msg || (removed.length===1 ? "Task deleted" : removed.length+" tasks deleted"), true);
+}
+
+function applyUndo(){
+  if(!undoBuf) return;
+  state.tasks.push(...undoBuf.tasks);
+  undoBuf = null;
+  save(); render(); hideToast();
+}
+
+/* ---------------- form submits ---------------- */
+function submitTask(f){
+  const title = f.elements["title"].value.trim(); if(!title) return;
+  const id = f.dataset.id;
+  const spaceId = f.elements["space"].value;
+  let stage = f.elements["stage"].value;
+  const nsp = getSpace(spaceId) || state.spaces[0];
+  if(!nsp.stages.some(s=>s.id===stage)) stage = nsp.stages[0].id;
+  const vals = { title, desc:f.elements["desc"].value.trim(), due:f.elements["due"].value||null,
+                 priority:+f.elements["priority"].value||0, spaceId:nsp.id, stage };
+  if(id){ const t = state.tasks.find(x=>x.id===id); if(t) Object.assign(t, vals); }
+  else state.tasks.push(Object.assign({id:uid(), done:false, createdAt:Date.now(), completedAt:null}, vals));
+  save(); closeModal(); render();
+}
+
+function submitSpace(f){
+  const name = f.elements["name"].value.trim(); if(!name) return;
+  const id = f.dataset.id;
+  const icon = f.elements["icon"].value.trim() || "📁";
+  const color = f.elements["color"].value;
+  let stages = $$("#stage-list .stage-row").map(r=>({ id:r.dataset.sid, name:r.querySelector("input").value.trim() })).filter(x=>x.name);
+  if(!stages.length) stages = [{id:"new", name:"To do"}];
+  stages = stages.map(x=>({ id: x.id==="new" ? uid() : x.id, name: x.name }));
+  if(id){
+    const s = getSpace(id); if(!s) return;
+    s.name=name; s.icon=icon; s.color=color; s.stages=stages;
+    state.tasks.forEach(t=>{ if(t.spaceId===id && !stages.some(st=>st.id===t.stage)) t.stage = stages[0].id; });
+  } else {
+    const s = {id:uid(), name, icon, color, stages, notes:[]};
+    state.spaces.push(s);
+    ui.view="space"; ui.spaceId=s.id; ui.tab="tasks";
+  }
+  save(); closeModal(); render();
+}
+
+function submitNote(f){
+  const sp = getSpace(f.dataset.space); if(!sp) return;
+  if(!sp.notes) sp.notes = [];
+  const title = f.elements["title"].value.trim();
+  const body  = f.elements["body"].value.trim();
+  if(!title && !body){ closeModal(); return; }
+  const color = f.elements["color"].value;
+  const pinned = f.elements["pinned"].checked;
+  const id = f.dataset.id;
+  if(id){ const n = sp.notes.find(x=>x.id===id); if(n) Object.assign(n,{title,body,color,pinned}); }
+  else sp.notes.push({id:uid(), title, body, color, pinned, createdAt:Date.now()});
+  save(); closeModal(); render();
+}
+
+/* ---------------- export / import ---------------- */
+function doExport(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "orbit-backup-"+todayStr()+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  showToast("Backup downloaded 📦");
+}
+
+$("#import-file").addEventListener("change", e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const rd = new FileReader();
+  rd.onload = ()=>{
+    try{
+      const d = JSON.parse(rd.result);
+      if(!d || !Array.isArray(d.spaces) || !Array.isArray(d.tasks)) throw new Error("bad");
+      state = d; save();
+      ui = {view:"today", spaceId:null, tab:"tasks", search:"", collapsed:{}, dragTask:null};
+      render(); showToast("Data imported ✓");
+    }catch(err){ showToast("Import failed — not a valid Orbit backup"); }
+  };
+  rd.readAsText(file);
+  e.target.value = "";
+});
+
+/* ---------------- toast ---------------- */
+function showToast(msg, withUndo){
+  const t = $("#toast");
+  t.innerHTML = esc(msg) + (withUndo ? ' <button data-act="undo">Undo</button>' : '');
+  t.classList.add("show");
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(()=>{ t.classList.remove("show"); undoBuf=null; }, 5000);
+}
+function hideToast(){ $("#toast").classList.remove("show"); }
+
+/* ---------------- confetti ---------------- */
+const cvs = $("#confetti-canvas"), ctx = cvs.getContext("2d");
+let parts = [], rafId = null;
+function sizeCanvas(){ cvs.width = innerWidth; cvs.height = innerHeight; }
+addEventListener("resize", sizeCanvas); sizeCanvas();
+function confettiBurst(x, y, color){
+  const colors = [color||"#8b7cff", "#38d6f5", "#fbbf24", "#fb7185", "#34d399", "#ffffff"];
+  for(let i=0;i<26;i++){
+    const a = Math.random()*Math.PI*2, sp = 2+Math.random()*4.5;
+    parts.push({x, y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-2.5, g:.12+Math.random()*.06,
+      life:46+Math.random()*22, size:3+Math.random()*4, rot:Math.random()*Math.PI, vr:(Math.random()-.5)*.3,
+      c:colors[i%colors.length]});
+  }
+  if(!rafId) rafId = requestAnimationFrame(tick);
+}
+function tick(){
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  parts = parts.filter(p=>p.life>0);
+  for(const p of parts){
+    p.x+=p.vx; p.y+=p.vy; p.vy+=p.g; p.rot+=p.vr; p.life--;
+    ctx.save(); ctx.globalAlpha = Math.min(1, p.life/22);
+    ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+    ctx.fillStyle = p.c; ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*.62);
+    ctx.restore();
+  }
+  if(parts.length) rafId = requestAnimationFrame(tick);
+  else { rafId = null; ctx.clearRect(0,0,cvs.width,cvs.height); }
+}
+
+/* ---------------- event delegation ---------------- */
+document.addEventListener("click", e=>{
+  if(e.target.classList && e.target.classList.contains("overlay")){ closeModal(); return; }
+  const el = e.target.closest("[data-act]");
+  if(!el) return;
+  const act = el.dataset.act;
+  switch(act){
+    case "nav-today": ui.view="today"; ui.spaceId=null; ui.search=""; document.body.classList.remove("sb-open"); render(); break;
+    case "nav-space": ui.view="space"; ui.spaceId=el.dataset.id; ui.tab="tasks"; ui.search=""; document.body.classList.remove("sb-open"); render(); break;
+    case "tab": ui.tab = el.dataset.tab; renderTabs(); renderView(); break;
+    case "toggle": toggleTask(el.dataset.id, el); break;
+    case "open-task": if(ui._justDragged) break; openTaskModal(el.dataset.id); break;
+    case "del-task": deleteTasks([el.dataset.id]); break;
+    case "modal-del-task": closeModal(); deleteTasks([el.dataset.id]); break;
+    case "new-task": openTaskModal(null); break;
+    case "col-add": openTaskModal(null, ui.spaceId, el.dataset.stage); break;
+    case "new-space": openSpaceModal(null); break;
+    case "edit-space": openSpaceModal(ui.spaceId); break;
+    case "del-space": {
+      const s = getSpace(el.dataset.id); if(!s) break;
+      const n = state.tasks.filter(t=>t.spaceId===s.id).length;
+      if(confirm('Delete "'+s.name+'" with '+n+' task(s) and '+(s.notes||[]).length+' note(s)? This cannot be undone.')){
+        state.spaces = state.spaces.filter(x=>x.id!==s.id);
+        state.tasks = state.tasks.filter(t=>t.spaceId!==s.id);
+        if(ui.spaceId===s.id){ ui.view="today"; ui.spaceId=null; }
+        save(); closeModal(); render();
+      }
+      break;
+    }
+    case "new-note": openNoteModal(ui.spaceId, null); break;
+    case "open-note": openNoteModal(ui.spaceId, el.dataset.id); break;
+    case "del-note": {
+      const sp = getSpace(el.dataset.space);
+      if(sp && sp.notes) sp.notes = sp.notes.filter(n=>n.id!==el.dataset.id);
+      save(); closeModal(); render(); showToast("Note deleted");
+      break;
+    }
+    case "close-modal": closeModal(); break;
+    case "collapse": {
+      const key = el.dataset.key;
+      ui.collapsed[key] = !isCollapsed(key, key.endsWith(":done"));
+      renderView();
+      break;
+    }
+    case "clear-done": {
+      const ids = state.tasks.filter(t=>t.spaceId===el.dataset.id && t.done).map(t=>t.id);
+      deleteTasks(ids, "Completed tasks cleared");
+      break;
+    }
+    case "seg-pri": {
+      $$("button", el.parentElement).forEach(b=>b.classList.toggle("active", b===el));
+      const form = el.closest("form");
+      if(form) form.elements["priority"].value = el.dataset.v;
+      break;
+    }
+    case "swatch": {
+      $$(".swatch", el.parentElement).forEach(b=>b.classList.toggle("active", b===el));
+      const form = el.closest("form");
+      if(form) form.elements["color"].value = el.dataset.c;
+      break;
+    }
+    case "stage-add": {
+      const list = $("#stage-list");
+      if(list){
+        list.insertAdjacentHTML("beforeend", stageRowHtml("new",""));
+        const inp = list.lastElementChild.querySelector("input");
+        if(inp) inp.focus();
+      }
+      break;
+    }
+    case "stage-del": { const row = el.closest(".stage-row"); if(row) row.remove(); break; }
+    case "export": doExport(); break;
+    case "import": $("#import-file").click(); break;
+    case "undo": applyUndo(); break;
+    case "toggle-sb": document.body.classList.toggle("sb-open"); break;
+    case "rename-user": {
+      const v = prompt("What should Orbit call you?", state.userName);
+      if(v && v.trim()){ state.userName = v.trim().slice(0,24); save(); render(); }
+      break;
+    }
+  }
+});
+
+document.addEventListener("submit", e=>{
+  const f = e.target, kind = f.dataset.form;
+  if(!kind) return;
+  e.preventDefault();
+  if(kind==="quickadd"){
+    const v = f.elements["qa"].value.trim(); if(!v) return;
+    const p = parseQuick(v); if(!p.title) return;
+    const sp = getSpace(f.dataset.space); if(!sp) return;
+    state.tasks.push({id:uid(), spaceId:sp.id, title:p.title, desc:"", due:p.due, priority:p.priority,
+      stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null});
+    save(); ui._focusQA = true; render();
+  }
+  else if(kind==="task") submitTask(f);
+  else if(kind==="space") submitSpace(f);
+  else if(kind==="note") submitNote(f);
+});
+
+document.addEventListener("input", e=>{
+  if(e.target && e.target.id==="search"){ ui.search = e.target.value; renderView(); }
+});
+
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape"){ closeModal(); return; }
+  const tag = (e.target.tagName||"").toLowerCase();
+  if(tag==="input" || tag==="textarea" || tag==="select" || e.target.isContentEditable) return;
+  if(e.key==="/"){ e.preventDefault(); const s=$("#search"); if(s) s.focus(); }
+  else if(e.key.toLowerCase()==="n" && !e.ctrlKey && !e.metaKey && !e.altKey){ e.preventDefault(); openTaskModal(null); }
+});
+
+/* ---------------- init ---------------- */
+$("#sb-backdrop").addEventListener("click", ()=>document.body.classList.remove("sb-open"));
+render();
+</script>
+</body>
+</html>
