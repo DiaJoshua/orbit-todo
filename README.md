@@ -13,6 +13,7 @@ A personal command center for everything: job applications, work, reminders, hou
 - **Smart quick add**: type `Clinic daily !med` or `Call recruiter tomorrow !high` and Orbit fills in the repeat, date and priority
 - **Alive dashboard**: greeting with your name, live clock, daily quote, 🔥 streak counter, stats
 - **Modern animations**: staggered card entrances, smooth theme crossfade, spring checkboxes, confetti on completing tasks (respects reduced motion settings)
+- **Collapsible sidebar**: the ☰ button hides or shows the sidebar with a smooth slide (remembered). On phones there is a big floating ☰ button at the bottom right, plus swipe from the left edge to open and swipe left to close
 - **Extras**: search (`/`), keyboard `n` for new task, undo for deletes, JSON export and import backups
 
 ## Files in this project
