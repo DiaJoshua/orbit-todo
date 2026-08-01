@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Orbit — Tasks & Notes</title>
+<title>Orbit: Tasks & Notes</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪐</text></svg>">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem("orbit-theme")==="dark"?"dark":"light"}catch(e){}</script>
+<script src="https://js.puter.com/v2/" async></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ============ theme tokens ============ */
-/* Light — default */
+/* Light (default) */
 :root{
   --bg:#f3f4fa; --bg2:#ffffff;
   --panel:rgba(255,255,255,.78); --panel2:rgba(23,26,60,.06);
@@ -38,7 +39,7 @@
   --radius:16px;
   color-scheme:light;
 }
-/* Dark — easy on the eyes: soft near-black, gentle contrast */
+/* Dark (easy on the eyes: soft near-black, gentle contrast) */
 html[data-theme="dark"]{
   --bg:#0e1016; --bg2:#13151e;
   --panel:rgba(255,255,255,.05); --panel2:rgba(255,255,255,.09);
@@ -134,8 +135,9 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .nav-item .bar i{display:block;height:100%;border-radius:2px;background:var(--ac,var(--accent));transition:width .4s ease}
 .sb-foot{border-top:1px solid var(--border);padding:12px 6px 2px;display:flex;flex-direction:column;gap:8px}
 .sb-foot .row{display:flex;gap:8px}
-.sb-foot .mini{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:7px 0;transition:.15s}
+.sb-foot .mini{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:7px 4px;transition:.15s}
 .sb-foot .mini:hover{color:var(--text);border-color:var(--border2);background:var(--panel2)}
+.sb-foot .mini.on{color:var(--green);border-color:color-mix(in srgb,var(--green) 35%,transparent);background:color-mix(in srgb,var(--green) 8%,transparent)}
 .sb-foot .hint{font-size:10.5px;color:var(--faint);text-align:center}
 #sb-backdrop{display:none}
 
@@ -179,13 +181,17 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .tabs button.active{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--text)}
 .prog-wrap{display:flex;align-items:center;gap:10px;margin-left:auto;color:var(--muted);font-size:12.5px}
 .prog-track{width:110px;height:5px;border-radius:5px;background:var(--track);overflow:hidden}
-.prog-track i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#fff));transition:width .5s ease}
+.prog-track i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#fff),var(--accent));background-size:200% auto;animation:shine 4s linear infinite;transition:width .5s ease}
 
 /* ============ today / greeting ============ */
 .greet h1{font-size:28px;font-weight:800;letter-spacing:-.3px}
 .greet h1 .uname{cursor:pointer;border-bottom:2px dotted var(--faint)}
 .greet h1 .uname:hover{color:var(--accent)}
+.greet h1 .grad{background:linear-gradient(90deg,var(--accent),#2ab1dd 50%,var(--accent));background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 7s linear infinite}
 .greet .sub{color:var(--muted);margin-top:3px;font-size:14px}
+.greet .quote{margin-top:7px;font-size:13px;color:var(--faint);font-style:italic}
+.streak{display:inline-flex;align-items:center;gap:5px;margin-left:12px;font-size:13px;font-weight:700;color:var(--amber);background:color-mix(in srgb,var(--amber) 13%,transparent);padding:3px 12px;border-radius:999px;vertical-align:middle;animation:pop .4s ease}
+@keyframes shine{to{background-position:200% center}}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin:22px 0 8px}
 .stat{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:15px 17px;transition:.2s;position:relative;overflow:hidden;box-shadow:var(--card-shadow);animation:fadeUp .35s ease both}
 .stats .stat:nth-child(2){animation-delay:60ms}
@@ -240,6 +246,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .chip.pri.p2{background:color-mix(in srgb,var(--amber) 13%,transparent);color:var(--amber)}
 .chip.pri.p1{background:color-mix(in srgb,var(--cyan) 13%,transparent);color:var(--cyan)}
 .chip.stage{background:color-mix(in srgb,var(--accent) 13%,transparent);color:color-mix(in srgb,var(--accent) 70%,var(--tint-mix))}
+.chip.rep{background:color-mix(in srgb,var(--green) 13%,transparent);color:var(--green)}
 .chip.space-chip{background:color-mix(in srgb,var(--c) 13%,transparent);color:color-mix(in srgb,var(--c) 72%,var(--tint-mix))}
 .task .del{opacity:0;width:30px;height:30px;font-size:14px}
 .task:hover .del{opacity:.55}
@@ -294,9 +301,13 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   background:color-mix(in srgb,var(--nc) 10%,var(--note-base));
   border:1px solid color-mix(in srgb,var(--nc) 30%,transparent);
   display:flex;flex-direction:column;gap:7px;transition:transform .18s,box-shadow .18s;
-  animation:fadeUp .3s ease both;box-shadow:var(--card-shadow);
+  animation:noteIn .35s ease backwards;box-shadow:var(--card-shadow);
 }
 .note:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:var(--hover-shadow)}
+.notes-grid .note:nth-child(odd):not(.add-note){transform:rotate(-.8deg)}
+.notes-grid .note:nth-child(3n):not(.add-note){transform:rotate(.7deg)}
+.notes-grid .note:hover{transform:translateY(-3px) rotate(0);box-shadow:var(--hover-shadow)}
+@keyframes noteIn{from{opacity:0}}
 .note .pin{position:absolute;top:10px;right:12px;font-size:13px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 .n-title{font-weight:700;font-size:14.5px;color:color-mix(in srgb,var(--nc) 60%,var(--tint-mix));padding-right:18px;word-break:break-word}
 .n-body{font-size:12.8px;color:var(--muted);white-space:pre-wrap;flex:1;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
@@ -307,7 +318,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 
 /* ============ empty state ============ */
 .empty{text-align:center;padding:56px 20px;color:var(--muted);animation:fadeUp .3s ease both}
-.empty .art{font-size:44px;margin-bottom:12px;display:block;filter:saturate(.85)}
+.empty .art{font-size:44px;margin-bottom:12px;display:block;filter:saturate(.85);animation:float 3.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .empty h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
 .empty p{font-size:13px;color:var(--faint)}
 
@@ -325,6 +337,10 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 }
 @keyframes zoomIn{from{opacity:0;transform:scale(.94) translateY(8px)}}
 .modal h2{font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.modal .info{font-size:13.5px;color:var(--muted);line-height:1.65;margin-top:4px}
+.modal .info b{color:var(--text)}
+.modal .info ol{margin:8px 0 8px 20px}
+.modal .info li{margin-bottom:5px}
 .f-title{width:100%;background:none;border:none;outline:none;font-size:19px;font-weight:700;padding:4px 0 10px;border-bottom:1px solid var(--border)}
 .f-title::placeholder{color:var(--faint)}
 .modal textarea{
@@ -416,8 +432,9 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 <script>
 "use strict";
 /* ================================================================
-   Orbit — a personal command center for tasks & notes
-   Light mode default · dark mode toggle · dashboard sticky notes
+   Orbit: a personal command center for tasks & notes
+   Light mode default, dark mode toggle, dashboard sticky notes,
+   repeating tasks, zero setup cloud sync across devices.
    ================================================================ */
 
 /* ---------------- helpers ---------------- */
@@ -448,9 +465,42 @@ function fmtDue(due){
 const dueClass = t=>(!t.due||t.done) ? "" : (dayDiff(t.due)<0 ? "overdue" : dayDiff(t.due)===0 ? "today" : "");
 
 const PRI_NAMES  = ["None","Low","Medium","High"];
+const REPEAT_NAMES = {daily:"Daily", weekdays:"Weekdays", weekly:"Weekly"};
 const SPACE_COLORS = ["#8b7cff","#38d6f5","#34d399","#fbbf24","#fb7185","#f472b6","#a3e635","#fb923c"];
 const NOTE_COLORS  = ["#fbbf24","#8b7cff","#38d6f5","#34d399","#fb7185","#94a3b8"];
 const EMOJIS = "💼 🖥 🏠 ⏰ 🌱 📚 💪 ✈️ 💰 🎯 🛒 ❤️".split(" ");
+
+const QUOTES = [
+  "Small steps every day.",
+  "Done is better than perfect.",
+  "Future you says thanks.",
+  "One task at a time. That's the whole trick.",
+  "Discipline is choosing what you want most.",
+  "The best time to start was yesterday. The second best is now.",
+  "You don't need more time, just a next step.",
+  "Momentum loves a checked box.",
+  "Stay curious, stay sharp. 🛡",
+  "Ship it, then improve it.",
+  "A clear list is a clear mind.",
+  "Consistency beats intensity.",
+  "Make it easy to start.",
+  "Progress, not perfection."
+];
+
+function streakDays(){
+  const days = new Set(state.tasks.filter(t=>t.completedAt).map(t=>t.completedAt));
+  let n = 0; const d = new Date();
+  if(!days.has(dstr(d))) d.setDate(d.getDate()-1);
+  while(days.has(dstr(d))){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+
+function nextOccurrence(rep){
+  if(rep==="daily") return addDays(1);
+  if(rep==="weekdays"){ const d=new Date(); do{ d.setDate(d.getDate()+1); }while(d.getDay()===0||d.getDay()===6); return dstr(d); }
+  if(rep==="weekly") return addDays(7);
+  return null;
+}
 
 /* ---------------- seed data ---------------- */
 function stdStages(){ return [{id:uid(),name:"To do"},{id:uid(),name:"Doing"},{id:uid(),name:"Done"}]; }
@@ -464,15 +514,16 @@ function seed(){
   const pers = {id:uid(), name:"Personal", icon:"🌱", color:"#fb7185", stages:stdStages(), notes:[]};
 
   pers.notes.push({id:uid(), title:"Welcome to Orbit 🪐", color:"#8b7cff", pinned:true, createdAt:Date.now(),
-    body:"Quick tips:\n• Every space has Tasks, a Board (pipeline) and Notes.\n• Pinned notes show up right on the Today dashboard.\n• Drag cards between stages on the Board.\n• Quick-add understands \"!high !med !low\", \"today\" and \"tomorrow\".\n• Use the 🌙/☀️ button up top to switch themes.\n• Your data lives in this browser — use Export for backups."});
+    body:"Quick tips:\n• Every space has Tasks, a Board (pipeline) and Notes.\n• Pinned notes show up right on the Today dashboard.\n• Drag cards between stages on the Board.\n• Quick-add understands \"!high !med !low\", \"today\", \"tomorrow\" and \"daily\".\n• Use the 🌙/☀️ button up top to switch themes.\n• Your data lives in this browser. Use Export for backups."});
 
   const tasks = [
-    {id:uid(), spaceId:jobs.id, title:"Security Engineer — Acme Corp", desc:"Referred by Sam. Follow up if no reply by Friday.", due:addDays(3), priority:3, stage:jobs.stages[1].id, done:false, createdAt:Date.now(), completedAt:null},
-    {id:uid(), spaceId:jobs.id, title:"Update resume with latest projects", desc:"", due:null, priority:2, stage:jobs.stages[0].id, done:false, createdAt:Date.now(), completedAt:null},
-    {id:uid(), spaceId:work.id, title:"Prepare quarterly report", desc:"", due:todayStr(), priority:3, stage:work.stages[0].id, done:false, createdAt:Date.now(), completedAt:null},
-    {id:uid(), spaceId:work.id, title:"Try the Board tab → drag me between stages", desc:"", due:null, priority:0, stage:work.stages[1].id, done:false, createdAt:Date.now(), completedAt:null},
-    {id:uid(), spaceId:home.id, title:"Fix the kitchen faucet leak", desc:"", due:null, priority:1, stage:home.stages[0].id, done:false, createdAt:Date.now(), completedAt:null},
-    {id:uid(), spaceId:rem.id, title:"Renew driver's license", desc:"", due:addDays(10), priority:2, stage:rem.stages[0].id, done:false, createdAt:Date.now(), completedAt:null}
+    {id:uid(), spaceId:jobs.id, title:"Security Engineer (Acme Corp)", desc:"Referred by Sam. Follow up if no reply by Friday.", due:addDays(3), priority:3, stage:jobs.stages[1].id, repeat:null, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:jobs.id, title:"Update resume with latest projects", desc:"", due:null, priority:2, stage:jobs.stages[0].id, repeat:null, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:work.id, title:"Prepare quarterly report", desc:"", due:todayStr(), priority:3, stage:work.stages[0].id, repeat:null, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:work.id, title:"Try the Board tab → drag me between stages", desc:"", due:null, priority:0, stage:work.stages[1].id, repeat:null, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:home.id, title:"Fix the kitchen faucet leak", desc:"", due:null, priority:1, stage:home.stages[0].id, repeat:null, done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:rem.id, title:"Clinic", desc:"Repeats every day. Checking it off rolls it to tomorrow.", due:todayStr(), priority:2, stage:rem.stages[0].id, repeat:"daily", done:false, createdAt:Date.now(), completedAt:null},
+    {id:uid(), spaceId:rem.id, title:"Renew driver's license", desc:"", due:addDays(10), priority:2, stage:rem.stages[0].id, repeat:null, done:false, createdAt:Date.now(), completedAt:null}
   ];
   return {userName:"Joshua", spaces:[jobs,work,rem,home,pers], tasks};
 }
@@ -488,16 +539,20 @@ function loadState(){
     return d;
   }catch(e){ return null; }
 }
-function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+function save(){
+  state.updatedAt = Date.now();
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  pushCloud();
+}
 
 let state = loadState() || seed();
-save();
+try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
 
-/* ---------------- one-time starter notes (Joshua's list) ---------------- */
-(function seedStarterNotes(){
+/* ---------------- one-time starter content (Joshua's list) ---------------- */
+(function seedStarter(){
   const FLAG = "orbit-starter-v1";
   try{ if(localStorage.getItem(FLAG)) return; }catch(e){ return; }
-  let sp = state.spaces.find(s=>/remind/i.test(s.name)) || state.spaces[0];
+  const sp = state.spaces.find(s=>/remind/i.test(s.name)) || state.spaces[0];
   if(!sp) return;
   if(!sp.notes) sp.notes = [];
   const t0 = Date.now();
@@ -506,17 +561,145 @@ save();
   sp.notes.push(
     mk("To-do dump", "Buy Paracetamol & Cetirizine & give stuffs\nPrep edits in DaVinci for travel\nApply for work\nStudy for certifications & use Udemy\nLeverage Claude Code for projects\nUpdate job portals", "#fbbf24"),
     mk("Certifications to get", "CompTIA Security+\nCCNA\nMicrosoft Azure\nCEH\nCISSP\nTrendAI certifications", "#8b7cff"),
-    mk("Daily checklist", "Snacks — Chuckie & KitKat\nLunch\nGym\nClean house\nExternal certs practice (TryHackMe, HTB)", "#34d399"),
+    mk("Daily checklist", "Snacks: Chuckie & KitKat\nLunch\nGym\nClean house\nExternal certs practice (TryHackMe, HTB)", "#34d399"),
     mk("Vietnam trip 🇻🇳", "Travel tax\nE-Travel (PH)\nArrival card & departure card\nHealth declaration", "#38d6f5"),
-    mk("NEP contacts — Oct 21, 2025", "Sir Bobby — 0917 577 2007 · Teams & Viber (soft skills)\nSir John O — 0917 5100 755 (technical)\nMa'am Jane — 0917 794 1696 (manager)", "#fb7185"),
-    mk("NEP rules", "1. Be on time — advise if late or absent\n2. Always take down notes\n3. Always participate (no raising hands / no grades)\n4. Be respectful\n5. Have fun!\n\nWe are Cybersec Engineers 🛡", "#94a3b8"),
-    mk("Who is Trend Micro", "3CIT — Customer, Change, Collaboration, Innovation, Trustworthiness\nFAIL — First Attempt In Learning\nDPE — 2 teams: Consumer (home users, small biz) & Corporate (businesses)\nDPE profile — Customer success is my success, AI adoption, growth mindset, continuous self-led learning\nCombined Technical Support Expert + DevOps Engineer\nNEP — New Engineer Training Program (soft skills + technical)\nTFD — combined soft skills & technical training", "#8b7cff"),
+    mk("NEP contacts (Oct 21, 2025)", "Sir Bobby: 0917 577 2007, Teams & Viber (soft skills)\nSir John O: 0917 5100 755 (technical)\nMa'am Jane: 0917 794 1696 (manager)", "#fb7185"),
+    mk("NEP rules", "1. Be on time, advise if late or absent\n2. Always take down notes\n3. Always participate (no raising hands / no grades)\n4. Be respectful\n5. Have fun!\n\nWe are Cybersec Engineers 🛡", "#94a3b8"),
+    mk("Who is Trend Micro", "3CIT: Customer, Change, Collaboration, Innovation, Trustworthiness\nFAIL: First Attempt In Learning\nDPE: 2 teams, Consumer (home users, small biz) & Corporate (businesses)\nDPE profile: Customer success is my success, AI adoption, growth mindset, continuous self-led learning\nCombined Technical Support Expert + DevOps Engineer\nNEP: New Engineer Training Program (soft skills + technical)\nTFD: combined soft skills & technical training", "#8b7cff"),
     mk("Typing test (Typing Cat)", "July 7, 2026\n38 wpm · 86% acc\n39 wpm · 99% acc\n41 wpm · 99% acc", "#fbbf24"),
-    mk("My account", "Email — joshua_dia@trendmicro.com\nPassword — not stored here on purpose: this file lives in a public GitHub repo. Keep passwords in a password manager.", "#94a3b8")
+    mk("My account", "Email: joshua_dia@trendmicro.com\nPassword: not stored here on purpose because this file lives in a public GitHub repo. Keep passwords in a password manager.", "#94a3b8")
   );
+  if(!state.tasks.some(t=>t.spaceId===sp.id && /^clinic$/i.test(t.title))){
+    state.tasks.push({id:uid(), spaceId:sp.id, title:"Clinic", desc:"Repeats every day. Checking it off rolls it to tomorrow.", due:todayStr(), priority:2, stage:sp.stages[0].id, repeat:"daily", done:false, createdAt:Date.now(), completedAt:null});
+  }
   try{ localStorage.setItem(FLAG, "1"); }catch(e){}
-  save();
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
 })();
+
+/* ================================================================
+   CLOUD SYNC (zero setup, powered by Puter.js)
+   Nothing to configure. Click the sidebar sync button, sign in once
+   per device, and your data saves to your own free private cloud
+   storage and follows you everywhere. Data merges on first sign in
+   so nothing you typed on any device gets lost.
+   ================================================================ */
+const KV_KEY = "orbit-state-v1";
+
+let cloud = {on:false, user:null};
+let syncStatus = "loading";  /* loading | signedout | on | off */
+let pushTimer = null, pollTimer = null;
+
+function waitForPuter(ms){
+  return new Promise(res=>{
+    const t0 = Date.now();
+    (function chk(){
+      if(window.puter && window.puter.auth && window.puter.kv) return res(true);
+      if(Date.now()-t0 > ms) return res(false);
+      setTimeout(chk, 300);
+    })();
+  });
+}
+
+async function initCloud(){
+  const ok = await waitForPuter(9000);
+  if(!ok){ syncStatus = "off"; renderSidebar(); return; }
+  try{
+    if(puter.auth.isSignedIn()){ await cloudSignedIn(); }
+    else { syncStatus = "signedout"; }
+  }catch(e){ syncStatus = "signedout"; }
+  renderSidebar();
+}
+
+async function cloudSignedIn(){
+  try{ cloud.user = await puter.auth.getUser(); }catch(e){ cloud.user = null; }
+  cloud.on = true; syncStatus = "on";
+  await pullCloud(true);
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(()=>pullCloud(false), 20000);
+  renderSidebar();
+}
+
+/* combine two copies of the data without losing anything */
+function mergeStates(a, b){
+  const newer = (a.updatedAt||0) >= (b.updatedAt||0) ? a : b;
+  const older = newer===a ? b : a;
+  const m = JSON.parse(JSON.stringify(newer));
+  if(!Array.isArray(m.spaces)) m.spaces = [];
+  if(!Array.isArray(m.tasks)) m.tasks = [];
+  const sIds = new Set(m.spaces.map(s=>s.id));
+  (older.spaces||[]).forEach(s=>{ if(!sIds.has(s.id)) m.spaces.push(s); });
+  (older.spaces||[]).forEach(os=>{
+    const ms = m.spaces.find(x=>x.id===os.id);
+    if(ms){
+      if(!Array.isArray(ms.notes)) ms.notes = [];
+      const nIds = new Set(ms.notes.map(n=>n.id));
+      (os.notes||[]).forEach(n=>{ if(!nIds.has(n.id)) ms.notes.push(n); });
+    }
+  });
+  const tIds = new Set(m.tasks.map(t=>t.id));
+  (older.tasks||[]).forEach(t=>{
+    if(!tIds.has(t.id) && m.spaces.some(s=>s.id===t.spaceId)) m.tasks.push(t);
+  });
+  return m;
+}
+
+async function pullCloud(first){
+  if(!cloud.on || !window.puter) return;
+  try{
+    const raw = await puter.kv.get(KV_KEY);
+    if(!raw){ pushCloud(true); return; }
+    const remote = (typeof raw === "string") ? JSON.parse(raw) : raw;
+    if(!remote || !Array.isArray(remote.spaces) || !Array.isArray(remote.tasks)){ pushCloud(true); return; }
+    if(first){
+      state = mergeStates(state, remote);
+      state.updatedAt = Date.now();
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+      pushCloud(true);
+      render();
+    } else if((remote.updatedAt||0) > (state.updatedAt||0)){
+      state = remote;
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+      render();
+    }
+  }catch(e){}
+}
+
+function pushCloud(now){
+  if(!cloud.on || !window.puter) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(()=>{
+    try{ puter.kv.set(KV_KEY, JSON.stringify(state)); }catch(e){}
+  }, now ? 50 : 600);
+}
+
+async function handleSyncClick(){
+  if(syncStatus==="off"){
+    showToast("Sync service is unreachable right now. Check your internet and reload.");
+    return;
+  }
+  if(syncStatus==="loading"){ showToast("Still connecting, one moment…"); return; }
+  if(syncStatus==="on"){
+    if(confirm("Sign out of sync on this device? Your data stays here and in the cloud.")){
+      try{ puter.auth.signOut(); }catch(e){}
+      cloud.on = false; cloud.user = null; syncStatus = "signedout";
+      if(pollTimer){ clearInterval(pollTimer); pollTimer = null; }
+      renderSidebar();
+    }
+    return;
+  }
+  try{
+    await puter.auth.signIn();
+    await cloudSignedIn();
+    showToast("✓ Sync is on. Sign in on your other devices and everything follows you.");
+  }catch(e){ showToast("Sign in was closed or failed. Try again."); }
+}
+
+function syncLabel(){
+  if(syncStatus==="on") return "✓ Sync on"+(cloud.user && cloud.user.username ? " · "+cloud.user.username : "")+" · sign out";
+  if(syncStatus==="signedout") return "☁ Sign in to sync devices";
+  if(syncStatus==="loading") return "☁ Connecting…";
+  return "⚠ Sync unavailable · tap for info";
+}
 
 /* ---------------- ui state ---------------- */
 let ui = { view:"today", spaceId:null, tab:"tasks", search:"", collapsed:{}, dragTask:null };
@@ -583,8 +766,9 @@ function renderSidebar(){
       spacesHtml+
     '</div>'+
     '<div class="sb-foot">'+
+      '<button class="mini'+(syncStatus==="on"?" on":"")+'" data-act="sync" id="sync-btn">'+syncLabel()+'</button>'+
       '<div class="row"><button class="mini" data-act="export">⬇ Export</button><button class="mini" data-act="import">⬆ Import</button></div>'+
-      '<div class="hint">Data is saved in this browser · Export to back up</div>'+
+      '<div class="hint">'+(syncStatus==="on"?"Changes save to the cloud automatically":"Data is saved in this browser · Export to back up")+'</div>'+
     '</div>';
 }
 
@@ -592,7 +776,7 @@ function renderSidebar(){
 function renderTopbar(){
   let title, emoji;
   if(ui.view==="today"){ title="Today"; emoji="☀️"; }
-  else { const s=getSpace(ui.spaceId); title=s?s.name:"—"; emoji=s?s.icon:""; }
+  else { const s=getSpace(ui.spaceId); title=s?s.name:"Orbit"; emoji=s?s.icon:""; }
   $("#topbar").innerHTML =
     '<button class="icon-btn" id="menu-btn" data-act="toggle-sb">'+MENU_SVG+'</button>'+
     '<div class="tb-title"><span class="emoji">'+esc(emoji)+'</span> '+esc(title)+'</div>'+
@@ -629,6 +813,7 @@ function chipsHtml(t, withSpace){
   let h = "";
   if(withSpace) h += '<span class="chip space-chip" style="--c:'+sp.color+'">'+esc(sp.icon)+' '+esc(sp.name)+'</span>';
   if(t.due) h += '<span class="chip due '+dueClass(t)+'">📅 '+fmtDue(t.due)+'</span>';
+  if(t.repeat) h += '<span class="chip rep">↻ '+(REPEAT_NAMES[t.repeat]||"Repeats")+'</span>';
   if(t.priority) h += '<span class="chip pri p'+t.priority+'">⚑ '+PRI_NAMES[t.priority]+'</span>';
   if(st && !withSpace) h += '<span class="chip stage">'+esc(st.name)+'</span>';
   return h;
@@ -636,7 +821,7 @@ function chipsHtml(t, withSpace){
 
 function taskRow(t, withSpace, idx){
   return '<div class="task '+(t.done?"done":"")+'" style="animation-delay:'+dly(idx)+'" data-act="open-task" data-id="'+t.id+'">'+
-    '<button class="check" data-act="toggle" data-id="'+t.id+'" title="Mark done">'+(t.done?"✓":"")+'</button>'+
+    '<button class="check" data-act="toggle" data-id="'+t.id+'" title="'+(t.repeat?"Done for today":"Mark done")+'">'+(t.done?"✓":"")+'</button>'+
     '<div class="t-main">'+
       '<div class="t-title">'+esc(t.title)+'</div>'+
       (t.desc?'<div class="t-desc">'+esc(t.desc)+'</div>':'')+
@@ -674,12 +859,17 @@ function renderToday(){
   const overdue  = open.filter(t=>t.due && dayDiff(t.due)<0 && matches(t)).sort(sortTasks);
   const dueToday = open.filter(t=>t.due && dayDiff(t.due)===0 && matches(t)).sort(sortTasks);
   const week     = open.filter(t=>t.due && dayDiff(t.due)>0 && dayDiff(t.due)<=7 && matches(t)).sort(sortTasks);
-  const doneToday = state.tasks.filter(t=>t.done && t.completedAt===todayStr()).length;
+  const doneToday = state.tasks.filter(t=>t.completedAt===todayStr()).length;
 
+  const doy = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 864e5);
+  const quote = QUOTES[doy % QUOTES.length];
+  const stk = streakDays();
   const stat = (n,l,c)=>'<div class="stat" style="--sc:'+c+'"><div class="num">'+n+'</div><div class="lbl">'+l+'</div></div>';
   let h = '<div class="view-inner">'+
-    '<div class="greet"><h1>'+greet+', <span class="uname" data-act="rename-user" title="Click to change name">'+esc(state.userName)+'</span> ✨</h1>'+
-    '<div class="sub">'+dateLine+'</div></div>'+
+    '<div class="greet"><h1><span class="grad">'+greet+'</span>, <span class="uname" data-act="rename-user" title="Click to change name">'+esc(state.userName)+'</span> ✨'+
+      (stk>0?'<span class="streak" title="Days in a row with at least one task completed">🔥 '+stk+' day streak</span>':'')+'</h1>'+
+    '<div class="sub">'+dateLine+' · <span id="now"></span></div>'+
+    '<div class="quote">"'+quote+'"</div></div>'+
     '<div class="stats">'+
       stat(dueToday.length,"Due today","var(--amber)")+
       stat(overdue.length,"Overdue","var(--rose)")+
@@ -687,7 +877,6 @@ function renderToday(){
       stat(open.length,"Open tasks","var(--cyan)")+
     '</div>';
 
-  /* pinned sticky notes — always visible on the dashboard */
   const pinned = [];
   state.spaces.forEach(s=>(s.notes||[]).forEach(n=>{ if(n.pinned && noteMatches(n)) pinned.push({n:n, s:s}); }));
   pinned.sort((a,b)=>b.n.createdAt-a.n.createdAt);
@@ -716,6 +905,12 @@ function renderToday(){
   }
   h += '</div>';
   $("#view").innerHTML = h;
+  updateClock();
+}
+
+function updateClock(){
+  const el = $("#now");
+  if(el) el.textContent = new Date().toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
 }
 
 /* ---------------- list view ---------------- */
@@ -731,13 +926,13 @@ function renderListView(s){
   let h = '<div class="view-inner">'+
     '<form class="quickadd" data-form="quickadd" data-space="'+s.id+'">'+
       '<span class="plus">＋</span>'+
-      '<input name="qa" placeholder=\'Add to '+esc(s.name)+'…  try "Call recruiter tomorrow !high"\' autocomplete="off">'+
+      '<input name="qa" placeholder=\'Add to '+esc(s.name)+'…  try "Clinic daily !med" or "Call recruiter tomorrow !high"\' autocomplete="off">'+
       '<button type="submit">Add</button>'+
     '</form>';
 
   if(!ts.length){
     h += '<div class="empty"><span class="art">'+esc(s.icon)+'</span><h3>'+(ui.search?"No matches":"Nothing here yet")+'</h3><p>'+
-      (ui.search?"Try a different search.":"Add your first task above — it takes two seconds.")+'</p></div>';
+      (ui.search?"Try a different search.":"Add your first task above. It takes two seconds.")+'</p></div>';
   } else {
     h += groupSection(s.id+":od","Overdue","var(--rose)",overdue,false);
     h += groupSection(s.id+":dt","Today","var(--amber)",dueToday,false);
@@ -755,6 +950,7 @@ function renderListView(s){
 function boardChips(t){
   let h = "";
   if(t.due) h += '<span class="chip due '+dueClass(t)+'">📅 '+fmtDue(t.due)+'</span>';
+  if(t.repeat) h += '<span class="chip rep">↻ '+(REPEAT_NAMES[t.repeat]||"Repeats")+'</span>';
   if(t.priority) h += '<span class="chip pri p'+t.priority+'">⚑ '+PRI_NAMES[t.priority]+'</span>';
   return h;
 }
@@ -765,7 +961,7 @@ function cardHtml(t, idx){
       '<button class="check" data-act="toggle" data-id="'+t.id+'">'+(t.done?"✓":"")+'</button>'+
       '<div class="c-title">'+esc(t.title)+'</div>'+
     '</div>'+
-    (t.due||t.priority ? '<div class="t-chips">'+boardChips(t)+'</div>' : '')+
+    (t.due||t.priority||t.repeat ? '<div class="t-chips">'+boardChips(t)+'</div>' : '')+
   '</div>';
 }
 
@@ -825,7 +1021,7 @@ function renderNotesView(s){
       '<div class="n-date">'+new Date(n.createdAt).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+'</div>'+
     '</div>').join("")+
   '</div>';
-  if(!notes.length) h += '<div class="empty"><span class="art">🗒</span><h3>'+(ui.search?"No matching notes":"No notes yet")+'</h3><p>Sticky notes for ideas, lists, links — anything you want to keep. Pin one to see it on the dashboard.</p></div>';
+  if(!notes.length) h += '<div class="empty"><span class="art">🗒</span><h3>'+(ui.search?"No matching notes":"No notes yet")+'</h3><p>Sticky notes for ideas, lists, links and anything you want to keep. Pin one to see it on the dashboard.</p></div>';
   h += '</div>';
   $("#view").innerHTML = h;
 }
@@ -846,12 +1042,16 @@ function render(){ renderSidebar(); renderTopbar(); renderTabs(); renderView(); 
 
 /* ---------------- quick add parsing ---------------- */
 function parseQuick(text){
-  let due = null, pri = 0, s = text;
+  let due = null, pri = 0, rep = null, s = text;
   s = s.replace(/\s*!(high|hi|med|medium|low)\b/ig, (m,p)=>{ pri = {high:3,hi:3,med:2,medium:2,low:1}[p.toLowerCase()]||0; return ""; });
+  s = s.replace(/\s*\b(every ?day|daily)\b/ig, ()=>{ rep = "daily"; return ""; });
+  s = s.replace(/\s*\bweekdays\b/ig, ()=>{ rep = "weekdays"; return ""; });
+  s = s.replace(/\s*\b(every ?week|weekly)\b/ig, ()=>{ rep = "weekly"; return ""; });
   s = s.replace(/\s*\b(today|tonight)\b/ig, ()=>{ due = todayStr(); return ""; });
   s = s.replace(/\s*\b(tomorrow|tmr)\b/ig, ()=>{ due = addDays(1); return ""; });
   s = s.replace(/\s*\bnext week\b/ig, ()=>{ due = addDays(7); return ""; });
-  return { title: s.replace(/\s+/g," ").trim(), due, priority: pri };
+  if(rep && !due) due = todayStr();
+  return { title: s.replace(/\s+/g," ").trim(), due, priority: pri, repeat: rep };
 }
 
 /* ---------------- modals ---------------- */
@@ -864,8 +1064,11 @@ function openTaskModal(taskId, spaceId, stageId){
   const sp = getSpace(sid) || state.spaces[0];
   const stage = t ? t.stage : (stageId || sp.stages[0].id);
   const pri = t ? t.priority : 0;
+  const rep0 = t ? (t.repeat||"") : "";
   const spaceOpts = state.spaces.map(s=>'<option value="'+s.id+'"'+(s.id===sp.id?" selected":"")+'>'+esc(s.icon+" "+s.name)+'</option>').join("");
   const stageOpts = sp.stages.map(st=>'<option value="'+st.id+'"'+(st.id===stage?" selected":"")+'>'+esc(st.name)+'</option>').join("");
+  const repOpts = [["","None"],["daily","Daily"],["weekdays","Weekdays (Mon to Fri)"],["weekly","Weekly"]]
+    .map(r=>'<option value="'+r[0]+'"'+(r[0]===rep0?" selected":"")+'>'+r[1]+'</option>').join("");
   modalShell(
     '<h2>'+(t?"Edit task":"New task")+'</h2>'+
     '<form data-form="task" data-id="'+(t?t.id:"")+'">'+
@@ -876,6 +1079,7 @@ function openTaskModal(taskId, spaceId, stageId){
         '<div class="f-field"><span>Priority</span><div class="seg">'+
           [0,1,2,3].map(v=>'<button type="button" data-act="seg-pri" data-v="'+v+'" class="'+(v===pri?"active":"")+'">'+PRI_NAMES[v]+'</button>').join("")+
         '</div><input type="hidden" name="priority" value="'+pri+'"></div>'+
+        '<label class="f-field"><span>Repeat</span><select name="repeat">'+repOpts+'</select></label>'+
         '<label class="f-field"><span>Space</span><select name="space" id="tf-space">'+spaceOpts+'</select></label>'+
         '<label class="f-field"><span>Stage</span><select name="stage" id="tf-stage">'+stageOpts+'</select></label>'+
       '</div>'+
@@ -935,7 +1139,7 @@ function openNoteModal(spaceId, noteId, defPinned){
     '<h2>'+(n?"Edit note":"New note")+'</h2>'+
     '<form data-form="note" data-id="'+(n?n.id:"")+'" data-space="'+sp.id+'">'+
       '<input class="f-title" name="title" placeholder="Note title" value="'+esc(n?n.title:"")+'" autocomplete="off">'+
-      '<textarea name="body" placeholder="Write or paste anything — ideas, lists, links, meeting notes…" style="min-height:160px">'+esc(n?n.body:"")+'</textarea>'+
+      '<textarea name="body" placeholder="Write or paste anything: ideas, lists, links, meeting notes…" style="min-height:160px">'+esc(n?n.body:"")+'</textarea>'+
       '<div class="f-grid">'+
         (n ? "" : '<label class="f-field"><span>Space</span><select name="nspace">'+
           state.spaces.map(s=>'<option value="'+s.id+'"'+(s.id===sp.id?" selected":"")+'>'+esc(s.icon+" "+s.name)+'</option>').join("")+
@@ -943,7 +1147,7 @@ function openNoteModal(spaceId, noteId, defPinned){
         '<div class="f-field"><span>Color</span><div class="swatches">'+
           NOTE_COLORS.map(c=>'<button type="button" class="swatch'+(c===color?" active":"")+'" style="background:'+c+';--swc:'+c+'" data-act="swatch" data-c="'+c+'"></button>').join("")+
         '</div><input type="hidden" name="color" value="'+color+'"></div>'+
-        '<div class="f-field"><span>Options</span><label class="pin-toggle"><input type="checkbox" name="pinned"'+(isPinned?" checked":"")+'> 📌 Pin — shows on dashboard</label></div>'+
+        '<div class="f-field"><span>Options</span><label class="pin-toggle"><input type="checkbox" name="pinned"'+(isPinned?" checked":"")+'> 📌 Pin (shows on dashboard)</label></div>'+
       '</div>'+
       '<div class="m-foot">'+
         (n?'<button type="button" class="btn danger" data-act="del-note" data-id="'+n.id+'" data-space="'+sp.id+'">Delete</button>':"")+
@@ -958,6 +1162,18 @@ function openNoteModal(spaceId, noteId, defPinned){
 /* ---------------- mutations ---------------- */
 function toggleTask(id, el){
   const t = state.tasks.find(x=>x.id===id); if(!t) return;
+  if(t.repeat && !t.done){
+    t.completedAt = todayStr();
+    t.due = nextOccurrence(t.repeat);
+    save();
+    if(el){
+      const r = el.getBoundingClientRect();
+      confettiBurst(r.left + r.width/2, r.top + r.height/2, spaceOf(t).color);
+    }
+    render();
+    showToast("✓ "+t.title+" done for today ↻ next: "+fmtDue(t.due));
+    return;
+  }
   t.done = !t.done;
   t.completedAt = t.done ? todayStr() : null;
   save();
@@ -992,8 +1208,11 @@ function submitTask(f){
   let stage = f.elements["stage"].value;
   const nsp = getSpace(spaceId) || state.spaces[0];
   if(!nsp.stages.some(s=>s.id===stage)) stage = nsp.stages[0].id;
-  const vals = { title, desc:f.elements["desc"].value.trim(), due:f.elements["due"].value||null,
-                 priority:+f.elements["priority"].value||0, spaceId:nsp.id, stage };
+  const repeat = f.elements["repeat"].value || null;
+  let due = f.elements["due"].value || null;
+  if(repeat && !due) due = todayStr();
+  const vals = { title, desc:f.elements["desc"].value.trim(), due,
+                 priority:+f.elements["priority"].value||0, spaceId:nsp.id, stage, repeat };
   if(id){ const t = state.tasks.find(x=>x.id===id); if(t) Object.assign(t, vals); }
   else state.tasks.push(Object.assign({id:uid(), done:false, createdAt:Date.now(), completedAt:null}, vals));
   save(); closeModal(); render();
@@ -1055,7 +1274,7 @@ $("#import-file").addEventListener("change", e=>{
       state = d; save();
       ui = {view:"today", spaceId:null, tab:"tasks", search:"", collapsed:{}, dragTask:null};
       render(); showToast("Data imported ✓");
-    }catch(err){ showToast("Import failed — not a valid Orbit backup"); }
+    }catch(err){ showToast("Import failed. Not a valid Orbit backup."); }
   };
   rd.readAsText(file);
   e.target.value = "";
@@ -1175,6 +1394,7 @@ document.addEventListener("click", e=>{
     case "export": doExport(); break;
     case "import": $("#import-file").click(); break;
     case "undo": applyUndo(); break;
+    case "sync": handleSyncClick(); break;
     case "toggle-theme": toggleTheme(); break;
     case "toggle-sb": document.body.classList.toggle("sb-open"); break;
     case "rename-user": {
@@ -1194,7 +1414,7 @@ document.addEventListener("submit", e=>{
     const p = parseQuick(v); if(!p.title) return;
     const sp = getSpace(f.dataset.space); if(!sp) return;
     state.tasks.push({id:uid(), spaceId:sp.id, title:p.title, desc:"", due:p.due, priority:p.priority,
-      stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null});
+      repeat:p.repeat, stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null});
     save(); ui._focusQA = true; render();
   }
   else if(kind==="task") submitTask(f);
@@ -1216,7 +1436,11 @@ document.addEventListener("keydown", e=>{
 
 /* ---------------- init ---------------- */
 $("#sb-backdrop").addEventListener("click", ()=>document.body.classList.remove("sb-open"));
+setInterval(updateClock, 30000);
+addEventListener("focus", ()=>pullCloud(false));
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) pullCloud(false); });
 render();
+initCloud();
 </script>
 </body>
 </html>
