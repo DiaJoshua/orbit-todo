@@ -1,0 +1,13 @@
+{
+  "name": "Orbit: Tasks & Notes",
+  "short_name": "Orbit",
+  "description": "Your personal command center for tasks, notes and plans",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#f7f7f5",
+  "theme_color": "#6e56cf",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

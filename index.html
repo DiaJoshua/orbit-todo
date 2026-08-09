@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Orbit: Tasks & Notes</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪐</text></svg>">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f7f7f5" id="meta-theme">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Orbit">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem("orbit-theme")==="dark"?"dark":"light"}catch(e){}</script>
 <script src="https://js.puter.com/v2/" async></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -266,6 +271,9 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .quickadd input::placeholder{color:var(--faint)}
 .quickadd button{background:color-mix(in srgb,var(--accent) 16%,transparent);color:color-mix(in srgb,var(--accent) 75%,var(--tint-mix));font-weight:700;font-size:13px;border-radius:10px;padding:8px 15px;transition:.15s}
 .quickadd button:hover{background:color-mix(in srgb,var(--accent) 28%,transparent)}
+.qa-prev{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:2px 6px 12px;padding:0 12px;font-size:12px;color:var(--muted);animation:fadeIn .15s ease}
+.qa-prev b{font-weight:600;color:var(--text)}
+.qa-prev .qa-lbl{color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:600}
 
 /* ============ board ============ */
 .board{display:flex;gap:14px;align-items:flex-start;overflow-x:auto;padding-bottom:20px;min-height:60vh}
@@ -396,6 +404,13 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;transition:.13s}
 .swatch:hover{transform:scale(1.12)}
 .swatch.active{border-color:var(--bg2);box-shadow:0 0 0 3px color-mix(in srgb,var(--swc) 55%,transparent)}
+.cl-row{display:flex;gap:9px;align-items:center;margin-bottom:6px}
+.cl-row input{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-size:13px;outline:none}
+.cl-row input:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.cl-row .check{margin-top:0;width:19px;height:19px;font-size:10px}
+.cl-row .check.on{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#fff));border-color:transparent;color:var(--on-accent)}
+.cl-row .rm{width:28px;height:28px;border-radius:8px;color:var(--faint);font-size:14px;flex-shrink:0}
+.cl-row .rm:hover{color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
 .stage-list{display:flex;flex-direction:column;gap:7px;margin-top:6px}
 .stage-row{display:flex;gap:7px;align-items:center}
 .stage-row input{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:7.5px 11px;font-size:13px;outline:none}
@@ -789,7 +804,11 @@ const MOON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentC
 const THEME_KEY = "orbit-theme";
 let theme = "light";
 try{ theme = localStorage.getItem(THEME_KEY)==="dark" ? "dark" : "light"; }catch(e){}
-function applyTheme(){ document.documentElement.dataset.theme = theme; }
+function applyTheme(){
+  document.documentElement.dataset.theme = theme;
+  const mt = document.getElementById("meta-theme");
+  if(mt) mt.content = theme==="dark" ? "#151517" : "#f7f7f5";
+}
 applyTheme();
 function toggleTheme(){
   theme = theme==="dark" ? "light" : "dark";
@@ -905,6 +924,7 @@ function chipsHtml(t, withSpace){
   if(t.due) h += '<span class="chip due '+dueClass(t)+'">📅 '+fmtDue(t.due)+'</span>';
   if(t.repeat) h += '<span class="chip rep">↻ '+(REPEAT_NAMES[t.repeat]||"Repeats")+'</span>';
   if(t.priority) h += '<span class="chip pri p'+t.priority+'">⚑ '+PRI_NAMES[t.priority]+'</span>';
+  if(t.checklist && t.checklist.length) h += '<span class="chip">☑ '+t.checklist.filter(c=>c.done).length+'/'+t.checklist.length+'</span>';
   if(st && !withSpace) h += '<span class="chip stage">'+esc(st.name)+'</span>';
   return h;
 }
@@ -990,7 +1010,8 @@ function renderToday(){
     h += '<div class="empty"><span class="art">🪐</span><h3>'+(ui.search?"No matches":"All clear")+'</h3><p>'+
       (ui.search?"Nothing due matches your search.":"Nothing due in the next 7 days. Add tasks in any space, or enjoy the calm.")+'</p></div>';
   } else {
-    h += groupSection("today:od","Overdue","var(--rose)",overdue,true);
+    h += groupSection("today:od","Overdue","var(--rose)",overdue,true,
+      '<button class="head-link" data-act="overdue-today">Move all to today</button>');
     h += groupSection("today:dt","Due today","var(--amber)",dueToday,true);
     h += groupSection("today:wk","Next 7 days","var(--cyan)",week,true);
   }
@@ -1061,15 +1082,17 @@ function renderListView(s){
   let h = '<div class="view-inner">'+
     '<form class="quickadd" data-form="quickadd" data-space="'+s.id+'">'+
       '<span class="plus">＋</span>'+
-      '<input name="qa" placeholder=\'Add to '+esc(s.name)+'…  try "Clinic daily !med" or "Call recruiter tomorrow !high"\' autocomplete="off">'+
+      '<input name="qa" placeholder=\'Add to '+esc(s.name)+'…  try "Clinic daily !med" or "Follow up fri !high"\' autocomplete="off">'+
       '<button type="submit">Add</button>'+
-    '</form>';
+    '</form>'+
+    '<div class="qa-prev" id="qa-prev" style="display:none"></div>';
 
   if(!ts.length){
     h += '<div class="empty"><span class="art">'+esc(s.icon)+'</span><h3>'+(ui.search?"No matches":"Nothing here yet")+'</h3><p>'+
       (ui.search?"Try a different search.":"Add your first task above. It takes two seconds.")+'</p></div>';
   } else {
-    h += groupSection(s.id+":od","Overdue","var(--rose)",overdue,false);
+    h += groupSection(s.id+":od","Overdue","var(--rose)",overdue,false,
+      '<button class="head-link" data-act="overdue-today" data-id="'+s.id+'">Move all to today</button>');
     h += groupSection(s.id+":dt","Today","var(--amber)",dueToday,false);
     h += groupSection(s.id+":up","Upcoming","var(--cyan)",upcoming,false);
     h += groupSection(s.id+":nd","No due date","var(--muted)",nodate,false);
@@ -1078,7 +1101,26 @@ function renderListView(s){
   }
   h += '</div>';
   $("#view").innerHTML = h;
+  bindQuickAdd();
   const qa=$("#view .quickadd input"); if(qa && ui._focusQA){ qa.focus(); ui._focusQA=false; }
+}
+
+/* live "understood as" preview while typing in quick add */
+function bindQuickAdd(){
+  const form = $("#view .quickadd"); if(!form) return;
+  const inp = form.elements["qa"], prev = $("#qa-prev");
+  if(!inp || !prev) return;
+  inp.addEventListener("input", ()=>{
+    const v = inp.value.trim();
+    if(!v){ prev.style.display = "none"; prev.innerHTML = ""; return; }
+    const p = parseQuick(v);
+    let chips = "";
+    if(p.due) chips += '<span class="chip due '+(dayDiff(p.due)===0?"today":"")+'">📅 '+fmtDue(p.due)+'</span>';
+    if(p.repeat) chips += '<span class="chip rep">↻ '+(REPEAT_NAMES[p.repeat]||"")+'</span>';
+    if(p.priority) chips += '<span class="chip pri p'+p.priority+'">⚑ '+PRI_NAMES[p.priority]+'</span>';
+    prev.style.display = "flex";
+    prev.innerHTML = '<span class="qa-lbl">Creates</span><b>'+esc(p.title||"…")+'</b>'+chips;
+  });
 }
 
 /* ---------------- board view ---------------- */
@@ -1087,6 +1129,7 @@ function boardChips(t){
   if(t.due) h += '<span class="chip due '+dueClass(t)+'">📅 '+fmtDue(t.due)+'</span>';
   if(t.repeat) h += '<span class="chip rep">↻ '+(REPEAT_NAMES[t.repeat]||"Repeats")+'</span>';
   if(t.priority) h += '<span class="chip pri p'+t.priority+'">⚑ '+PRI_NAMES[t.priority]+'</span>';
+  if(t.checklist && t.checklist.length) h += '<span class="chip">☑ '+t.checklist.filter(c=>c.done).length+'/'+t.checklist.length+'</span>';
   return h;
 }
 
@@ -1186,6 +1229,22 @@ function parseQuick(text){
   s = s.replace(/\s*\b(today|tonight)\b/ig, ()=>{ due = todayStr(); return ""; });
   s = s.replace(/\s*\b(tomorrow|tmr)\b/ig, ()=>{ due = addDays(1); return ""; });
   s = s.replace(/\s*\bnext week\b/ig, ()=>{ due = addDays(7); return ""; });
+  const WD = {sun:0,sunday:0,mon:1,monday:1,tue:2,tues:2,tuesday:2,wed:3,wednesday:3,thu:4,thur:4,thurs:4,thursday:4,fri:5,friday:5,sat:6,saturday:6};
+  s = s.replace(/\s*\b(next\s+)?(sunday|saturday|thursday|wednesday|tuesday|monday|friday|thurs|tues|thur|sun|sat|thu|wed|tue|mon|fri)\b/ig, (m,nx,w)=>{
+    const d = new Date();
+    let delta = (WD[w.toLowerCase()] - d.getDay() + 7) % 7;
+    if(delta===0) delta = 7;
+    if(nx) delta += 7;
+    due = addDays(delta); return "";
+  });
+  s = s.replace(/\s*\bin\s+(\d{1,2})\s+days?\b/ig, (m,n)=>{ due = addDays(+n); return ""; });
+  const MO = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  s = s.replace(/\s*\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})\b/ig, (m,mo,dd)=>{
+    const y = new Date().getFullYear();
+    let dt = new Date(y, MO[mo.toLowerCase()], +dd);
+    if(dstr(dt) < todayStr()) dt = new Date(y+1, MO[mo.toLowerCase()], +dd);
+    due = dstr(dt); return "";
+  });
   if(rep && !due) due = todayStr();
   return { title: s.replace(/\s+/g," ").trim(), due, priority: pri, repeat: rep };
 }
@@ -1255,11 +1314,20 @@ function openTaskModal(taskId, spaceId, stageId){
   const stageOpts = sp.stages.map(st=>'<option value="'+st.id+'"'+(st.id===stage?" selected":"")+'>'+esc(st.name)+'</option>').join("");
   const repOpts = [["","None"],["daily","Daily"],["weekdays","Weekdays (Mon to Fri)"],["weekly","Weekly"]]
     .map(r=>'<option value="'+r[0]+'"'+(r[0]===rep0?" selected":"")+'>'+r[1]+'</option>').join("");
+  const cl = t ? (t.checklist||[]) : [];
+  const clRow = it=>'<div class="cl-row" data-cid="'+it.id+'">'+
+    '<button type="button" class="check'+(it.done?" on":"")+'" data-act="cl-toggle">'+(it.done?"✓":"")+'</button>'+
+    '<input value="'+esc(it.text)+'" placeholder="Checklist item">'+
+    '<button type="button" class="rm" data-act="cl-del" title="Remove">✕</button></div>';
   modalShell(
     '<h2>'+(t?"Edit task":"New task")+'</h2>'+
     '<form data-form="task" data-id="'+(t?t.id:"")+'">'+
       '<input class="f-title" name="title" placeholder="What needs doing?" value="'+esc(t?t.title:"")+'" required autocomplete="off">'+
       '<textarea name="desc" placeholder="Notes, links, details…">'+esc(t?t.desc:"")+'</textarea>'+
+      '<div class="f-field" style="margin-top:14px"><span>Checklist (subtasks)</span>'+
+        '<div id="cl-list">'+cl.map(clRow).join("")+'</div>'+
+        '<button type="button" class="add-stage" data-act="cl-add">＋ Add item</button>'+
+      '</div>'+
       '<div class="f-grid">'+
         '<label class="f-field"><span>Due date</span><input type="date" name="due" value="'+(t&&t.due?t.due:"")+'">'+
           '<span class="quick-dates"><button type="button" data-act="due-quick" data-d="0">Today</button><button type="button" data-act="due-quick" data-d="1">Tomorrow</button><button type="button" data-act="due-quick" data-d="7">Next week</button></span>'+
@@ -1273,6 +1341,7 @@ function openTaskModal(taskId, spaceId, stageId){
       '</div>'+
       '<div class="m-foot">'+
         (t?'<button type="button" class="btn danger" data-act="modal-del-task" data-id="'+t.id+'">Delete</button>':"")+
+        (t?'<button type="button" class="btn ghost" data-act="dup-task" data-id="'+t.id+'">Duplicate</button>':"")+
         '<span class="grow"></span>'+
         '<button type="button" class="btn ghost" data-act="close-modal">Cancel</button>'+
         '<button type="submit" class="btn primary">'+(t?"Save":"Add task")+'</button>'+
@@ -1399,8 +1468,13 @@ function submitTask(f){
   const repeat = f.elements["repeat"].value || null;
   let due = f.elements["due"].value || null;
   if(repeat && !due) due = todayStr();
+  const checklist = $$("#cl-list .cl-row").map(r=>({
+    id: r.dataset.cid==="new" ? uid() : r.dataset.cid,
+    text: r.querySelector("input").value.trim(),
+    done: r.querySelector(".check").classList.contains("on")
+  })).filter(x=>x.text);
   const vals = { title, desc:f.elements["desc"].value.trim(), due,
-                 priority:+f.elements["priority"].value||0, spaceId:nsp.id, stage, repeat };
+                 priority:+f.elements["priority"].value||0, spaceId:nsp.id, stage, repeat, checklist };
   if(id){ const t = state.tasks.find(x=>x.id===id); if(t) Object.assign(t, vals); }
   else state.tasks.push(Object.assign({id:uid(), done:false, createdAt:Date.now(), completedAt:null}, vals));
   save(); closeModal(); render();
@@ -1592,6 +1666,39 @@ document.addEventListener("click", e=>{
       if(form) form.elements["due"].value = addDays(+el.dataset.d);
       break;
     }
+    case "cl-add": {
+      const list = $("#cl-list");
+      if(list){
+        list.insertAdjacentHTML("beforeend",
+          '<div class="cl-row" data-cid="new"><button type="button" class="check" data-act="cl-toggle"></button>'+
+          '<input value="" placeholder="Checklist item"><button type="button" class="rm" data-act="cl-del" title="Remove">✕</button></div>');
+        const inp = list.lastElementChild.querySelector("input");
+        if(inp) inp.focus();
+      }
+      break;
+    }
+    case "cl-del": { const row = el.closest(".cl-row"); if(row) row.remove(); break; }
+    case "cl-toggle": {
+      el.classList.toggle("on");
+      el.textContent = el.classList.contains("on") ? "✓" : "";
+      break;
+    }
+    case "dup-task": {
+      const t = state.tasks.find(x=>x.id===el.dataset.id); if(!t) break;
+      const c = JSON.parse(JSON.stringify(t));
+      c.id = uid(); c.title = t.title+" (copy)"; c.done = false; c.completedAt = null; c.createdAt = Date.now();
+      if(c.checklist) c.checklist = c.checklist.map(i=>({id:uid(), text:i.text, done:false}));
+      state.tasks.push(c);
+      save(); closeModal(); render(); showToast("Task duplicated");
+      break;
+    }
+    case "overdue-today": {
+      const sid = el.dataset.id || null;
+      let n = 0;
+      state.tasks.forEach(t=>{ if(!t.done && t.due && dayDiff(t.due)<0 && (!sid || t.spaceId===sid)){ t.due = todayStr(); n++; } });
+      if(n){ save(); render(); showToast(n+" task"+(n>1?"s":"")+" moved to today"); }
+      break;
+    }
     case "export": doExport(); break;
     case "import": $("#import-file").click(); break;
     case "undo": applyUndo(); break;
@@ -1675,6 +1782,11 @@ addEventListener("beforeunload", ()=>{
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
   }
 });
+
+/* offline support + install as an app */
+if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
+  try{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){}
+}
 
 updateFab();
 render();
