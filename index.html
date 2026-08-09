@@ -125,10 +125,14 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .logo:hover{background:var(--panel2)}
 .logo-tile{width:30px;height:30px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;background:linear-gradient(135deg,#6e56cf,#2f7fe0);box-shadow:0 3px 10px color-mix(in srgb,#6e56cf 35%,transparent);transition:transform .45s cubic-bezier(.3,1.4,.4,1)}
 .logo:hover .logo-tile{transform:rotate(12deg) scale(1.05)}
-.word2{font-size:14.5px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.word2{font-size:14.5px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.logo .rn{width:26px;height:26px;border-radius:8px;font-size:12px;flex-shrink:0;opacity:0;transition:.15s;display:grid;place-items:center}
+.logo:hover .rn{opacity:.6}
+.logo .rn:hover{opacity:1;background:var(--panel2)}
+@media(max-width:880px){.logo .rn{opacity:.5}}
 .sb-scroll{flex:1;overflow-y:auto;padding:2px 2px 10px;touch-action:pan-y}
-.nav-item.drag-src{opacity:.4}
-.nav-item.lifting{transform:scale(1.04);box-shadow:0 10px 26px rgba(0,0,0,.28);background:var(--bg2);position:relative;z-index:5;opacity:.95}
+.drag-src{opacity:.4}
+.lifting{transform:scale(1.03) !important;box-shadow:0 10px 26px rgba(0,0,0,.28) !important;background:var(--bg2);position:relative;z-index:5;opacity:.95}
 .sb-label{font-size:10.5px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);padding:16px 12px 7px;display:flex;align-items:center;justify-content:space-between}
 .sb-label button{color:var(--faint);font-size:15px;line-height:1;padding:2px 6px;border-radius:8px;transition:.15s}
 .sb-label button:hover{color:var(--text);background:var(--panel2)}
@@ -727,7 +731,7 @@ function seed(){
     {id:uid(), spaceId:rem.id, title:"Clinic", desc:"Repeats every day. Checking it off rolls it to tomorrow.", due:todayStr(), priority:2, stage:rem.stages[0].id, repeat:"daily", done:false, createdAt:Date.now(), completedAt:null},
     {id:uid(), spaceId:rem.id, title:"Renew driver's license", desc:"", due:addDays(10), priority:2, stage:rem.stages[0].id, repeat:null, done:false, createdAt:Date.now(), completedAt:null}
   ];
-  return {userName:"Joshua", spaces:[jobs,work,rem,home,pers], tasks,
+  return {userName:"friend", spaces:[jobs,work,rem,home,pers], tasks,
     scratch:"Welcome to your Notepad 🗒\n\nThis is one big page that is all yours. Write plans, paste anything, draft messages, keep a running log. It saves by itself as you type and syncs to your other devices when you are signed in.\n\nDelete this text and make it yours."};
 }
 
@@ -744,40 +748,27 @@ function loadState(){
 }
 function save(){
   state.updatedAt = Date.now();
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    localStorage.setItem("orbit-dirty","1");
+  }catch(e){}
   pushCloud();
+  updateBadge();
+}
+function updateBadge(){
+  try{
+    if(!navigator.setAppBadge) return;
+    const n = state.tasks.filter(t=>!t.done && t.due && dayDiff(t.due)<=0).length;
+    if(n) navigator.setAppBadge(n);
+    else if(navigator.clearAppBadge) navigator.clearAppBadge();
+  }catch(e){}
 }
 
 let state = loadState() || seed();
 try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
 
-/* ---------------- one-time starter content (Joshua's list) ---------------- */
-(function seedStarter(){
-  const FLAG = "orbit-starter-v1";
-  try{ if(localStorage.getItem(FLAG)) return; }catch(e){ return; }
-  const sp = state.spaces.find(s=>/remind/i.test(s.name)) || state.spaces[0];
-  if(!sp) return;
-  if(!sp.notes) sp.notes = [];
-  const t0 = Date.now();
-  let i = 0;
-  const mk = (title, body, color)=>({id:uid(), title:title, body:body, color:color, pinned:true, createdAt:t0 - (i++)});
-  sp.notes.push(
-    mk("To-do dump", "Buy Paracetamol & Cetirizine & give stuffs\nPrep edits in DaVinci for travel\nApply for work\nStudy for certifications & use Udemy\nLeverage Claude Code for projects\nUpdate job portals", "#fbbf24"),
-    mk("Certifications to get", "CompTIA Security+\nCCNA\nMicrosoft Azure\nCEH\nCISSP\nTrendAI certifications", "#8b7cff"),
-    mk("Daily checklist", "Snacks: Chuckie & KitKat\nLunch\nGym\nClean house\nExternal certs practice (TryHackMe, HTB)", "#34d399"),
-    mk("Vietnam trip 🇻🇳", "Travel tax\nE-Travel (PH)\nArrival card & departure card\nHealth declaration", "#38d6f5"),
-    mk("NEP contacts (Oct 21, 2025)", "Sir Bobby: 0917 577 2007, Teams & Viber (soft skills)\nSir John O: 0917 5100 755 (technical)\nMa'am Jane: 0917 794 1696 (manager)", "#fb7185"),
-    mk("NEP rules", "1. Be on time, advise if late or absent\n2. Always take down notes\n3. Always participate (no raising hands / no grades)\n4. Be respectful\n5. Have fun!\n\nWe are Cybersec Engineers 🛡", "#94a3b8"),
-    mk("Who is Trend Micro", "3CIT: Customer, Change, Collaboration, Innovation, Trustworthiness\nFAIL: First Attempt In Learning\nDPE: 2 teams, Consumer (home users, small biz) & Corporate (businesses)\nDPE profile: Customer success is my success, AI adoption, growth mindset, continuous self-led learning\nCombined Technical Support Expert + DevOps Engineer\nNEP: New Engineer Training Program (soft skills + technical)\nTFD: combined soft skills & technical training", "#8b7cff"),
-    mk("Typing test (Typing Cat)", "July 7, 2026\n38 wpm · 86% acc\n39 wpm · 99% acc\n41 wpm · 99% acc", "#fbbf24"),
-    mk("My account", "Email: joshua_dia@trendmicro.com\nPassword: not stored here on purpose because this file lives in a public GitHub repo. Keep passwords in a password manager.", "#94a3b8")
-  );
-  if(!state.tasks.some(t=>t.spaceId===sp.id && /^clinic$/i.test(t.title))){
-    state.tasks.push({id:uid(), spaceId:sp.id, title:"Clinic", desc:"Repeats every day. Checking it off rolls it to tomorrow.", due:todayStr(), priority:2, stage:sp.stages[0].id, repeat:"daily", done:false, createdAt:Date.now(), completedAt:null});
-  }
-  try{ localStorage.setItem(FLAG, "1"); }catch(e){}
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
-})();
+/* Starter content now lives in your cloud account, not in this file.
+   Fresh devices load everything from the cloud after sign in. */
 
 /* ================================================================
    CLOUD SYNC (zero setup, powered by Puter.js)
@@ -822,28 +813,76 @@ async function cloudSignedIn(){
   renderSidebar();
 }
 
-/* combine two copies of the data without losing anything */
+/* combine two copies of the data without losing anything and without duplicates */
 function mergeStates(a, b){
   const newer = (a.updatedAt||0) >= (b.updatedAt||0) ? a : b;
   const older = newer===a ? b : a;
   const m = JSON.parse(JSON.stringify(newer));
-  if(!Array.isArray(m.spaces)) m.spaces = [];
-  if(!Array.isArray(m.tasks)) m.tasks = [];
-  const sIds = new Set(m.spaces.map(s=>s.id));
-  (older.spaces||[]).forEach(s=>{ if(!sIds.has(s.id)) m.spaces.push(s); });
+  m.spaces = Array.isArray(m.spaces) ? m.spaces : [];
+  m.tasks  = Array.isArray(m.tasks)  ? m.tasks  : [];
+  m.pages  = Array.isArray(m.pages)  ? m.pages  : [];
+  const spKey = s=>(s.name||"").toLowerCase().trim();
+  const nSig = n=>((n.title||"")+"|"+(n.body||"")).trim().toLowerCase();
+  const map = {};
   (older.spaces||[]).forEach(os=>{
-    const ms = m.spaces.find(x=>x.id===os.id);
-    if(ms){
-      if(!Array.isArray(ms.notes)) ms.notes = [];
-      const nIds = new Set(ms.notes.map(n=>n.id));
-      (os.notes||[]).forEach(n=>{ if(!nIds.has(n.id)) ms.notes.push(n); });
-    }
+    let ms = m.spaces.find(x=>x.id===os.id) || m.spaces.find(x=>spKey(x)===spKey(os));
+    if(!ms){ m.spaces.push(JSON.parse(JSON.stringify(os))); map[os.id] = os.id; return; }
+    map[os.id] = ms.id;
+    ms.notes = Array.isArray(ms.notes) ? ms.notes : [];
+    const have = new Set(ms.notes.map(nSig));
+    (os.notes||[]).forEach(n=>{ if(!have.has(nSig(n))){ ms.notes.push(n); have.add(nSig(n)); } });
   });
-  const tIds = new Set(m.tasks.map(t=>t.id));
+  const sigIn = (t, spaces)=>{
+    const sp = (spaces||[]).find(s=>s.id===t.spaceId);
+    return (t.title||"").toLowerCase().trim()+"|"+(sp ? spKey(sp) : t.spaceId);
+  };
+  const haveT = new Set(m.tasks.map(t=>sigIn(t, m.spaces)));
+  const idsT = new Set(m.tasks.map(t=>t.id));
   (older.tasks||[]).forEach(t=>{
-    if(!tIds.has(t.id) && m.spaces.some(s=>s.id===t.spaceId)) m.tasks.push(t);
+    if(idsT.has(t.id)) return;
+    if(haveT.has(sigIn(t, older.spaces))) return;
+    const target = map[t.spaceId] || (m.spaces.some(s=>s.id===t.spaceId) ? t.spaceId : (m.spaces[0] && m.spaces[0].id));
+    if(!target) return;
+    const c = JSON.parse(JSON.stringify(t));
+    c.spaceId = target;
+    const tsp = m.spaces.find(s=>s.id===target);
+    if(tsp && !tsp.stages.some(st=>st.id===c.stage)) c.stage = tsp.stages[0].id;
+    m.tasks.push(c);
+    haveT.add(sigIn(c, m.spaces));
   });
+  const pSig = p=>((p.title||"")+"|"+(p.body||"")).trim().toLowerCase();
+  const haveP = new Set(m.pages.map(pSig));
+  (older.pages||[]).forEach(p=>{ if(!haveP.has(pSig(p))){ m.pages.push(p); haveP.add(pSig(p)); } });
   return m;
+}
+
+/* first sign in on an untouched device simply loads the cloud copy */
+function applyRemote(remote, first){
+  if(first){
+    let dirty = false;
+    try{ dirty = localStorage.getItem("orbit-dirty")==="1"; }catch(e){}
+    if(!dirty){
+      state = remote;
+      showToast("Cloud data loaded ✓");
+    } else {
+      state = mergeStates(state, remote);
+      showToast("Devices merged, no duplicates ✓");
+    }
+    state.updatedAt = Date.now();
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); localStorage.setItem("orbit-dirty","1"); }catch(e){}
+    pushCloud(true);
+    render();
+    updateBadge();
+    return;
+  }
+  if((remote.updatedAt||0) > (state.updatedAt||0)){
+    state = remote;
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+    const ae = document.activeElement;
+    if(ae && (ae.id==="scratch-pad" || ae.tagName==="TEXTAREA" || ae.tagName==="INPUT")) ui._pendingRender = true;
+    else render();
+    updateBadge();
+  }
 }
 
 async function pullCloud(first){
@@ -853,19 +892,7 @@ async function pullCloud(first){
     if(!raw){ pushCloud(true); return; }
     const remote = (typeof raw === "string") ? JSON.parse(raw) : raw;
     if(!remote || !Array.isArray(remote.spaces) || !Array.isArray(remote.tasks)){ pushCloud(true); return; }
-    if(first){
-      state = mergeStates(state, remote);
-      state.updatedAt = Date.now();
-      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
-      pushCloud(true);
-      render();
-    } else if((remote.updatedAt||0) > (state.updatedAt||0)){
-      state = remote;
-      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
-      const ae = document.activeElement;
-      if(ae && (ae.id==="scratch-pad" || ae.tagName==="TEXTAREA" || ae.tagName==="INPUT")) ui._pendingRender = true;
-      else render();
-    }
+    applyRemote(remote, first);
   }catch(e){}
 }
 
@@ -1004,7 +1031,8 @@ function renderSidebar(){
   }).join("");
 
   $("#sidebar").innerHTML =
-    '<div class="logo" data-act="rename-user" title="Click to rename your workspace"><span class="logo-tile">'+MARK_SVG+'</span><span class="word2">'+esc(state.userName)+'’s Orbit</span></div>'+
+    '<div class="logo" data-act="nav-today" title="Go to dashboard"><span class="logo-tile">'+MARK_SVG+'</span><span class="word2">'+(state.userName && state.userName!=="friend" ? esc(state.userName)+'’s Orbit' : 'Orbit')+'</span>'+
+      '<button class="rn" data-act="rename-user" title="Rename workspace">✏️</button></div>'+
     '<div class="sb-scroll">'+
       '<button class="nav-item '+(ui.view==="today"?"active":"")+'" style="--ac:#8b7cff" data-act="nav-today">'+
         '<span class="ico">☀️</span><span class="nm">Today</span><span class="cnt">'+todayCnt+'</span></button>'+
@@ -1019,6 +1047,110 @@ function renderSidebar(){
       '<div class="hint">'+(syncStatus==="on"?"Changes save to the cloud automatically":"Data is saved in this browser · Export to back up")+'</div>'+
     '</div>';
   bindSpaceDnD();
+}
+
+/* ---------------- generic drag to reorder (mouse + touch) ---------------- */
+function makeSortable(list, sel, commit, grid, sameGroupOnly){
+  const items = $$(sel, list);
+  let dragEl = null;
+  const groupOf = el=>{
+    let p = el.previousElementSibling;
+    while(p && !p.classList.contains("group-head")) p = p.previousElementSibling;
+    return p;
+  };
+  const canPair = (a,b)=> !sameGroupOnly || groupOf(a)===groupOf(b);
+  const placeAt = (el, t, x, y)=>{
+    const r = t.getBoundingClientRect();
+    let before;
+    if(grid) before = (y < r.top) || (y <= r.bottom && x < r.left + r.width/2);
+    else before = y < r.top + r.height/2;
+    if(before) list.insertBefore(el, t);
+    else list.insertBefore(el, t.nextSibling);
+  };
+  items.forEach(it=>{
+    it.setAttribute("draggable","true");
+    it.addEventListener("dragstart", e=>{
+      dragEl = it; it.classList.add("drag-src");
+      e.dataTransfer.effectAllowed = "move";
+      try{ e.dataTransfer.setData("text/plain", it.dataset.id||""); }catch(_){}
+    });
+    it.addEventListener("dragend", ()=>{
+      if(!dragEl) return;
+      dragEl.classList.remove("drag-src"); dragEl = null;
+      ui._justDragged = true; setTimeout(()=>{ ui._justDragged = false; }, 150);
+      commit();
+    });
+    it.addEventListener("dragover", e=>{
+      if(!dragEl || dragEl===it || !canPair(dragEl, it)) return;
+      e.preventDefault();
+      placeAt(dragEl, it, e.clientX, e.clientY);
+    });
+    let pressT=null, lifted=false, sy=0, sx=0;
+    it.addEventListener("touchstart", e=>{
+      const t = e.touches[0]; if(!t) return;
+      lifted = false; sy = t.clientY; sx = t.clientX;
+      pressT = setTimeout(()=>{
+        lifted = true; ui._lifting = true;
+        it.classList.add("lifting");
+        try{ if(navigator.vibrate) navigator.vibrate(12); }catch(_){}
+      }, 280);
+    }, {passive:true});
+    it.addEventListener("touchmove", e=>{
+      const t = e.touches[0]; if(!t) return;
+      if(!lifted){
+        if(Math.abs(t.clientY-sy)>10 || Math.abs(t.clientX-sx)>10) clearTimeout(pressT);
+        return;
+      }
+      e.preventDefault();
+      const others = $$(sel, list).filter(x=>x!==it && canPair(it,x));
+      for(const o of others){
+        const r = o.getBoundingClientRect();
+        if(t.clientY > r.top && t.clientY < r.bottom && (!grid || (t.clientX > r.left-10 && t.clientX < r.right+10))){
+          placeAt(it, o, t.clientX, t.clientY); break;
+        }
+      }
+    }, {passive:false});
+    const endT = ()=>{
+      clearTimeout(pressT);
+      if(lifted){
+        it.classList.remove("lifting");
+        ui._lifting = false;
+        ui._justDragged = true; setTimeout(()=>{ ui._justDragged = false; }, 200);
+        commit();
+      }
+      lifted = false;
+    };
+    it.addEventListener("touchend", endT);
+    it.addEventListener("touchcancel", endT);
+  });
+  list.addEventListener("dragover", e=>{ if(dragEl) e.preventDefault(); });
+}
+
+function commitTaskOrderFromDom(container){
+  let counter = 0, changed = false;
+  Array.from(container.children).forEach(ch=>{
+    if(ch.classList.contains("group-head")){ counter = 0; return; }
+    if(ch.classList.contains("task") && ch.dataset.id){
+      const t = state.tasks.find(x=>x.id===ch.dataset.id);
+      if(t && t.order !== counter){ t.order = counter; changed = true; }
+      else if(t) t.order = counter;
+      counter++;
+    }
+  });
+  if(changed){ save(); showToast("Reordered"); }
+  render();
+}
+function commitNoteOrderFromDom(gridEl){
+  let i = 0, changed = false;
+  $$(".note[data-id]", gridEl).forEach(el=>{
+    for(const sp of state.spaces){
+      const n = (sp.notes||[]).find(x=>x.id===el.dataset.id);
+      if(n){ if(n.order !== i) changed = true; n.order = i; break; }
+    }
+    i++;
+  });
+  if(changed){ save(); showToast("Reordered"); }
+  render();
 }
 
 /* ---------------- drag to reorder spaces (mouse + touch) ---------------- */
@@ -1167,10 +1299,17 @@ function taskRow(t, withSpace, idx){
 }
 
 function sortTasks(a,b){
+  if(a.order!=null && b.order!=null && a.order!==b.order) return a.order-b.order;
   if(!!a.due!==!!b.due) return a.due?-1:1;
   if(a.due&&b.due&&a.due!==b.due) return a.due<b.due?-1:1;
   if(a.priority!==b.priority) return b.priority-a.priority;
   return a.createdAt-b.createdAt;
+}
+function noteSort(a,b){
+  const pin = (b.pinned?1:0)-(a.pinned?1:0);
+  if(pin) return pin;
+  if(a.order!=null && b.order!=null && a.order!==b.order) return a.order-b.order;
+  return b.createdAt-a.createdAt;
 }
 
 function isCollapsed(key, def){ return key in ui.collapsed ? ui.collapsed[key] : def; }
@@ -1218,9 +1357,16 @@ function renderToday(){
     h += '<div class="day-prog"><span>Today: <b>'+pct+'%</b> done</span><span class="prog-track"><i style="width:'+pct+'%"></i></span></div>';
   }
 
+  h += '<form class="quickadd" data-form="quickadd-today" style="margin-top:10px">'+
+    '<span class="plus">＋</span>'+
+    '<input name="qa" placeholder=\'Quick add… e.g. "'+pick(QA_HINTS)+'"  (add "in Work" to pick the space)\' autocomplete="off">'+
+    '<button type="submit">Add</button>'+
+  '</form>'+
+  '<div class="qa-prev" id="qa-prev" style="display:none"></div>';
+
   const pinned = [];
   state.spaces.forEach(s=>(s.notes||[]).forEach(n=>{ if(n.pinned && noteMatches(n)) pinned.push({n:n, s:s}); }));
-  pinned.sort((a,b)=>b.n.createdAt-a.n.createdAt);
+  pinned.sort((a,b)=>noteSort(a.n, b.n));
   const notesCol = isCollapsed("today:notes", false);
   h += '<div class="group-head '+(notesCol?"collapsed":"")+'" data-act="collapse" data-key="today:notes">'+
        '<span class="chev">▼</span><span class="dot" style="--gc:var(--accent)"></span>Pinned notes <span class="gcnt">'+pinned.length+'</span>'+
@@ -1249,6 +1395,11 @@ function renderToday(){
   h += uiTip("today");
   h += '</div>';
   $("#view").innerHTML = h;
+  bindQuickAdd();
+  if(!ui.search){
+    const dashGrid = $("#view .notes-grid.dash");
+    if(dashGrid) makeSortable(dashGrid, ".note[data-id]", ()=>commitNoteOrderFromDom(dashGrid), true, false);
+  }
   updateClock();
   animateNums();
 }
@@ -1462,6 +1613,10 @@ function renderListView(s){
   h += '</div>';
   $("#view").innerHTML = h;
   bindQuickAdd();
+  if(!ui.search){
+    const inner = $("#view .view-inner");
+    if(inner) makeSortable(inner, ".task[data-id]", ()=>commitTaskOrderFromDom(inner), false, true);
+  }
   const qa=$("#view .quickadd input"); if(qa && ui._focusQA){ qa.focus(); ui._focusQA=false; }
 }
 
@@ -1552,7 +1707,7 @@ function bindBoardDnD(){
 /* ---------------- notes view ---------------- */
 function renderNotesView(s){
   if(!s.notes) s.notes = [];
-  const notes = s.notes.filter(noteMatches).sort((a,b)=>((b.pinned?1:0)-(a.pinned?1:0)) || (b.createdAt-a.createdAt));
+  const notes = s.notes.filter(noteMatches).sort(noteSort);
   let h = '<div class="view-inner"><div class="notes-grid">'+
     '<div class="note add-note" data-act="new-note" role="button" tabindex="0"><span class="big">＋</span>New note</div>'+
     notes.map((n,i)=>'<div class="note" style="--nc:'+esc(n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+n.id+'" data-space="'+s.id+'">'+
@@ -1566,6 +1721,10 @@ function renderNotesView(s){
   h += uiTip("notes");
   h += '</div>';
   $("#view").innerHTML = h;
+  if(!ui.search){
+    const grid = $("#view .notes-grid");
+    if(grid) makeSortable(grid, ".note[data-id]", ()=>commitNoteOrderFromDom(grid), true, false);
+  }
 }
 
 /* ---------------- render root ---------------- */
@@ -1652,6 +1811,7 @@ function cmdActions(){
       applyMascot();
       if(mascotOn) mascotSay("I'm back! 🪐");
     }},
+    {icon:"✏️", label:"Rename workspace", run:renameUser},
     {icon:"🔔", label:(function(){ try{ return localStorage.getItem("orbit-notif")==="on" ? "Turn off daily reminders" : "Enable daily reminders"; }catch(e){ return "Enable daily reminders"; } })(), run:toggleNotif},
     {icon:"⏳", label:"Move all overdue to today", run:()=>{ if(!moveOverdueToToday(null)) showToast("No overdue tasks 🎉"); }},
     {icon:"📄", label:"Download notepad (.txt)", run:padDownload},
@@ -2055,6 +2215,7 @@ function openTaskMenu(taskId, x, y){
 function closePopover(){ const p = $("#popover"); if(p) p.style.display = "none"; }
 
 document.addEventListener("contextmenu", e=>{
+  if(ui._lifting){ e.preventDefault(); return; }
   const row = e.target.closest(".task,.card");
   if(row && row.dataset.id){
     e.preventDefault();
@@ -2303,6 +2464,35 @@ function initMascot(){
   }catch(e){}
 }
 
+/* ---------------- first run welcome ---------------- */
+function finishHello(){
+  const i = $('#modal-root input[name="nm"]');
+  const nm = i ? i.value.trim() : "";
+  if(nm) state.userName = nm.slice(0,24);
+  save(); closeModal(); render();
+  mascotSay("Hi "+state.userName+"! Click me any time, or sign in from the sidebar to sync your devices ⛅", 4200);
+}
+function renameUser(){
+  const v = prompt("What should Orbit call you?", state.userName==="friend" ? "" : state.userName);
+  if(v && v.trim()){ state.userName = v.trim().slice(0,24); save(); render(); }
+}
+function maybeOnboard(){
+  try{
+    if(localStorage.getItem("orbit-onboarded")) return;
+    localStorage.setItem("orbit-onboarded","1");
+    if(localStorage.getItem("orbit-dirty")==="1") return;
+    const current = state.userName && state.userName!=="friend" ? state.userName : "";
+    modalShell(
+      '<h2>Welcome</h2>'+
+      '<div class="info" style="font-size:14px">Welcome to <b>Orbit</b> 🪐 Tasks, notes, plans and a little planet buddy, all in one fast place.<br><br>What should we call you?</div>'+
+      '<form data-form="hello">'+
+        '<input class="f-title" name="nm" placeholder="Your name" value="'+esc(current)+'" autocomplete="off" style="margin-top:8px">'+
+        '<div class="m-foot"><span class="grow"></span><button type="button" class="btn primary" data-act="hello-go">Start 🚀</button></div>'+
+      '</form>');
+    setTimeout(()=>{ const i=$("#modal-root input"); if(i) i.focus(); }, 80);
+  }catch(e){}
+}
+
 /* ---------------- daily reminder notifications ---------------- */
 const NOTIF_KEY = "orbit-notif";
 async function toggleNotif(){
@@ -2365,7 +2555,7 @@ document.addEventListener("click", e=>{
     }
     case "new-note": openNoteModal(ui.spaceId, null); break;
     case "new-dash-note": openNoteModal(defaultNotesSpaceId(), null, true); break;
-    case "open-note": openNoteModal(el.dataset.space || ui.spaceId, el.dataset.id); break;
+    case "open-note": if(ui._justDragged) break; openNoteModal(el.dataset.space || ui.spaceId, el.dataset.id); break;
     case "del-note": {
       const sp = getSpace(el.dataset.space);
       if(sp && sp.notes) sp.notes = sp.notes.filter(n=>n.id!==el.dataset.id);
@@ -2535,11 +2725,8 @@ document.addEventListener("click", e=>{
     case "toggle-theme": toggleTheme(); break;
     case "toggle-sb": toggleSidebar(); break;
     case "mascot": if(e.target.closest("#mascot-bubble")) break; mascotClicked(); break;
-    case "rename-user": {
-      const v = prompt("What should Orbit call you?", state.userName);
-      if(v && v.trim()){ state.userName = v.trim().slice(0,24); save(); render(); }
-      break;
-    }
+    case "rename-user": renameUser(); break;
+    case "hello-go": finishHello(); break;
   }
 });
 
@@ -2547,6 +2734,16 @@ document.addEventListener("submit", e=>{
   const f = e.target, kind = f.dataset.form;
   if(!kind) return;
   e.preventDefault();
+  if(kind==="hello"){ finishHello(); return; }
+  if(kind==="quickadd-today"){
+    const v = f.elements["qa"].value.trim(); if(!v) return;
+    const out = orbieAddTask(v);
+    if(out){
+      hapt();
+      showToast("✓ Added to "+out.sp.icon+" "+out.sp.name);
+    }
+    return;
+  }
   if(kind==="quickadd"){
     const v = f.elements["qa"].value.trim(); if(!v) return;
     const p = parseQuick(v); if(!p.title) return;
@@ -2634,7 +2831,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "3.3";
+const APP_VERSION = "4.1";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
@@ -2646,6 +2843,8 @@ render();
 initMascot();
 initCloud();
 maybeNotify();
+updateBadge();
+maybeOnboard();
 
 /* deep link: yoursite/?add=Buy milk tomorrow  (works with iPhone Shortcuts + Siri) */
 (function deepLink(){

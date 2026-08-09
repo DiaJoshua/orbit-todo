@@ -64,6 +64,14 @@ vercel dev
 
 **Option C, deploy to Vercel (free):** push this folder to GitHub, import the repo at https://vercel.com/new, deploy. Every future push auto deploys.
 
+## Sharing with friends
+
+Orbit is friend ready: no personal data ships in the code. New visitors get a clean welcome that asks their name, sample content to explore, and their own private cloud account when they sign in. Everyone's data is completely separate.
+
+**How sign in behaves:** on a device where you have not made changes, signing in simply loads your cloud data (no duplicated samples). If you did make changes on that device first, Orbit merges both sides and removes duplicates automatically.
+
+**Everything is moveable:** drag tasks within their group, drag sticky notes, drag spaces in the sidebar. On phones, long press until it lifts, then slide. Your order syncs everywhere. Installed as an app, the icon even shows a badge with how many tasks are due.
+
 ## Your data
 
 Without cloud sync, data lives in the browser's localStorage, tied to the URL you use. Use **Export** and **Import** in the sidebar to move or back up data. With cloud sync on (sidebar sign in, see `SETUP-SYNC.md`), data saves to your own private cloud storage automatically and follows your account everywhere. First sign in merges device and cloud data so nothing is lost.
