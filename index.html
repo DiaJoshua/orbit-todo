@@ -318,6 +318,30 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .note.add-note:hover{color:var(--text);border-color:var(--accent);transform:none}
 .note.add-note .big{font-size:26px;color:var(--accent)}
 
+/* ============ notepad ============ */
+.pad-head{display:flex;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.pad-title{font-size:22px;font-weight:800}
+.pad-meta{font-size:12px;color:var(--faint);margin-left:auto}
+#scratch-pad{
+  width:100%;min-height:62vh;resize:vertical;display:block;
+  background:var(--bg2);border:1px solid var(--border);border-radius:18px;
+  padding:26px 28px;font-size:15.5px;line-height:1.75;outline:none;color:var(--text);
+  box-shadow:var(--card-shadow);font-family:inherit;transition:border-color .15s;
+}
+#scratch-pad:focus{border-color:color-mix(in srgb,var(--accent) 45%,transparent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 8%,transparent)}
+#scratch-pad::placeholder{color:var(--faint)}
+.note-row{
+  background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--nc,#8b7cff);
+  border-radius:14px;padding:14px 17px;margin-bottom:10px;cursor:pointer;
+  box-shadow:var(--card-shadow);transition:transform .15s,background .15s;animation:fadeUp .3s ease both;
+}
+.note-row:hover{transform:translateY(-1px);background:var(--bg2)}
+.nr-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.nr-title{font-weight:700;font-size:15px;flex:1;min-width:120px}
+.nr-body{margin-top:8px;font-size:13.5px;color:var(--muted);white-space:pre-wrap;line-height:1.65;word-break:break-word}
+.head-link{margin-left:auto;font-size:11px;letter-spacing:.4px;color:var(--faint);text-transform:none;padding:3px 9px;border-radius:8px}
+.head-link:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+
 /* ============ empty state ============ */
 .empty{text-align:center;padding:56px 20px;color:var(--muted);animation:fadeUp .3s ease both}
 .empty .art{font-size:44px;margin-bottom:12px;display:block;filter:saturate(.85);animation:float 3.5s ease-in-out infinite}
@@ -334,6 +358,9 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 @keyframes fadeIn{from{opacity:0}}
 .modal{
   width:min(540px,94vw);max-height:88vh;overflow-y:auto;
+}
+.modal.wide{width:min(760px,96vw)}
+.modal{
   background:var(--modal-bg);border:1px solid var(--border2);border-radius:20px;padding:24px;
   box-shadow:var(--pop-shadow);animation:zoomIn .18s cubic-bezier(.2,.9,.3,1.2);
 }
@@ -540,7 +567,8 @@ function seed(){
     {id:uid(), spaceId:rem.id, title:"Clinic", desc:"Repeats every day. Checking it off rolls it to tomorrow.", due:todayStr(), priority:2, stage:rem.stages[0].id, repeat:"daily", done:false, createdAt:Date.now(), completedAt:null},
     {id:uid(), spaceId:rem.id, title:"Renew driver's license", desc:"", due:addDays(10), priority:2, stage:rem.stages[0].id, repeat:null, done:false, createdAt:Date.now(), completedAt:null}
   ];
-  return {userName:"Joshua", spaces:[jobs,work,rem,home,pers], tasks};
+  return {userName:"Joshua", spaces:[jobs,work,rem,home,pers], tasks,
+    scratch:"Welcome to your Notepad 🗒\n\nThis is one big page that is all yours. Write plans, paste anything, draft messages, keep a running log. It saves by itself as you type and syncs to your other devices when you are signed in.\n\nDelete this text and make it yours."};
 }
 
 /* ---------------- storage ---------------- */
@@ -674,7 +702,9 @@ async function pullCloud(first){
     } else if((remote.updatedAt||0) > (state.updatedAt||0)){
       state = remote;
       try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
-      render();
+      const ae = document.activeElement;
+      if(ae && (ae.id==="scratch-pad" || ae.tagName==="TEXTAREA" || ae.tagName==="INPUT")) ui._pendingRender = true;
+      else render();
     }
   }catch(e){}
 }
@@ -803,6 +833,8 @@ function renderSidebar(){
     '<div class="sb-scroll">'+
       '<button class="nav-item '+(ui.view==="today"?"active":"")+'" style="--ac:#8b7cff" data-act="nav-today">'+
         '<span class="ico">☀️</span><span class="nm">Today</span><span class="cnt">'+todayCnt+'</span></button>'+
+      '<button class="nav-item '+(ui.view==="pad"?"active":"")+'" style="--ac:#2ab1dd" data-act="nav-pad">'+
+        '<span class="ico">🗒</span><span class="nm">Notepad</span></button>'+
       '<div class="sb-label"><span>Spaces</span><button data-act="new-space" title="New space">＋</button></div>'+
       spacesHtml+
     '</div>'+
@@ -817,6 +849,7 @@ function renderSidebar(){
 function renderTopbar(){
   let title, emoji;
   if(ui.view==="today"){ title="Today"; emoji="☀️"; }
+  else if(ui.view==="pad"){ title="Notepad"; emoji="🗒"; }
   else { const s=getSpace(ui.spaceId); title=s?s.name:"Orbit"; emoji=s?s.icon:""; }
   $("#topbar").innerHTML =
     '<button class="icon-btn" id="menu-btn" data-act="toggle-sb" title="Show or hide the sidebar">'+MENU_SVG+'</button>'+
@@ -923,7 +956,8 @@ function renderToday(){
   pinned.sort((a,b)=>b.n.createdAt-a.n.createdAt);
   const notesCol = isCollapsed("today:notes", false);
   h += '<div class="group-head '+(notesCol?"collapsed":"")+'" data-act="collapse" data-key="today:notes">'+
-       '<span class="chev">▼</span><span class="dot" style="--gc:var(--accent)"></span>Pinned notes <span class="gcnt">'+pinned.length+'</span></div>';
+       '<span class="chev">▼</span><span class="dot" style="--gc:var(--accent)"></span>Pinned notes <span class="gcnt">'+pinned.length+'</span>'+
+       '<button class="head-link" data-act="nav-pad">Open notepad →</button></div>';
   if(!notesCol){
     h += '<div class="notes-grid dash">'+
       '<div class="note add-note" data-act="new-dash-note" role="button" tabindex="0"><span class="big">＋</span>New note</div>'+
@@ -952,6 +986,50 @@ function renderToday(){
 function updateClock(){
   const el = $("#now");
   if(el) el.textContent = new Date().toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
+}
+
+/* ---------------- notepad view ---------------- */
+const countWords = s=>{ const t=(s||"").trim(); return t ? t.split(/\s+/).length : 0; };
+
+function renderPad(){
+  let h = '<div class="view-inner">'+
+    '<div class="pad-head"><h2 class="pad-title">Your big blank page</h2>'+
+    '<span class="pad-meta" id="pad-meta">'+countWords(state.scratch)+' words · saved ✓</span></div>'+
+    '<textarea id="scratch-pad" placeholder="Write or paste anything here. Plans, brain dumps, meeting notes, drafts. It saves by itself as you type and syncs to your other devices.">'+esc(state.scratch||"")+'</textarea>';
+
+  const all = [];
+  state.spaces.forEach(s=>(s.notes||[]).forEach(n=>{ if(noteMatches(n)) all.push({n:n, s:s}); }));
+  all.sort((a,b)=>((b.n.pinned?1:0)-(a.n.pinned?1:0)) || (b.n.createdAt-a.n.createdAt));
+
+  h += '<div class="group-head" style="margin-top:28px;cursor:default"><span class="dot" style="--gc:var(--accent)"></span>All notes <span class="gcnt">'+all.length+'</span>'+
+       '<button class="head-link" data-act="new-dash-note">＋ New note</button></div>';
+  if(!all.length){
+    h += '<div class="empty"><span class="art">🗒</span><h3>'+(ui.search?"No matching notes":"No notes yet")+'</h3><p>Notes you create in any space show up here, full size, easy to read.</p></div>';
+  } else {
+    h += all.map((p,i)=>'<div class="note-row" style="--nc:'+esc(p.n.color||"#8b7cff")+';animation-delay:'+dly(i)+'" data-act="open-note" data-id="'+p.n.id+'" data-space="'+p.s.id+'">'+
+      '<div class="nr-head">'+(p.n.pinned?'<span>📌</span>':'')+'<span class="nr-title">'+esc(p.n.title||"Untitled")+'</span>'+
+      '<span class="chip space-chip" style="--c:'+p.s.color+'">'+esc(p.s.icon+" "+p.s.name)+'</span></div>'+
+      (p.n.body?'<div class="nr-body">'+esc(p.n.body)+'</div>':'')+
+    '</div>').join("");
+  }
+  h += '</div>';
+  $("#view").innerHTML = h;
+  bindScratch();
+}
+
+function bindScratch(){
+  const ta = $("#scratch-pad"); if(!ta) return;
+  let t = null;
+  ta.addEventListener("input", ()=>{
+    const m1 = $("#pad-meta"); if(m1) m1.textContent = countWords(ta.value)+" words · saving…";
+    clearTimeout(t);
+    t = setTimeout(()=>{
+      state.scratch = ta.value;
+      save();
+      const m2 = $("#pad-meta"); if(m2) m2.textContent = countWords(ta.value)+" words · saved ✓";
+    }, 500);
+  });
+  ta.addEventListener("blur", ()=>{ if(ui._pendingRender){ ui._pendingRender = false; render(); } });
 }
 
 /* ---------------- list view ---------------- */
@@ -1074,6 +1152,7 @@ function renderView(){
   if(ac) document.documentElement.style.setProperty("--accent", ac);
   else document.documentElement.style.removeProperty("--accent");
   if(ui.view==="today"){ renderToday(); return; }
+  if(ui.view==="pad"){ renderPad(); return; }
   const s = getSpace(ui.spaceId);
   if(ui.tab==="board"){ renderBoardView(s); bindBoardDnD(); }
   else if(ui.tab==="notes"){ renderNotesView(s); }
@@ -1096,7 +1175,7 @@ function parseQuick(text){
 }
 
 /* ---------------- modals ---------------- */
-function modalShell(inner){ $("#modal-root").innerHTML = '<div class="overlay"><div class="modal">'+inner+'</div></div>'; }
+function modalShell(inner, wide){ $("#modal-root").innerHTML = '<div class="overlay"><div class="modal'+(wide?" wide":"")+'">'+inner+'</div></div>'; }
 function closeModal(){ $("#modal-root").innerHTML = ""; }
 
 function openTaskModal(taskId, spaceId, stageId){
@@ -1180,7 +1259,7 @@ function openNoteModal(spaceId, noteId, defPinned){
     '<h2>'+(n?"Edit note":"New note")+'</h2>'+
     '<form data-form="note" data-id="'+(n?n.id:"")+'" data-space="'+sp.id+'">'+
       '<input class="f-title" name="title" placeholder="Note title" value="'+esc(n?n.title:"")+'" autocomplete="off">'+
-      '<textarea name="body" placeholder="Write or paste anything: ideas, lists, links, meeting notes…" style="min-height:160px">'+esc(n?n.body:"")+'</textarea>'+
+      '<textarea name="body" placeholder="Write or paste anything: ideas, lists, links, meeting notes…" style="min-height:300px">'+esc(n?n.body:"")+'</textarea>'+
       '<div class="f-grid">'+
         (n ? "" : '<label class="f-field"><span>Space</span><select name="nspace">'+
           state.spaces.map(s=>'<option value="'+s.id+'"'+(s.id===sp.id?" selected":"")+'>'+esc(s.icon+" "+s.name)+'</option>').join("")+
@@ -1196,7 +1275,7 @@ function openNoteModal(spaceId, noteId, defPinned){
         '<button type="button" class="btn ghost" data-act="close-modal">Cancel</button>'+
         '<button type="submit" class="btn primary">'+(n?"Save":"Add note")+'</button>'+
       '</div>'+
-    '</form>');
+    '</form>', true);
   setTimeout(()=>{ const f=$("#modal-root .f-title"); if(f) f.focus(); }, 40);
 }
 
@@ -1368,6 +1447,7 @@ document.addEventListener("click", e=>{
   const act = el.dataset.act;
   switch(act){
     case "nav-today": ui.view="today"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
+    case "nav-pad": ui.view="pad"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
     case "nav-space": ui.view="space"; ui.spaceId=el.dataset.id; ui.tab="tasks"; ui.search=""; closeSb(); render(); break;
     case "tab": ui.tab = el.dataset.tab; renderTabs(); renderView(); break;
     case "toggle": toggleTask(el.dataset.id, el); break;
@@ -1499,6 +1579,16 @@ document.addEventListener("touchend", e=>{
   touchX = null; edgeSwipe = false;
 }, {passive:true});
 addEventListener("resize", ()=>{ if(!isMobile()) closeSb(); });
+
+/* flush unsaved notepad text if the tab closes mid-typing */
+addEventListener("beforeunload", ()=>{
+  const ta = $("#scratch-pad");
+  if(ta && ta.value !== (state.scratch||"")){
+    state.scratch = ta.value;
+    state.updatedAt = Date.now();
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+});
 
 updateFab();
 render();
