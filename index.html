@@ -121,12 +121,14 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 @media(min-width:881px){
   body.sb-collapsed #sidebar{margin-left:-268px}
 }
-.logo{display:flex;align-items:center;gap:10px;padding:0 10px 20px;user-select:none}
-.logo svg{flex-shrink:0;transition:transform .45s cubic-bezier(.3,1.4,.4,1)}
-.logo:hover svg{transform:rotate(14deg)}
-.logo .word{font-size:19px;font-weight:700;letter-spacing:-.01em;background:linear-gradient(90deg,#6e56cf,#2f7fe0);-webkit-background-clip:text;background-clip:text;color:transparent}
-.logo .tag{font-size:10.5px;color:var(--faint);letter-spacing:.6px;margin-top:1px}
-.sb-scroll{flex:1;overflow-y:auto;padding:2px 2px 10px}
+.logo{display:flex;align-items:center;gap:10px;padding:6px 8px;margin:0 2px 14px;user-select:none;cursor:pointer;border-radius:10px;transition:background .15s}
+.logo:hover{background:var(--panel2)}
+.logo-tile{width:30px;height:30px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;background:linear-gradient(135deg,#6e56cf,#2f7fe0);box-shadow:0 3px 10px color-mix(in srgb,#6e56cf 35%,transparent);transition:transform .45s cubic-bezier(.3,1.4,.4,1)}
+.logo:hover .logo-tile{transform:rotate(12deg) scale(1.05)}
+.word2{font-size:14.5px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-scroll{flex:1;overflow-y:auto;padding:2px 2px 10px;touch-action:pan-y}
+.nav-item.drag-src{opacity:.4}
+.nav-item.lifting{transform:scale(1.04);box-shadow:0 10px 26px rgba(0,0,0,.28);background:var(--bg2);position:relative;z-index:5;opacity:.95}
 .sb-label{font-size:10.5px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);padding:16px 12px 7px;display:flex;align-items:center;justify-content:space-between}
 .sb-label button{color:var(--faint);font-size:15px;line-height:1;padding:2px 6px;border-radius:8px;transition:.15s}
 .sb-label button:hover{color:var(--text);background:var(--panel2)}
@@ -346,8 +348,14 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .note.add-note .big{font-size:26px;color:var(--accent)}
 
 /* ============ notepad ============ */
+.pages-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.page-chip{padding:6px 13px;border-radius:10px;background:var(--panel);border:1px solid var(--border);font-size:12.5px;font-weight:600;color:var(--muted);transition:.13s;box-shadow:var(--card-shadow)}
+.page-chip:hover{color:var(--text);border-color:var(--border2);transform:translateY(-1px)}
+.page-chip.active{background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--text);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+.page-chip.new{border-style:dashed;background:none;box-shadow:none}
 .pad-head{display:flex;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap}
-.pad-title{font-size:22px;font-weight:800}
+.pad-title{font-size:22px;font-weight:800;cursor:pointer;border-radius:8px;padding:0 6px;margin-left:-6px}
+.pad-title:hover{background:var(--panel2)}
 .pad-meta{font-size:12px;color:var(--faint);margin-left:auto}
 #scratch-pad{
   width:100%;min-height:62vh;resize:vertical;display:block;
@@ -461,6 +469,17 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .quick-dates button{font-size:11px;font-weight:600;color:var(--muted);background:var(--chip-bg);border-radius:999px;padding:3.5px 10px;transition:.12s}
 .quick-dates button:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
 
+/* ============ context menu popover ============ */
+#popover{
+  position:fixed;z-index:60;display:none;min-width:178px;
+  background:var(--modal-bg);border:1px solid var(--border2);border-radius:12px;
+  box-shadow:var(--pop-shadow);padding:5px;animation:zoomIn .12s ease;
+}
+#popover button{display:flex;gap:9px;align-items:center;width:100%;text-align:left;padding:8px 11px;border-radius:8px;font-size:13px;color:var(--muted);transition:background .1s}
+#popover button:hover{background:var(--panel2);color:var(--text)}
+#popover button.danger:hover{background:color-mix(in srgb,var(--rose) 12%,transparent);color:var(--rose)}
+#popover .sep{height:1px;background:var(--border);margin:4px 6px}
+
 /* ============ toast ============ */
 #toast{
   position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);z-index:80;
@@ -564,6 +583,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   </main>
 </div>
 <div id="modal-root"></div>
+<div id="popover"></div>
 <div id="toast"></div>
 <button id="fab" data-act="toggle-sb" aria-label="Open menu">☰</button>
 <div id="mascot" data-act="mascot" title="Orbie" role="button" aria-label="Orbie the mascot">
@@ -629,6 +649,27 @@ const REPEAT_NAMES = {daily:"Daily", weekdays:"Weekdays", weekly:"Weekly"};
 const SPACE_COLORS = ["#7c66dc","#3e8ef7","#30a46c","#d6a327","#e5484d","#d6409f","#7ba318","#e17435"];
 const NOTE_COLORS  = ["#d6a327","#7c66dc","#3e8ef7","#30a46c","#e5484d","#8b8d98"];
 const EMOJIS = "💼 🖥 🏠 ⏰ 🌱 📚 💪 ✈️ 💰 🎯 🛒 ❤️".split(" ");
+
+const QA_HINTS = [
+  "Pay bills tomorrow !high",
+  "Clinic daily !med",
+  "Submit report fri",
+  "Groceries sat",
+  "Review notes in 3 days",
+  "Call landlord next mon",
+  "Study CCNA weekdays !med",
+  "Book dentist aug 25",
+  "Follow up recruiter tue !high"
+];
+const ORBIE_HINTS = [
+  "gym tomorrow !med",
+  "done clinic",
+  "note: interview ideas",
+  "find resume",
+  "go to work",
+  "clear overdue",
+  "help"
+];
 
 const QUOTES = [
   "Small steps every day.",
@@ -864,8 +905,15 @@ function syncLabel(){
   return "⚠ Sync unavailable · tap for info";
 }
 
+/* ---------------- pages migration (Notion style notepad) ---------------- */
+(function migratePages(){
+  if(Array.isArray(state.pages) && state.pages.length) return;
+  state.pages = [{id:uid(), title:"Notes", icon:"📝", body:state.scratch||"", createdAt:Date.now(), updatedAt:Date.now()}];
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+})();
+
 /* ---------------- ui state ---------------- */
-let ui = { view:"today", spaceId:null, tab:"tasks", search:"", collapsed:{}, dragTask:null };
+let ui = { view:"today", spaceId:null, tab:"tasks", pageId:null, search:"", collapsed:{}, dragTask:null };
 let undoBuf = null;
 let undoTimer = null;
 
@@ -882,7 +930,7 @@ function currentAccent(){
 }
 
 /* ---------------- icons ---------------- */
-const LOGO_SVG = '<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="olg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b7cff"/><stop offset="1" stop-color="#2ab1dd"/></linearGradient></defs><circle cx="16" cy="16" r="7.2" fill="url(#olg)"/><ellipse cx="16" cy="16" rx="13.5" ry="5" fill="none" stroke="url(#olg)" stroke-width="1.7" transform="rotate(-18 16 16)" opacity=".85"/><circle cx="27.2" cy="11.4" r="1.6" fill="#2ab1dd"/></svg>';
+const MARK_SVG = '<svg width="17" height="17" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="104" fill="#fff" opacity=".97"/><ellipse cx="256" cy="256" rx="196" ry="72" fill="none" stroke="#fff" stroke-width="32" opacity=".9" transform="rotate(-18 256 256)"/></svg>';
 const SEARCH_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const MENU_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 const SUN_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
@@ -943,7 +991,7 @@ function renderSidebar(){
     const done  = state.tasks.filter(t=>t.spaceId===s.id && t.done).length;
     const pct   = total ? Math.round(done/total*100) : 0;
     const active = ui.view==="space" && ui.spaceId===s.id;
-    return '<button class="nav-item '+(active?"active":"")+'" style="--ac:'+s.color+'" data-act="nav-space" data-id="'+s.id+'">'+
+    return '<button class="nav-item '+(active?"active":"")+'" style="--ac:'+s.color+'" data-act="nav-space" data-id="'+s.id+'" draggable="true" title="Drag to reorder">'+
       '<span class="ico">'+esc(s.icon)+'</span><span class="nm">'+esc(s.name)+'</span>'+
       '<span class="cnt">'+openCount(s.id)+'</span>'+
       (total? '<span class="bar"><i style="width:'+pct+'%"></i></span>':'')+
@@ -951,7 +999,7 @@ function renderSidebar(){
   }).join("");
 
   $("#sidebar").innerHTML =
-    '<div class="logo">'+LOGO_SVG+'<div><div class="word">Orbit</div><div class="tag">EVERYTHING, IN ORBIT</div></div></div>'+
+    '<div class="logo" data-act="rename-user" title="Click to rename your workspace"><span class="logo-tile">'+MARK_SVG+'</span><span class="word2">'+esc(state.userName)+'’s Orbit</span></div>'+
     '<div class="sb-scroll">'+
       '<button class="nav-item '+(ui.view==="today"?"active":"")+'" style="--ac:#8b7cff" data-act="nav-today">'+
         '<span class="ico">☀️</span><span class="nm">Today</span><span class="cnt">'+todayCnt+'</span></button>'+
@@ -965,6 +1013,90 @@ function renderSidebar(){
       '<div class="row"><button class="mini" data-act="export">⬇ Export</button><button class="mini" data-act="import">⬆ Import</button></div>'+
       '<div class="hint">'+(syncStatus==="on"?"Changes save to the cloud automatically":"Data is saved in this browser · Export to back up")+'</div>'+
     '</div>';
+  bindSpaceDnD();
+}
+
+/* ---------------- drag to reorder spaces (mouse + touch) ---------------- */
+function commitSpaceOrder(){
+  const ids = $$("#sidebar .nav-item[data-id]").map(b=>b.dataset.id);
+  const before = state.spaces.map(s=>s.id).join(",");
+  state.spaces.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+  if(state.spaces.map(s=>s.id).join(",") !== before){ save(); showToast("Spaces reordered"); }
+  render();
+}
+
+function bindSpaceDnD(){
+  const list = $("#sidebar .sb-scroll"); if(!list) return;
+  const items = $$(".nav-item[data-id]", list);
+  let draggedEl = null;
+
+  const placeAt = (el, target, clientY)=>{
+    const r = target.getBoundingClientRect();
+    const before = (clientY - r.top) < r.height/2;
+    if(before) list.insertBefore(el, target);
+    else list.insertBefore(el, target.nextSibling);
+  };
+
+  items.forEach(it=>{
+    /* desktop: native drag */
+    it.addEventListener("dragstart", e=>{
+      draggedEl = it;
+      it.classList.add("drag-src");
+      e.dataTransfer.effectAllowed = "move";
+      try{ e.dataTransfer.setData("text/plain", it.dataset.id); }catch(_){}
+    });
+    it.addEventListener("dragend", ()=>{
+      if(!draggedEl) return;
+      draggedEl.classList.remove("drag-src");
+      draggedEl = null;
+      ui._justDragged = true; setTimeout(()=>{ ui._justDragged = false; }, 150);
+      commitSpaceOrder();
+    });
+    it.addEventListener("dragover", e=>{
+      if(!draggedEl || draggedEl===it) return;
+      e.preventDefault();
+      placeAt(draggedEl, it, e.clientY);
+    });
+
+    /* mobile: long press to lift, slide to reorder */
+    let pressT = null, lifted = false, sy = 0, sx = 0;
+    it.addEventListener("touchstart", e=>{
+      const t = e.touches[0]; if(!t) return;
+      lifted = false; sy = t.clientY; sx = t.clientX;
+      pressT = setTimeout(()=>{
+        lifted = true;
+        ui._spaceLift = true;
+        it.classList.add("lifting");
+        try{ if(navigator.vibrate) navigator.vibrate(12); }catch(_){}
+      }, 260);
+    }, {passive:true});
+    it.addEventListener("touchmove", e=>{
+      const t = e.touches[0]; if(!t) return;
+      if(!lifted){
+        if(Math.abs(t.clientY-sy)>10 || Math.abs(t.clientX-sx)>10) clearTimeout(pressT);
+        return;
+      }
+      e.preventDefault();
+      const others = $$(".nav-item[data-id]", list).filter(x=>x!==it);
+      for(const o of others){
+        const r = o.getBoundingClientRect();
+        if(t.clientY > r.top && t.clientY < r.bottom){ placeAt(it, o, t.clientY); break; }
+      }
+    }, {passive:false});
+    const endTouch = ()=>{
+      clearTimeout(pressT);
+      if(lifted){
+        it.classList.remove("lifting");
+        ui._spaceLift = false;
+        ui._justDragged = true; setTimeout(()=>{ ui._justDragged = false; }, 180);
+        commitSpaceOrder();
+      }
+      lifted = false;
+    };
+    it.addEventListener("touchend", endTouch);
+    it.addEventListener("touchcancel", endTouch);
+  });
+  list.addEventListener("dragover", e=>{ if(draggedEl) e.preventDefault(); });
 }
 
 /* ---------------- chrome: topbar & tabs ---------------- */
@@ -979,7 +1111,7 @@ function renderTopbar(){
     '<div class="tb-spacer"></div>'+
     '<button class="kbd-hint" data-act="cmdk" title="Command palette: jump anywhere, create anything">Ctrl K</button>'+
     '<button class="icon-btn" id="theme-btn" data-act="toggle-theme" title="'+(theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(theme==="dark"?SUN_SVG:MOON_SVG)+'</button>'+
-    '<div class="searchwrap">'+SEARCH_SVG+'<input id="search" placeholder="Search…  ( / )" value="'+esc(ui.search)+'" autocomplete="off"></div>'+
+    '<div class="searchwrap">'+SEARCH_SVG+'<input id="search" placeholder="'+(isMobile()?"Search…":"Search…  ( / )")+'" value="'+esc(ui.search)+'" autocomplete="off"></div>'+
     '<button class="btn primary" data-act="new-task">＋<span class="bt-txt"> New task</span></button>';
 }
 
@@ -1025,7 +1157,7 @@ function taskRow(t, withSpace, idx){
       (t.desc?'<div class="t-desc">'+esc(t.desc)+'</div>':'')+
       '<div class="t-chips">'+chipsHtml(t, withSpace)+'</div>'+
     '</div>'+
-    '<button class="icon-btn del" data-act="del-task" data-id="'+t.id+'" title="Delete">✕</button>'+
+    '<button class="icon-btn del" data-act="task-menu" data-id="'+t.id+'" title="More actions">⋯</button>'+
   '</div>';
 }
 
@@ -1135,15 +1267,33 @@ function updateClock(){
   if(el) el.textContent = new Date().toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
 }
 
-/* ---------------- notepad view ---------------- */
+/* ---------------- notepad view (pages, Notion style) ---------------- */
 const countWords = s=>{ const t=(s||"").trim(); return t ? t.split(/\s+/).length : 0; };
+function activePage(){
+  if(!Array.isArray(state.pages) || !state.pages.length){
+    state.pages = [{id:uid(), title:"Notes", icon:"📝", body:"", createdAt:Date.now(), updatedAt:Date.now()}];
+  }
+  let p = state.pages.find(x=>x.id===ui.pageId);
+  if(!p){ p = state.pages[0]; ui.pageId = p.id; }
+  return p;
+}
 
 function renderPad(){
+  const pg = activePage();
   let h = '<div class="view-inner">'+
-    '<div class="pad-head"><h2 class="pad-title">Your big blank page</h2>'+
-    '<span class="pad-meta" id="pad-meta">'+countWords(state.scratch)+' words · saved ✓</span>'+
-    '<button class="head-link" data-act="pad-download" style="margin-left:0">Download .txt</button></div>'+
-    '<textarea id="scratch-pad" placeholder="Write or paste anything here. Plans, brain dumps, meeting notes, drafts. It saves by itself as you type and syncs to your other devices.">'+esc(state.scratch||"")+'</textarea>';
+    '<div class="pages-row">'+
+      state.pages.map(p=>'<button class="page-chip'+(p.id===pg.id?" active":"")+'" data-act="open-page" data-id="'+p.id+'">'+esc(p.icon||"📝")+' '+esc(p.title)+'</button>').join("")+
+      '<button class="page-chip new" data-act="new-page">＋ New page</button>'+
+    '</div>'+
+    '<div class="pad-head">'+
+    '<h2 class="pad-title" data-act="rename-page" title="Click to rename">'+esc(pg.icon||"📝")+' '+esc(pg.title)+'</h2>'+
+    '<span class="pad-meta" id="pad-meta">'+countWords(pg.body)+' words · saved ✓</span>'+
+    '<button class="head-link" data-act="insert-menu" style="margin-left:0">＋ Insert</button>'+
+    '<button class="head-link" data-act="sel-task" style="margin-left:0">＋ Task from selection</button>'+
+    '<button class="head-link" data-act="pad-download" style="margin-left:0">.txt</button>'+
+    (state.pages.length>1 ? '<button class="head-link" data-act="del-page" style="margin-left:0">🗑</button>' : "")+
+    '</div>'+
+    '<textarea id="scratch-pad" placeholder="Write or paste anything. Type / on a new line for headings, checklists, dividers and templates.&#10;&#10;It saves by itself and syncs to your devices. Highlight a line and hit + Task from selection to turn it into a task.">'+esc(pg.body||"")+'</textarea>';
 
   const all = [];
   state.spaces.forEach(s=>(s.notes||[]).forEach(n=>{ if(noteMatches(n)) all.push({n:n, s:s}); }));
@@ -1169,15 +1319,65 @@ function bindScratch(){
   const ta = $("#scratch-pad"); if(!ta) return;
   let t = null;
   ta.addEventListener("input", ()=>{
+    /* slash command: "/" at the start of a line opens the insert menu */
+    const s = ta.selectionStart;
+    if(ta.value[s-1]==="/" && (s===1 || ta.value[s-2]==="\n")){ openInsertMenu(true); }
     const m1 = $("#pad-meta"); if(m1) m1.textContent = countWords(ta.value)+" words · saving…";
     clearTimeout(t);
     t = setTimeout(()=>{
-      state.scratch = ta.value;
+      const pg = activePage();
+      pg.body = ta.value;
+      pg.updatedAt = Date.now();
       save();
       const m2 = $("#pad-meta"); if(m2) m2.textContent = countWords(ta.value)+" words · saved ✓";
     }, 500);
   });
   ta.addEventListener("blur", ()=>{ if(ui._pendingRender){ ui._pendingRender = false; render(); } });
+}
+
+/* ---------------- insert menu (slash commands) ---------------- */
+const SNIPPETS = {
+  h1: ()=>"# ",
+  h2: ()=>"## ",
+  bullet: ()=>"• ",
+  todo: ()=>"[ ] ",
+  divider: ()=>"\n──────────\n",
+  date: ()=>new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+": ",
+  meeting: ()=>"# Meeting notes ("+new Date().toLocaleDateString(undefined,{month:"short",day:"numeric"})+")\nWith: \nAgenda:\n• \nDecisions:\n• \nAction items:\n[ ] \n",
+  daily: ()=>"# Plan for "+new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})+"\nTop 3:\n1. \n2. \n3. \nLater:\n• \n",
+  jobapp: ()=>"# Company: \nRole: \nLink: \nContact: \nStatus: Applied\nNotes:\n• \n"
+};
+function openInsertMenu(fromSlash){
+  const ta = $("#scratch-pad"); if(!ta) return;
+  const p = $("#popover");
+  const item = (k,ic,lb)=>'<button data-act="pad-insert" data-k="'+k+'" data-slash="'+(fromSlash?1:0)+'"><span>'+ic+'</span>'+lb+'</button>';
+  p.innerHTML =
+    item("h1","#","Heading")+
+    item("h2","##","Subheading")+
+    item("bullet","•","Bullet")+
+    item("todo","☑","Checklist line")+
+    item("divider","─","Divider")+
+    item("date","📆","Date stamp")+
+    '<div class="sep"></div>'+
+    item("meeting","🗣","Template: meeting notes")+
+    item("daily","🌅","Template: daily plan")+
+    item("jobapp","💼","Template: job application");
+  p.style.display = "block";
+  const r = ta.getBoundingClientRect();
+  const pr = p.getBoundingClientRect();
+  p.style.left = Math.max(8, Math.min(r.left + 26, innerWidth - pr.width - 10))+"px";
+  p.style.top  = Math.max(8, Math.min(r.top + 48, innerHeight - pr.height - 10))+"px";
+}
+function padInsert(key, replaceSlash){
+  const ta = $("#scratch-pad"); if(!ta || !SNIPPETS[key]) return;
+  const snippet = SNIPPETS[key]();
+  let s = ta.selectionStart || 0;
+  let v = ta.value;
+  if(replaceSlash && s>0 && v[s-1]==="/"){ v = v.slice(0,s-1)+v.slice(s); s -= 1; }
+  ta.value = v.slice(0,s)+snippet+v.slice(s);
+  ta.selectionStart = ta.selectionEnd = s + snippet.length;
+  ta.focus();
+  ta.dispatchEvent(new Event("input",{bubbles:true}));
 }
 
 /* ---------------- list view ---------------- */
@@ -1193,7 +1393,7 @@ function renderListView(s){
   let h = '<div class="view-inner">'+
     '<form class="quickadd" data-form="quickadd" data-space="'+s.id+'">'+
       '<span class="plus">＋</span>'+
-      '<input name="qa" placeholder=\'Add to '+esc(s.name)+'…  try "Clinic daily !med" or "Follow up fri !high"\' autocomplete="off">'+
+      '<input name="qa" placeholder=\'Add to '+esc(s.name)+'…  e.g. "'+pick(QA_HINTS)+'"\' autocomplete="off">'+
       '<button type="submit">Add</button>'+
     '</form>'+
     '<div class="qa-prev" id="qa-prev" style="display:none"></div>';
@@ -1388,6 +1588,9 @@ function cmdActions(){
     acts.push({icon:s.icon, label:"Go to "+s.name, run:nav("space", s.id, "tasks")});
     acts.push({icon:"▦", label:s.name+": Board", run:nav("space", s.id, "board")});
   });
+  (state.pages||[]).forEach(p=>{
+    acts.push({icon:p.icon||"📝", label:"Page: "+p.title, run:()=>{ ui.view="pad"; ui.pageId=p.id; ui.spaceId=null; ui.search=""; closeSb(); render(); }});
+  });
   acts.push(
     {icon:"＋", label:"New task", run:()=>openTaskModal(null)},
     {icon:"📌", label:"New note (pinned to dashboard)", run:()=>openNoteModal(defaultNotesSpaceId(), null, true)},
@@ -1399,6 +1602,8 @@ function cmdActions(){
       applyMascot();
       if(mascotOn) mascotSay("I'm back! 🪐");
     }},
+    {icon:"⏳", label:"Move all overdue to today", run:()=>{ if(!moveOverdueToToday(null)) showToast("No overdue tasks 🎉"); }},
+    {icon:"📄", label:"Download notepad (.txt)", run:padDownload},
     {icon:"⬇", label:"Export backup", run:doExport}
   );
   return acts;
@@ -1451,7 +1656,8 @@ function openTaskModal(taskId, spaceId, stageId){
   modalShell(
     '<h2>'+(t?"Edit task":"New task")+'</h2>'+
     '<form data-form="task" data-id="'+(t?t.id:"")+'">'+
-      '<input class="f-title" name="title" placeholder="What needs doing?" value="'+esc(t?t.title:"")+'" required autocomplete="off">'+
+      '<input class="f-title" name="title" placeholder=\'What needs doing?  e.g. "'+pick(QA_HINTS)+'"\' value="'+esc(t?t.title:"")+'" required autocomplete="off">'+
+      (t ? "" : '<div class="qa-prev" id="tm-prev" style="display:none;padding:6px 0 0;margin:0"></div>')+
       '<textarea name="desc" placeholder="Notes, links, details…">'+esc(t?t.desc:"")+'</textarea>'+
       '<div class="f-field" style="margin-top:14px"><span>Checklist (subtasks)</span>'+
         '<div id="cl-list">'+cl.map(clRow).join("")+'</div>'+
@@ -1481,6 +1687,19 @@ function openTaskModal(taskId, spaceId, stageId){
     const ns = getSpace(e.target.value);
     $("#tf-stage").innerHTML = ns.stages.map(st=>'<option value="'+st.id+'">'+esc(st.name)+'</option>').join("");
   });
+  if(!t){
+    const ti = $("#modal-root .f-title"), pv = $("#tm-prev");
+    if(ti && pv) ti.addEventListener("input", ()=>{
+      const p = parseQuick(ti.value.trim());
+      if(!ti.value.trim() || (!p.due && !p.priority && !p.repeat)){ pv.style.display="none"; return; }
+      let chips = "";
+      if(p.due) chips += '<span class="chip due">📅 '+fmtDue(p.due)+'</span>';
+      if(p.repeat) chips += '<span class="chip rep">↻ '+(REPEAT_NAMES[p.repeat]||"")+'</span>';
+      if(p.priority) chips += '<span class="chip pri p'+p.priority+'">⚑ '+PRI_NAMES[p.priority]+'</span>';
+      pv.style.display = "flex";
+      pv.innerHTML = '<span class="qa-lbl">Understood</span><b>'+esc(p.title||"…")+'</b>'+chips;
+    });
+  }
   setTimeout(()=>{ const f=$("#modal-root .f-title"); if(f) f.focus(); }, 40);
 }
 
@@ -1596,14 +1815,25 @@ function applyUndo(){
 
 /* ---------------- form submits ---------------- */
 function submitTask(f){
-  const title = f.elements["title"].value.trim(); if(!title) return;
+  let title = f.elements["title"].value.trim(); if(!title) return;
   const id = f.dataset.id;
   const spaceId = f.elements["space"].value;
   let stage = f.elements["stage"].value;
   const nsp = getSpace(spaceId) || state.spaces[0];
   if(!nsp.stages.some(s=>s.id===stage)) stage = nsp.stages[0].id;
-  const repeat = f.elements["repeat"].value || null;
+  let repeat = f.elements["repeat"].value || null;
   let due = f.elements["due"].value || null;
+  let pri = +f.elements["priority"].value || 0;
+  if(!id){
+    /* natural language in the title fills anything you left empty */
+    const p = parseQuick(title);
+    if(p.title){
+      if(!due && p.due) due = p.due;
+      if(!pri && p.priority) pri = p.priority;
+      if(!repeat && p.repeat) repeat = p.repeat;
+      title = p.title;
+    }
+  }
   if(repeat && !due) due = todayStr();
   const checklist = $$("#cl-list .cl-row").map(r=>({
     id: r.dataset.cid==="new" ? uid() : r.dataset.cid,
@@ -1611,7 +1841,7 @@ function submitTask(f){
     done: r.querySelector(".check").classList.contains("on")
   })).filter(x=>x.text);
   const vals = { title, desc:f.elements["desc"].value.trim(), due,
-                 priority:+f.elements["priority"].value||0, spaceId:nsp.id, stage, repeat, checklist };
+                 priority:pri, spaceId:nsp.id, stage, repeat, checklist };
   if(id){ const t = state.tasks.find(x=>x.id===id); if(t) Object.assign(t, vals); }
   else state.tasks.push(Object.assign({id:uid(), done:false, createdAt:Date.now(), completedAt:null}, vals));
   save(); closeModal(); render();
@@ -1650,6 +1880,26 @@ function submitNote(f){
   if(id){ const n = sp.notes.find(x=>x.id===id); if(n) Object.assign(n,{title,body,color,pinned}); }
   else sp.notes.push({id:uid(), title, body, color, pinned, createdAt:Date.now()});
   save(); closeModal(); render();
+}
+
+/* ---------------- shared actions ---------------- */
+function padDownload(){
+  try{
+    const pg = activePage();
+    const blob = new Blob([pg.body||""], {type:"text/plain"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "orbit-"+(pg.title||"page").toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+todayStr()+".txt";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+    showToast("Notepad downloaded 📄");
+  }catch(e){ showToast("Download failed"); }
+}
+function moveOverdueToToday(sid){
+  let n = 0;
+  state.tasks.forEach(t=>{ if(!t.done && t.due && dayDiff(t.due)<0 && (!sid || t.spaceId===sid)){ t.due = todayStr(); n++; } });
+  if(n){ save(); render(); showToast(n+" task"+(n>1?"s":"")+" moved to today"); }
+  return n;
 }
 
 /* ---------------- export / import ---------------- */
@@ -1718,6 +1968,35 @@ function tick(){
   else { rafId = null; ctx.clearRect(0,0,cvs.width,cvs.height); }
 }
 
+/* ---------------- task context menu ---------------- */
+function openTaskMenu(taskId, x, y){
+  const t = state.tasks.find(v=>v.id===taskId); if(!t) return;
+  const p = $("#popover");
+  p.innerHTML =
+    '<button data-act="toggle" data-id="'+t.id+'">'+(t.done ? "↺ Mark not done" : "✓ Mark done")+'</button>'+
+    '<button data-act="open-task" data-id="'+t.id+'">✏️ Edit</button>'+
+    '<button data-act="dup-task" data-id="'+t.id+'">⧉ Duplicate</button>'+
+    '<div class="sep"></div>'+
+    '<button data-act="menu-due" data-id="'+t.id+'" data-d="0">📆 Due today</button>'+
+    '<button data-act="menu-due" data-id="'+t.id+'" data-d="1">🌤 Due tomorrow</button>'+
+    '<button data-act="menu-due" data-id="'+t.id+'" data-d="7">📅 Due next week</button>'+
+    '<div class="sep"></div>'+
+    '<button class="danger" data-act="del-task" data-id="'+t.id+'">🗑 Delete</button>';
+  p.style.display = "block";
+  const r = p.getBoundingClientRect();
+  p.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 10))+"px";
+  p.style.top  = Math.max(8, Math.min(y, innerHeight - r.height - 10))+"px";
+}
+function closePopover(){ const p = $("#popover"); if(p) p.style.display = "none"; }
+
+document.addEventListener("contextmenu", e=>{
+  const row = e.target.closest(".task,.card");
+  if(row && row.dataset.id){
+    e.preventDefault();
+    openTaskMenu(row.dataset.id, e.clientX, e.clientY);
+  }
+});
+
 /* ---------------- Orbie the mascot ---------------- */
 const MASCOT_KEY = "orbit-mascot";
 let mascotOn = true;
@@ -1750,9 +2029,10 @@ function mascotLines(){
   const L = [
     "Hi "+state.userName+"! 👋",
     "You got this 💪",
-    "Press Ctrl K to fly around ✨",
+    isMobile() ? "Swipe from the left edge for your spaces ✨" : "Press Ctrl K to fly around ✨",
+    isMobile() ? "Long press a task for quick actions 📋" : "Right click a task for quick actions 📋",
     "Pin a note and it lands on the dashboard 📌",
-    "Try typing: call mom fri !high",
+    "Type me a task: call mom fri !high",
     "Small steps every day 🌱",
     "I orbit, you organize 🪐"
   ];
@@ -1768,7 +2048,71 @@ let orbieChatOpen = false;
 const reEsc = s=>s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 function orbieFormHtml(ph){
-  return '<form id="orbie-form" data-form="orbie"><input name="oi" placeholder="'+ph+'" autocomplete="off"><button type="submit">Go</button></form>';
+  return '<form id="orbie-form" data-form="orbie"><input name="oi" placeholder="'+(ph||'Try: '+pick(ORBIE_HINTS))+'" autocomplete="off"><button type="submit">Go</button></form>';
+}
+
+/* find a task by loose title match */
+function findTask(q, includeDone){
+  q = q.toLowerCase().trim();
+  const pool = state.tasks.filter(t=>includeDone || !t.done);
+  return pool.find(t=>t.title.toLowerCase()===q)
+      || pool.find(t=>t.title.toLowerCase().startsWith(q))
+      || pool.find(t=>t.title.toLowerCase().includes(q))
+      || null;
+}
+
+/* Orbie's brain: commands first, otherwise add a task */
+function orbieHandle(raw){
+  const low = raw.toLowerCase().trim();
+  let m;
+  if((m = low.match(/^(done|complete|finish|check(?: off)?)\s+(.+)/))){
+    const t = findTask(m[2]);
+    if(!t) return 'I could not find an open task like "'+esc(m[2])+'" 🤔';
+    toggleTask(t.id, $("#mascot"));
+    return 'Checked off <b>'+esc(t.title)+'</b> ✓';
+  }
+  if((m = low.match(/^(delete|remove)\s+(.+)/))){
+    const t = findTask(m[2], true);
+    if(!t) return 'No task like "'+esc(m[2])+'" found';
+    deleteTasks([t.id]);
+    return 'Deleted <b>'+esc(t.title)+'</b>. Undo is in the toast.';
+  }
+  if((m = low.match(/^(find|search)\s+(.+)/))){
+    ui.search = m[2];
+    renderTopbar(); renderView();
+    const n = state.tasks.filter(t=>matches(t)).length;
+    return 'Filtering for <b>'+esc(m[2])+'</b>: '+n+' task'+(n===1?"":"s")+' match';
+  }
+  if((m = raw.match(/^note[:\s]\s*(.+)/i))){
+    const sp = getSpace(defaultNotesSpaceId());
+    if(!sp.notes) sp.notes = [];
+    const body = m[1].trim();
+    sp.notes.push({id:uid(), title: body.slice(0,34)+(body.length>34?"…":""), body: body, color: pick(NOTE_COLORS), pinned: true, createdAt: Date.now()});
+    save(); render();
+    return 'Pinned a note to your dashboard 📌';
+  }
+  if((m = low.match(/^(?:go to|open|show)\s+(.+)/))){
+    const q = m[1];
+    if(/notepad|pad|notes page/.test(q)){ ui.view="pad"; ui.spaceId=null; render(); return 'Notepad open 🗒'; }
+    if(/today|home|dash/.test(q)){ ui.view="today"; ui.spaceId=null; render(); return 'Home sweet dashboard 🪐'; }
+    const sp = state.spaces.find(s=>s.name.toLowerCase().includes(q.trim()));
+    if(sp){ ui.view="space"; ui.spaceId=sp.id; ui.tab="tasks"; render(); return 'Opened '+esc(sp.icon+" "+sp.name); }
+    return 'I do not know "'+esc(q)+'" yet. Try a space name, notepad, or today.';
+  }
+  if(/^(clear|move) overdue/.test(low)){
+    const n = moveOverdueToToday(null);
+    return n ? 'Moved '+n+' overdue to today ✅' : 'No overdue tasks 🎉';
+  }
+  if(/^(help|what can you do|\?)$/.test(low)){
+    return 'I understand things like:<br>• <b>gym tomorrow !med in Personal</b><br>• <b>done clinic</b> · <b>delete old task</b><br>• <b>note: brilliant idea</b><br>• <b>find resume</b> · <b>go to work</b><br>• <b>clear overdue</b>';
+  }
+  const out = orbieAddTask(raw);
+  if(!out) return 'Tell me a bit more 🙂 (or type <b>help</b>)';
+  const bits = [];
+  if(out.p.due) bits.push(fmtDue(out.p.due));
+  if(out.p.repeat) bits.push(REPEAT_NAMES[out.p.repeat]);
+  if(out.p.priority) bits.push(PRI_NAMES[out.p.priority]);
+  return 'Added <b>'+esc(out.p.title)+'</b>'+(bits.length? " · "+bits.join(" · "):"")+' → '+esc(out.sp.icon+" "+out.sp.name)+' ✓';
 }
 function mascotChat(line){
   const b = $("#mascot-bubble"); if(!b) return;
@@ -1897,14 +2241,17 @@ function initMascot(){
 /* ---------------- event delegation ---------------- */
 document.addEventListener("click", e=>{
   if(orbieChatOpen && !e.target.closest("#mascot")) closeOrbieChat();
+  if(!e.target.closest("#popover") && !e.target.closest('[data-act="task-menu"]')) closePopover();
   if(e.target.classList && e.target.classList.contains("overlay")){ closeModal(); return; }
   const el = e.target.closest("[data-act]");
   if(!el) return;
+  const fromPopover = !!el.closest("#popover");
   const act = el.dataset.act;
+  if(fromPopover) closePopover();
   switch(act){
     case "nav-today": ui.view="today"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
     case "nav-pad": ui.view="pad"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
-    case "nav-space": ui.view="space"; ui.spaceId=el.dataset.id; ui.tab="tasks"; ui.search=""; closeSb(); render(); break;
+    case "nav-space": if(ui._justDragged) break; ui.view="space"; ui.spaceId=el.dataset.id; ui.tab="tasks"; ui.search=""; closeSb(); render(); break;
     case "tab": ui.tab = el.dataset.tab; renderTabs(); renderView(); break;
     case "toggle": toggleTask(el.dataset.id, el); break;
     case "open-task": if(ui._justDragged) break; openTaskModal(el.dataset.id); break;
@@ -2006,13 +2353,7 @@ document.addEventListener("click", e=>{
       save(); closeModal(); render(); showToast("Task duplicated");
       break;
     }
-    case "overdue-today": {
-      const sid = el.dataset.id || null;
-      let n = 0;
-      state.tasks.forEach(t=>{ if(!t.done && t.due && dayDiff(t.due)<0 && (!sid || t.spaceId===sid)){ t.due = todayStr(); n++; } });
-      if(n){ save(); render(); showToast(n+" task"+(n>1?"s":"")+" moved to today"); }
-      break;
-    }
+    case "overdue-today": moveOverdueToToday(el.dataset.id || null); break;
     case "stage-next": {
       const t = state.tasks.find(x=>x.id===el.dataset.id); if(!t) break;
       const sp = spaceOf(t);
@@ -2023,16 +2364,53 @@ document.addEventListener("click", e=>{
       }
       break;
     }
-    case "pad-download": {
-      try{
-        const blob = new Blob([state.scratch||""], {type:"text/plain"});
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "orbit-notepad-"+todayStr()+".txt";
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
-        showToast("Notepad downloaded 📄");
-      }catch(e){ showToast("Download failed"); }
+    case "pad-download": padDownload(); break;
+    case "insert-menu": openInsertMenu(false); break;
+    case "pad-insert": padInsert(el.dataset.k, el.dataset.slash==="1"); break;
+    case "open-page": ui.pageId = el.dataset.id; renderView(); break;
+    case "new-page": {
+      const nm = prompt("Name the new page:", "Untitled");
+      if(nm===null) break;
+      const icons = "📝 📒 📌 🧠 💡 🗺 📚 🧾 ✍️".split(" ");
+      const p = {id:uid(), title:(nm.trim()||"Untitled").slice(0,40), icon:pick(icons), body:"", createdAt:Date.now(), updatedAt:Date.now()};
+      state.pages.push(p);
+      ui.pageId = p.id;
+      save(); renderView();
+      break;
+    }
+    case "rename-page": {
+      const pg = activePage();
+      const nm = prompt("Rename this page:", pg.title);
+      if(nm && nm.trim()){ pg.title = nm.trim().slice(0,40); save(); renderView(); }
+      break;
+    }
+    case "del-page": {
+      if(state.pages.length<=1) break;
+      const pg = activePage();
+      if(confirm('Delete page "'+pg.title+'" and its contents?')){
+        state.pages = state.pages.filter(p=>p.id!==pg.id);
+        ui.pageId = state.pages[0].id;
+        save(); renderView(); showToast("Page deleted");
+      }
+      break;
+    }
+    case "sel-task": {
+      const ta = $("#scratch-pad");
+      const sel = ta ? ta.value.substring(ta.selectionStart, ta.selectionEnd).trim() : "";
+      if(!sel){ showToast("Highlight some text in the pad first"); break; }
+      const out = orbieAddTask(sel.split("\n")[0].slice(0,120));
+      if(out){ mascotHappy(); showToast('✓ Task added: '+out.p.title); }
+      break;
+    }
+    case "task-menu": {
+      const r = el.getBoundingClientRect();
+      openTaskMenu(el.dataset.id, r.right - 185, r.bottom + 6);
+      break;
+    }
+    case "menu-due": {
+      const t = state.tasks.find(x=>x.id===el.dataset.id); if(!t) break;
+      t.due = addDays(+el.dataset.d);
+      save(); render(); showToast("Due "+fmtDue(t.due));
       break;
     }
     case "export": doExport(); break;
@@ -2067,20 +2445,13 @@ document.addEventListener("submit", e=>{
   else if(kind==="note") submitNote(f);
   else if(kind==="orbie"){
     const v = f.elements["oi"].value.trim(); if(!v) return;
-    const out = orbieAddTask(v);
+    const reply = orbieHandle(v);
     const b = $("#mascot-bubble");
     if(!b) return;
-    if(!out){
-      b.innerHTML = '<div class="mb-line">Hmm, tell me a bit more 🙂</div>'+orbieFormHtml("e.g. call mom fri !high");
-    } else {
-      mascotHappy();
-      const bits = [];
-      if(out.p.due) bits.push(fmtDue(out.p.due));
-      if(out.p.repeat) bits.push(REPEAT_NAMES[out.p.repeat]);
-      if(out.p.priority) bits.push(PRI_NAMES[out.p.priority]);
-      b.classList.add("show","chat");
-      b.innerHTML = '<div class="mb-line">Added <b>'+esc(out.p.title)+'</b>'+(bits.length? " · "+bits.join(" · "):"")+' → '+esc(out.sp.icon+" "+out.sp.name)+' ✓</div>'+orbieFormHtml("Another one?");
-    }
+    mascotHappy();
+    orbieChatOpen = true;
+    b.classList.add("show","chat");
+    b.innerHTML = '<div class="mb-line">'+reply+'</div>'+orbieFormHtml("Anything else?");
     setTimeout(()=>{ const i = b.querySelector("input"); if(i) i.focus(); }, 30);
   }
 });
@@ -2096,7 +2467,7 @@ document.addEventListener("input", e=>{
 
 document.addEventListener("keydown", e=>{
   if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); openCmd(); return; }
-  if(e.key==="Escape"){ closeModal(); closeOrbieChat(); return; }
+  if(e.key==="Escape"){ closeModal(); closeOrbieChat(); closePopover(); return; }
   const tag = (e.target.tagName||"").toLowerCase();
   if(tag==="input" || tag==="textarea" || tag==="select" || e.target.isContentEditable) return;
   if(e.key==="/"){ e.preventDefault(); const s=$("#search"); if(s) s.focus(); }
@@ -2118,6 +2489,7 @@ document.addEventListener("touchstart", e=>{
 }, {passive:true});
 document.addEventListener("touchend", e=>{
   if(touchX===null) return;
+  if(ui._spaceLift){ touchX = null; edgeSwipe = false; return; }
   const t = e.changedTouches && e.changedTouches[0];
   if(t && isMobile() && Math.abs(t.clientY - touchY) < 80){
     const dx = t.clientX - touchX;
@@ -2131,8 +2503,11 @@ addEventListener("resize", ()=>{ if(!isMobile()) closeSb(); });
 /* flush unsaved notepad text if the tab closes mid-typing */
 addEventListener("beforeunload", ()=>{
   const ta = $("#scratch-pad");
-  if(ta && ta.value !== (state.scratch||"")){
-    state.scratch = ta.value;
+  if(!ta) return;
+  const pg = activePage();
+  if(ta.value !== (pg.body||"")){
+    pg.body = ta.value;
+    pg.updatedAt = Date.now();
     state.updatedAt = Date.now();
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
   }
@@ -2144,7 +2519,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "2.3";
+const APP_VERSION = "3.2";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
