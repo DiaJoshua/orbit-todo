@@ -453,6 +453,29 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 
 #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:90}
 
+/* ============ Orbie the mascot ============ */
+#mascot{position:fixed;left:16px;bottom:14px;z-index:30;cursor:pointer;user-select:none;transition:transform .18s}
+#mascot:hover{transform:scale(1.06)}
+#mascot:active{transform:scale(.93)}
+#mascot svg{display:block;animation:mascotBob 4.5s ease-in-out infinite;filter:drop-shadow(0 6px 14px rgba(20,20,40,.18))}
+#mascot.happy svg{animation:mascotJump .55s cubic-bezier(.3,1.5,.4,1)}
+@keyframes mascotBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes mascotJump{0%{transform:translateY(0)}30%{transform:translateY(-16px) rotate(-7deg)}60%{transform:translateY(1px) rotate(4deg)}100%{transform:translateY(0) rotate(0)}}
+.m-pupil{transition:transform .09s linear}
+#m-eyes.blink circle{transform:scaleY(.1);transform-box:fill-box;transform-origin:center}
+#mascot-bubble{
+  position:absolute;bottom:96px;left:2px;min-width:150px;max-width:230px;
+  background:var(--modal-bg);border:1px solid var(--border2);border-radius:12px;padding:9px 12px;
+  font-size:12.5px;line-height:1.45;color:var(--text);box-shadow:var(--pop-shadow);
+  opacity:0;transform:translateY(6px);transition:.22s;pointer-events:none;
+}
+#mascot-bubble.show{opacity:1;transform:none}
+#mascot-bubble::after{content:"";position:absolute;bottom:-6px;left:28px;width:10px;height:10px;background:var(--modal-bg);border-right:1px solid var(--border2);border-bottom:1px solid var(--border2);transform:rotate(45deg)}
+@media(max-width:880px){
+  #mascot svg{width:62px;height:62px}
+  #mascot-bubble{bottom:70px}
+}
+
 /* ============ floating menu button (mobile) ============ */
 #fab{
   position:fixed;right:18px;bottom:20px;z-index:45;
@@ -474,7 +497,14 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   #fab{display:grid}
   #view{padding:20px 16px 90px}
   .tabsrow{padding:12px 16px 0}
-  .searchwrap{width:150px}
+  /* keep menu, theme, search and add visible on one row: shrink what can shrink */
+  #topbar{gap:7px;padding:12px 10px;flex-wrap:nowrap}
+  .tb-title{flex-shrink:1;min-width:0;max-width:34vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:15px}
+  .tb-title .emoji{flex-shrink:0}
+  .searchwrap{width:auto;flex:1;min-width:74px;max-width:170px;padding:7px 9px}
+  .btn.primary{padding:8px 12px;flex-shrink:0}
+  .btn.primary .bt-txt{display:none}
+  #menu-btn,#theme-btn{flex-shrink:0}
   .kbd-hint{display:none}
   .f-grid{grid-template-columns:1fr}
 }
@@ -499,6 +529,23 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 <div id="modal-root"></div>
 <div id="toast"></div>
 <button id="fab" data-act="toggle-sb" aria-label="Open menu">☰</button>
+<div id="mascot" data-act="mascot" title="Orbie" role="button" aria-label="Orbie the mascot">
+  <div id="mascot-bubble"></div>
+  <svg viewBox="0 0 120 120" width="84" height="84" aria-hidden="true">
+    <defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f7be8"/><stop offset="1" stop-color="#4f8ef7"/></linearGradient></defs>
+    <ellipse cx="60" cy="64" rx="54" ry="16" fill="none" stroke="#e0a83c" stroke-width="6" opacity=".9" transform="rotate(-14 60 64)"/>
+    <circle cx="60" cy="60" r="34" fill="url(#mg)"/>
+    <circle cx="47" cy="45" r="6" fill="#ffffff" opacity=".2"/>
+    <circle cx="75" cy="72" r="4.5" fill="#000000" opacity=".08"/>
+    <g id="m-eyes">
+      <g><circle cx="48" cy="57" r="8.5" fill="#ffffff"/><circle class="m-pupil" cx="48" cy="57" r="4" fill="#22222a"/></g>
+      <g><circle cx="72" cy="57" r="8.5" fill="#ffffff"/><circle class="m-pupil" cx="72" cy="57" r="4" fill="#22222a"/></g>
+    </g>
+    <path d="M52 72 Q60 79 68 72" stroke="#1d1d20" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+    <circle cx="39" cy="66" r="4" fill="#fb7185" opacity=".35"/><circle cx="81" cy="66" r="4" fill="#fb7185" opacity=".35"/>
+    <ellipse cx="60" cy="64" rx="54" ry="16" fill="none" stroke="#e0a83c" stroke-width="6" opacity=".3" transform="rotate(-14 60 64)"/>
+  </svg>
+</div>
 <canvas id="confetti-canvas"></canvas>
 <input type="file" id="import-file" hidden accept="application/json,.json">
 <script>
@@ -892,7 +939,7 @@ function renderTopbar(){
     '<button class="kbd-hint" data-act="cmdk" title="Command palette: jump anywhere, create anything">Ctrl K</button>'+
     '<button class="icon-btn" id="theme-btn" data-act="toggle-theme" title="'+(theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(theme==="dark"?SUN_SVG:MOON_SVG)+'</button>'+
     '<div class="searchwrap">'+SEARCH_SVG+'<input id="search" placeholder="Search…  ( / )" value="'+esc(ui.search)+'" autocomplete="off"></div>'+
-    '<button class="btn primary" data-act="new-task">＋ New task</button>';
+    '<button class="btn primary" data-act="new-task">＋<span class="bt-txt"> New task</span></button>';
 }
 
 function renderTabs(){
@@ -1270,6 +1317,12 @@ function cmdActions(){
     {icon:"📌", label:"New note (pinned to dashboard)", run:()=>openNoteModal(defaultNotesSpaceId(), null, true)},
     {icon:"🪐", label:"New space", run:()=>openSpaceModal(null)},
     {icon:theme==="dark"?"☀️":"🌙", label:theme==="dark"?"Switch to light mode":"Switch to dark mode", run:toggleTheme},
+    {icon:"🪐", label: mascotOn ? "Hide Orbie (mascot)" : "Show Orbie (mascot)", run:()=>{
+      mascotOn = !mascotOn;
+      try{ localStorage.setItem(MASCOT_KEY, mascotOn ? "on" : "off"); }catch(e){}
+      applyMascot();
+      if(mascotOn) mascotSay("I'm back! 🪐");
+    }},
     {icon:"⬇", label:"Export backup", run:doExport}
   );
   return acts;
@@ -1427,6 +1480,7 @@ function toggleTask(id, el){
       const r = el.getBoundingClientRect();
       confettiBurst(r.left + r.width/2, r.top + r.height/2, spaceOf(t).color);
     }
+    mascotHappy();
     render();
     showToast("✓ "+t.title+" done for today ↻ next: "+fmtDue(t.due));
     return;
@@ -1437,6 +1491,8 @@ function toggleTask(id, el){
   if(t.done && el){
     const r = el.getBoundingClientRect();
     confettiBurst(r.left + r.width/2, r.top + r.height/2, spaceOf(t).color);
+    mascotHappy();
+    if(Math.random() < .35) mascotSay(pick(["Nice one! 🎉","Done and dusted ✨","+1 for future you","That's the stuff 💪"]), 2000);
   }
   render();
 }
@@ -1581,6 +1637,105 @@ function tick(){
   else { rafId = null; ctx.clearRect(0,0,cvs.width,cvs.height); }
 }
 
+/* ---------------- Orbie the mascot ---------------- */
+const MASCOT_KEY = "orbit-mascot";
+let mascotOn = true;
+try{ mascotOn = localStorage.getItem(MASCOT_KEY) !== "off"; }catch(e){}
+const pick = a=>a[Math.floor(Math.random()*a.length)];
+
+function applyMascot(){ const m = $("#mascot"); if(m) m.style.display = mascotOn ? "" : "none"; }
+
+function mascotSay(text, ms){
+  if(!mascotOn) return;
+  const b = $("#mascot-bubble"); if(!b) return;
+  b.textContent = text;
+  b.classList.add("show");
+  clearTimeout(mascotSay._t);
+  mascotSay._t = setTimeout(()=>b.classList.remove("show"), ms||2800);
+}
+
+function mascotHappy(){
+  if(!mascotOn) return;
+  const m = $("#mascot"); if(!m) return;
+  m.classList.remove("happy"); void m.offsetWidth; m.classList.add("happy");
+}
+
+function mascotLines(){
+  const open = state.tasks.filter(t=>!t.done);
+  const today = open.filter(t=>t.due && dayDiff(t.due)===0).length;
+  const od = open.filter(t=>t.due && dayDiff(t.due)<0).length;
+  const stk = streakDays();
+  const L = [
+    "Hi "+state.userName+"! 👋",
+    "You got this 💪",
+    "Press Ctrl K to fly around ✨",
+    "Pin a note and it lands on the dashboard 📌",
+    "Try typing: call mom fri !high",
+    "Small steps every day 🌱",
+    "I orbit, you organize 🪐"
+  ];
+  if(today>0) L.push(today+" due today. Let's go!");
+  if(od>0) L.push(od+" overdue. Tap Move all to today?");
+  if(stk>1) L.push(stk+" day streak 🔥 keep it alive!");
+  if(today===0 && od===0) L.push("All clear today. Enjoy it ☀️");
+  return L;
+}
+
+function mascotClicked(){
+  mascotHappy();
+  mascotSay(pick(mascotLines()));
+  if(Math.random() < .18){
+    const m = $("#mascot");
+    if(m){ const r = m.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+10, "#8f7be8"); }
+  }
+}
+
+function initMascot(){
+  applyMascot();
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(!reduce){
+    let eyeRaf = null;
+    document.addEventListener("mousemove", e=>{
+      if(!mascotOn || eyeRaf) return;
+      eyeRaf = requestAnimationFrame(()=>{
+        eyeRaf = null;
+        const m = $("#mascot"); if(!m || m.style.display==="none") return;
+        const r = m.getBoundingClientRect();
+        const cx = r.left + r.width/2, cy = r.top + r.height/2;
+        const a = Math.atan2(e.clientY - cy, e.clientX - cx);
+        const d = Math.min(3.4, Math.hypot(e.clientX - cx, e.clientY - cy) / 40);
+        const tr = "translate("+(Math.cos(a)*d).toFixed(1)+"px,"+(Math.sin(a)*d).toFixed(1)+"px)";
+        $$(".m-pupil").forEach(p=>p.style.transform = tr);
+      });
+    }, {passive:true});
+    /* on phones the eyes follow your taps */
+    document.addEventListener("touchstart", e=>{
+      if(!mascotOn) return;
+      const t = e.touches && e.touches[0]; if(!t) return;
+      const m = $("#mascot"); if(!m || m.style.display==="none") return;
+      const r = m.getBoundingClientRect();
+      const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      const a = Math.atan2(t.clientY - cy, t.clientX - cx);
+      const d = Math.min(3.4, Math.hypot(t.clientX - cx, t.clientY - cy) / 40);
+      const tr = "translate("+(Math.cos(a)*d).toFixed(1)+"px,"+(Math.sin(a)*d).toFixed(1)+"px)";
+      $$(".m-pupil").forEach(p=>p.style.transform = tr);
+    }, {passive:true});
+  }
+  (function blinkLoop(){
+    setTimeout(()=>{
+      const eyes = $("#m-eyes");
+      if(eyes && mascotOn){ eyes.classList.add("blink"); setTimeout(()=>eyes.classList.remove("blink"), 160); }
+      blinkLoop();
+    }, 2200 + Math.random()*3800);
+  })();
+  try{
+    if(!sessionStorage.getItem("orbit-hi")){
+      sessionStorage.setItem("orbit-hi","1");
+      setTimeout(()=>mascotSay("Hi "+state.userName+"! Click me anytime 🪐", 3200), 1200);
+    }
+  }catch(e){}
+}
+
 /* ---------------- event delegation ---------------- */
 document.addEventListener("click", e=>{
   if(e.target.classList && e.target.classList.contains("overlay")){ closeModal(); return; }
@@ -1705,6 +1860,7 @@ document.addEventListener("click", e=>{
     case "sync": handleSyncClick(); break;
     case "toggle-theme": toggleTheme(); break;
     case "toggle-sb": toggleSidebar(); break;
+    case "mascot": mascotClicked(); break;
     case "rename-user": {
       const v = prompt("What should Orbit call you?", state.userName);
       if(v && v.trim()){ state.userName = v.trim().slice(0,24); save(); render(); }
@@ -1788,8 +1944,17 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
   try{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){}
 }
 
+/* version notice: installed phone app auto updates on next open with internet */
+const APP_VERSION = "2.0";
+try{
+  const pv = localStorage.getItem("orbit-ver");
+  if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
+  localStorage.setItem("orbit-ver", APP_VERSION);
+}catch(e){}
+
 updateFab();
 render();
+initMascot();
 initCloud();
 </script>
 </body>
