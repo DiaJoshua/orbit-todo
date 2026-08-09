@@ -13,7 +13,9 @@ A personal command center for everything: job applications, work, reminders, hou
 - **Three views per space**: ☑ Tasks (grouped by Overdue / Today / Upcoming), ▦ Board (drag cards between stages, like Applied → Interview → Offer), 🗒 Notes (sticky notes with colors and pinning)
 - **Natural language quick add with live preview**: type `Follow up with recruiter fri !high`, `Pay rent aug 20`, `Standup weekdays`, `Review in 3 days` and watch Orbit show you exactly what it understood before you press Enter
 - **Install it like a real app**: on your phone open the site, then Add to Home Screen (iOS Safari: Share button; Android Chrome: Install app). Opens full screen, works offline, and auto updates itself the next time you open it with internet after a new version is pushed
-- **Orbie, your mascot 🪐**: a little planet in the corner whose eyes follow your cursor (or your taps on mobile). Click it for greetings, tips and your streak; it celebrates when you complete tasks. Hide or show it any time from the Ctrl K palette
+- **Orbie, your mascot 🪐**: a little planet in the corner whose eyes follow your cursor (or your taps on mobile). Click it and just tell it a task in plain language, Tarsi style: `gym tomorrow !med in Personal` and Orbie logs it and confirms. It also celebrates completions and milestones, cheers when you clear everything due today, falls asleep when you are away, and can be hidden from the Ctrl K palette
+- **Board quick move**: every card has a › button to hop to the next stage, perfect for phones where drag and drop is fiddly
+- **Notepad export**: download your whole notepad as a .txt any time
 - **Checklists inside tasks**: break any task into subtasks, progress shows as ☑ 2/5 on the card
 - **One tap triage**: a Move all to today button on the Overdue group, and Duplicate on any task
 - **Alive dashboard**: greeting with your name, live clock, daily quote, 🔥 streak counter, stats

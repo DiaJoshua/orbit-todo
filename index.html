@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Orbit: Tasks & Notes</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪐</text></svg>">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236e56cf'/%3E%3Cstop offset='1' stop-color='%232f7fe0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='112' fill='url(%23g)'/%3E%3Ccircle cx='256' cy='256' r='102' fill='%23fff' opacity='.96'/%3E%3Cellipse cx='256' cy='256' rx='194' ry='70' fill='none' stroke='%23fff' stroke-width='26' opacity='.85' transform='rotate(-18 256 256)'/%3E%3Ccircle cx='414' cy='182' r='21' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#f7f7f5" id="meta-theme">
 <meta name="mobile-web-app-capable" content="yes">
@@ -98,14 +98,16 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 #bg-glow::before,#bg-glow::after{
   content:"";position:absolute;width:52vw;height:52vw;border-radius:50%;
   filter:blur(150px);opacity:var(--glow-op);
+  animation:drift 45s ease-in-out infinite alternate;
 }
 #bg-glow::before{background:#6e56cf;top:-24vw;left:-16vw}
-#bg-glow::after{background:#2f7fe0;bottom:-28vw;right:-16vw}
+#bg-glow::after{background:#2f7fe0;bottom:-28vw;right:-16vw;animation-delay:-22s}
+@keyframes drift{from{transform:translate(0,0)}to{transform:translate(3vw,3vh) scale(1.06)}}
 
 /* ============ layout ============ */
 #app{position:relative;z-index:1;display:flex;height:100vh}
 #main{flex:1;display:flex;flex-direction:column;min-width:0}
-#view{flex:1;overflow-y:auto;padding:26px 30px 60px;scroll-behavior:smooth}
+#view{flex:1;overflow-y:auto;padding:26px 30px 130px;scroll-behavior:smooth}
 .view-inner{max-width:860px;margin:0 auto}
 .view-inner.wide{max-width:1400px}
 
@@ -120,7 +122,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   body.sb-collapsed #sidebar{margin-left:-268px}
 }
 .logo{display:flex;align-items:center;gap:10px;padding:0 10px 20px;user-select:none}
-.logo svg{flex-shrink:0}
+.logo svg{flex-shrink:0;transition:transform .45s cubic-bezier(.3,1.4,.4,1)}
+.logo:hover svg{transform:rotate(14deg)}
 .logo .word{font-size:19px;font-weight:700;letter-spacing:-.01em;background:linear-gradient(90deg,#6e56cf,#2f7fe0);-webkit-background-clip:text;background-clip:text;color:transparent}
 .logo .tag{font-size:10.5px;color:var(--faint);letter-spacing:.6px;margin-top:1px}
 .sb-scroll{flex:1;overflow-y:auto;padding:2px 2px 10px}
@@ -158,7 +161,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   position:relative;z-index:5;flex-wrap:wrap;
 }
 .tb-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;min-width:0}
-.tb-title .emoji{font-size:19px}
+.tb-title .emoji{font-size:19px;flex-shrink:0}
+.tb-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .tb-spacer{flex:1}
 .searchwrap{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:7px 12px;width:230px;transition:border-color .15s}
 .searchwrap:focus-within{border-color:color-mix(in srgb,var(--accent) 60%,transparent)}
@@ -200,13 +204,23 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .greet .quote{margin-top:7px;font-size:13px;color:var(--faint);font-style:italic}
 .streak{display:inline-flex;align-items:center;gap:5px;margin-left:12px;font-size:12.5px;font-weight:700;color:var(--amber);background:color-mix(in srgb,var(--amber) 11%,transparent);padding:3px 12px;border-radius:999px;vertical-align:middle;animation:pop .4s ease}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin:22px 0 8px}
-.stat{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:15px 17px;transition:.18s;position:relative;overflow:hidden;box-shadow:var(--card-shadow);animation:fadeUp .25s ease both}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:15px 56px 15px 17px;transition:.18s;position:relative;overflow:hidden;box-shadow:var(--card-shadow);animation:fadeUp .25s ease both}
+.stat .s-ico{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;background:color-mix(in srgb,var(--sc,var(--accent)) 11%,transparent);transition:transform .18s}
+.stat:hover .s-ico{transform:scale(1.12) rotate(-6deg)}
 .stats .stat:nth-child(2){animation-delay:40ms}
 .stats .stat:nth-child(3){animation-delay:80ms}
 .stats .stat:nth-child(4){animation-delay:120ms}
 .stat:hover{transform:translateY(-2px);border-color:var(--border2)}
 .stat .num{font-size:26px;font-weight:800;line-height:1.1;color:var(--sc,var(--text))}
 .stat .lbl{font-size:12px;color:var(--muted);margin-top:3px}
+
+.day-prog{display:flex;align-items:center;gap:11px;margin:2px 2px 8px;font-size:12px;color:var(--muted);animation:fadeUp .3s ease both}
+.day-prog .prog-track{flex:1;width:auto;height:6px}
+.day-prog b{color:var(--text);font-weight:700}
+
+/* view switch transition */
+.view-anim{animation:viewIn .22s ease}
+@keyframes viewIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 
 /* ============ groups & task rows ============ */
 .group-head{
@@ -287,7 +301,12 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:11px 12px;
   cursor:grab;transition:transform .13s,border-color .13s;animation:fadeUp .22s ease both;box-shadow:var(--card-shadow);
 }
+.card{position:relative}
 .card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--border));transform:translateY(-1px)}
+.c-next{position:absolute;right:5px;top:5px;width:24px;height:24px;border-radius:7px;color:var(--faint);font-size:15px;font-weight:700;opacity:0;transition:.12s;line-height:1}
+.card:hover .c-next{opacity:.7}
+.c-next:hover{background:var(--panel2);color:var(--accent);opacity:1}
+@media(max-width:880px){.c-next{opacity:.55}}
 .card:active{cursor:grabbing}
 .card.dragging{opacity:.35;transform:rotate(2deg) scale(.98)}
 .card.done{opacity:.5}
@@ -317,7 +336,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .notes-grid .note:nth-child(3n):not(.add-note){transform:rotate(.7deg)}
 .notes-grid .note:hover{transform:translateY(-3px) rotate(0);box-shadow:var(--hover-shadow)}
 @keyframes noteIn{from{opacity:0}}
-.note .pin{position:absolute;top:10px;right:12px;font-size:13px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.note .pin{position:absolute;top:10px;right:12px;font-size:13px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));transition:transform .18s}
+.note:hover .pin{transform:rotate(18deg) scale(1.15)}
 .n-title{font-weight:700;font-size:14.5px;color:color-mix(in srgb,var(--nc) 60%,var(--tint-mix));padding-right:18px;word-break:break-word}
 .n-body{font-size:12.8px;color:var(--muted);white-space:pre-wrap;flex:1;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .n-date{font-size:10.5px;color:var(--faint)}
@@ -351,7 +371,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 
 /* ============ empty state ============ */
 .empty{text-align:center;padding:56px 20px;color:var(--muted);animation:fadeUp .3s ease both}
-.empty .art{font-size:42px;margin-bottom:12px;display:block;filter:saturate(.85)}
+.empty .art{font-size:42px;margin-bottom:12px;display:block;filter:saturate(.85);animation:floaty 4s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .empty h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
 .empty p{font-size:13px;color:var(--faint)}
 
@@ -454,7 +475,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:90}
 
 /* ============ Orbie the mascot ============ */
-#mascot{position:fixed;left:16px;bottom:14px;z-index:30;cursor:pointer;user-select:none;transition:transform .18s}
+#mascot{position:fixed;right:22px;bottom:16px;z-index:2;cursor:pointer;user-select:none;transition:transform .18s;opacity:.95}
+#mascot:hover{opacity:1}
 #mascot:hover{transform:scale(1.06)}
 #mascot:active{transform:scale(.93)}
 #mascot svg{display:block;animation:mascotBob 4.5s ease-in-out infinite;filter:drop-shadow(0 6px 14px rgba(20,20,40,.18))}
@@ -463,17 +485,31 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 @keyframes mascotJump{0%{transform:translateY(0)}30%{transform:translateY(-16px) rotate(-7deg)}60%{transform:translateY(1px) rotate(4deg)}100%{transform:translateY(0) rotate(0)}}
 .m-pupil{transition:transform .09s linear}
 #m-eyes.blink circle{transform:scaleY(.1);transform-box:fill-box;transform-origin:center}
+#mascot.sleep #m-eyes circle{transform:scaleY(.12);transform-box:fill-box;transform-origin:center}
+#mascot.sleep svg{animation-duration:6.5s}
+#mascot-zzz{position:absolute;top:-6px;right:-2px;font-size:15px;display:none;animation:mascotBob 2.2s ease-in-out infinite}
+.m-moon{transform-box:view-box;transform-origin:center;animation:orbitSpin 16s linear infinite}
+#mascot.sleep .m-moon{animation-duration:34s}
+@keyframes orbitSpin{to{transform:rotate(360deg)}}
 #mascot-bubble{
-  position:absolute;bottom:96px;left:2px;min-width:150px;max-width:230px;
+  position:absolute;bottom:96px;right:2px;min-width:150px;max-width:230px;
   background:var(--modal-bg);border:1px solid var(--border2);border-radius:12px;padding:9px 12px;
   font-size:12.5px;line-height:1.45;color:var(--text);box-shadow:var(--pop-shadow);
   opacity:0;transform:translateY(6px);transition:.22s;pointer-events:none;
 }
 #mascot-bubble.show{opacity:1;transform:none}
-#mascot-bubble::after{content:"";position:absolute;bottom:-6px;left:28px;width:10px;height:10px;background:var(--modal-bg);border-right:1px solid var(--border2);border-bottom:1px solid var(--border2);transform:rotate(45deg)}
+#mascot-bubble.chat{pointer-events:auto;max-width:250px;min-width:220px;cursor:default}
+.mb-line{margin-bottom:2px}
+.mb-line b{color:var(--text)}
+#orbie-form{display:flex;gap:6px;margin-top:8px}
+#orbie-form input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:7px 9px;font-size:12.5px;outline:none;color:var(--text)}
+#orbie-form input:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+#orbie-form button{background:var(--accent);color:var(--on-accent);border-radius:8px;padding:0 12px;font-size:12px;font-weight:700}
+#mascot-bubble::after{content:"";position:absolute;bottom:-6px;right:28px;width:10px;height:10px;background:var(--modal-bg);border-right:1px solid var(--border2);border-bottom:1px solid var(--border2);transform:rotate(45deg)}
 @media(max-width:880px){
-  #mascot svg{width:62px;height:62px}
-  #mascot-bubble{bottom:70px}
+  #mascot{right:16px;bottom:86px}
+  #mascot svg{width:56px;height:56px}
+  #mascot-bubble{bottom:64px}
 }
 
 /* ============ floating menu button (mobile) ============ */
@@ -487,6 +523,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 }
 #fab:hover{filter:brightness(1.08)}
 #fab:active{transform:scale(.88)}
+#fab{animation:pop .35s ease}
 
 /* ============ responsive ============ */
 @media(max-width:880px){
@@ -495,13 +532,13 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   #sb-backdrop{display:none;position:fixed;inset:0;z-index:35;background:rgba(0,0,0,.45)}
   body.sb-open #sb-backdrop{display:block}
   #fab{display:grid}
-  #view{padding:20px 16px 90px}
+  #view{padding:20px 16px 150px}
   .tabsrow{padding:12px 16px 0}
-  /* keep menu, theme, search and add visible on one row: shrink what can shrink */
-  #topbar{gap:7px;padding:12px 10px;flex-wrap:nowrap}
-  .tb-title{flex-shrink:1;min-width:0;max-width:34vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:15px}
-  .tb-title .emoji{flex-shrink:0}
-  .searchwrap{width:auto;flex:1;min-width:74px;max-width:170px;padding:7px 9px}
+  /* mobile topbar: row 1 = menu, title, theme, add · row 2 = full width search */
+  #topbar{gap:8px;padding:10px 12px 12px;flex-wrap:wrap}
+  .tb-title{flex:1;min-width:0;font-size:15px}
+  .tb-spacer{display:none}
+  .searchwrap{order:10;flex:1 0 100%;width:auto;max-width:none}
   .btn.primary{padding:8px 12px;flex-shrink:0}
   .btn.primary .bt-txt{display:none}
   #menu-btn,#theme-btn{flex-shrink:0}
@@ -531,19 +568,23 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 <button id="fab" data-act="toggle-sb" aria-label="Open menu">☰</button>
 <div id="mascot" data-act="mascot" title="Orbie" role="button" aria-label="Orbie the mascot">
   <div id="mascot-bubble"></div>
+  <span id="mascot-zzz">💤</span>
   <svg viewBox="0 0 120 120" width="84" height="84" aria-hidden="true">
-    <defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f7be8"/><stop offset="1" stop-color="#4f8ef7"/></linearGradient></defs>
-    <ellipse cx="60" cy="64" rx="54" ry="16" fill="none" stroke="#e0a83c" stroke-width="6" opacity=".9" transform="rotate(-14 60 64)"/>
-    <circle cx="60" cy="60" r="34" fill="url(#mg)"/>
-    <circle cx="47" cy="45" r="6" fill="#ffffff" opacity=".2"/>
-    <circle cx="75" cy="72" r="4.5" fill="#000000" opacity=".08"/>
+    <defs>
+      <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9b87f5"/><stop offset="1" stop-color="#4f8ef7"/></linearGradient>
+      <radialGradient id="mh" cx=".35" cy=".28" r=".95"><stop offset="0" stop-color="#ffffff" stop-opacity=".38"/><stop offset=".55" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    </defs>
+    <ellipse cx="60" cy="64" rx="55" ry="17" fill="none" stroke="#e0a83c" stroke-width="7" opacity=".95" transform="rotate(-14 60 64)"/>
+    <circle cx="60" cy="60" r="35" fill="url(#mg)"/>
+    <circle cx="60" cy="60" r="35" fill="url(#mh)"/>
     <g id="m-eyes">
-      <g><circle cx="48" cy="57" r="8.5" fill="#ffffff"/><circle class="m-pupil" cx="48" cy="57" r="4" fill="#22222a"/></g>
-      <g><circle cx="72" cy="57" r="8.5" fill="#ffffff"/><circle class="m-pupil" cx="72" cy="57" r="4" fill="#22222a"/></g>
+      <g><circle cx="47" cy="56" r="9" fill="#ffffff"/><circle class="m-pupil" cx="47" cy="56" r="4.6" fill="#23232b"/><circle class="m-pupil" cx="49" cy="54" r="1.6" fill="#ffffff"/></g>
+      <g><circle cx="73" cy="56" r="9" fill="#ffffff"/><circle class="m-pupil" cx="73" cy="56" r="4.6" fill="#23232b"/><circle class="m-pupil" cx="75" cy="54" r="1.6" fill="#ffffff"/></g>
     </g>
-    <path d="M52 72 Q60 79 68 72" stroke="#1d1d20" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
-    <circle cx="39" cy="66" r="4" fill="#fb7185" opacity=".35"/><circle cx="81" cy="66" r="4" fill="#fb7185" opacity=".35"/>
-    <ellipse cx="60" cy="64" rx="54" ry="16" fill="none" stroke="#e0a83c" stroke-width="6" opacity=".3" transform="rotate(-14 60 64)"/>
+    <path d="M51 72 Q60 80 69 72" stroke="#232330" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".75"/>
+    <circle cx="38" cy="66" r="4.5" fill="#fb7185" opacity=".4"/><circle cx="82" cy="66" r="4.5" fill="#fb7185" opacity=".4"/>
+    <ellipse cx="60" cy="64" rx="55" ry="17" fill="none" stroke="#f2c14e" stroke-width="7" opacity=".35" transform="rotate(-14 60 64)"/>
+    <g class="m-moon"><circle cx="60" cy="7" r="5" fill="#cfd6e4"/><circle cx="58.5" cy="6" r="1.4" fill="#aab3c5"/></g>
   </svg>
 </div>
 <canvas id="confetti-canvas"></canvas>
@@ -934,7 +975,7 @@ function renderTopbar(){
   else { const s=getSpace(ui.spaceId); title=s?s.name:"Orbit"; emoji=s?s.icon:""; }
   $("#topbar").innerHTML =
     '<button class="icon-btn" id="menu-btn" data-act="toggle-sb" title="Show or hide the sidebar">'+MENU_SVG+'</button>'+
-    '<div class="tb-title"><span class="emoji">'+esc(emoji)+'</span> '+esc(title)+'</div>'+
+    '<div class="tb-title"><span class="emoji">'+esc(emoji)+'</span><span class="tb-name">'+esc(title)+'</span></div>'+
     '<div class="tb-spacer"></div>'+
     '<button class="kbd-hint" data-act="cmdk" title="Command palette: jump anywhere, create anything">Ctrl K</button>'+
     '<button class="icon-btn" id="theme-btn" data-act="toggle-theme" title="'+(theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(theme==="dark"?SUN_SVG:MOON_SVG)+'</button>'+
@@ -1021,18 +1062,24 @@ function renderToday(){
   const doy = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 864e5);
   const quote = QUOTES[doy % QUOTES.length];
   const stk = streakDays();
-  const stat = (n,l,c)=>'<div class="stat" style="--sc:'+c+'"><div class="num">'+n+'</div><div class="lbl">'+l+'</div></div>';
+  const stat = (n,l,c,ico)=>'<div class="stat" style="--sc:'+c+'"><span class="s-ico">'+ico+'</span><div class="num" data-n="'+n+'">'+n+'</div><div class="lbl">'+l+'</div></div>';
   let h = '<div class="view-inner">'+
     '<div class="greet"><h1><span class="grad">'+greet+'</span>, <span class="uname" data-act="rename-user" title="Click to change name">'+esc(state.userName)+'</span> ✨'+
       (stk>0?'<span class="streak" title="Days in a row with at least one task completed">🔥 '+stk+' day streak</span>':'')+'</h1>'+
     '<div class="sub">'+dateLine+' · <span id="now"></span></div>'+
     '<div class="quote">"'+quote+'"</div></div>'+
     '<div class="stats">'+
-      stat(dueToday.length,"Due today","var(--amber)")+
-      stat(overdue.length,"Overdue","var(--rose)")+
-      stat(doneToday,"Done today","var(--green)")+
-      stat(open.length,"Open tasks","var(--cyan)")+
+      stat(dueToday.length,"Due today","var(--amber)","📆")+
+      stat(overdue.length,"Overdue","var(--rose)","⏳")+
+      stat(doneToday,"Done today","var(--green)","✅")+
+      stat(open.length,"Open tasks","var(--cyan)","🗂")+
     '</div>';
+
+  const dayTotal = doneToday + dueToday.length + overdue.length;
+  if(dayTotal > 0){
+    const pct = Math.round(doneToday / dayTotal * 100);
+    h += '<div class="day-prog"><span>Today: <b>'+pct+'%</b> done</span><span class="prog-track"><i style="width:'+pct+'%"></i></span></div>';
+  }
 
   const pinned = [];
   state.spaces.forEach(s=>(s.notes||[]).forEach(n=>{ if(n.pinned && noteMatches(n)) pinned.push({n:n, s:s}); }));
@@ -1065,6 +1112,22 @@ function renderToday(){
   h += '</div>';
   $("#view").innerHTML = h;
   updateClock();
+  animateNums();
+}
+
+const REDUCE_MOTION = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false;
+function animateNums(){
+  $$(".stat .num").forEach(el=>{
+    const n = +el.dataset.n || 0;
+    if(REDUCE_MOTION || n <= 0){ el.textContent = n; return; }
+    const t0 = performance.now(), dur = 420;
+    el.textContent = "0";
+    (function f(t){
+      const k = Math.min(1, (t - t0) / dur);
+      el.textContent = Math.round(n * (1 - Math.pow(1 - k, 3)));
+      if(k < 1) requestAnimationFrame(f);
+    })(t0);
+  });
 }
 
 function updateClock(){
@@ -1078,7 +1141,8 @@ const countWords = s=>{ const t=(s||"").trim(); return t ? t.split(/\s+/).length
 function renderPad(){
   let h = '<div class="view-inner">'+
     '<div class="pad-head"><h2 class="pad-title">Your big blank page</h2>'+
-    '<span class="pad-meta" id="pad-meta">'+countWords(state.scratch)+' words · saved ✓</span></div>'+
+    '<span class="pad-meta" id="pad-meta">'+countWords(state.scratch)+' words · saved ✓</span>'+
+    '<button class="head-link" data-act="pad-download" style="margin-left:0">Download .txt</button></div>'+
     '<textarea id="scratch-pad" placeholder="Write or paste anything here. Plans, brain dumps, meeting notes, drafts. It saves by itself as you type and syncs to your other devices.">'+esc(state.scratch||"")+'</textarea>';
 
   const all = [];
@@ -1181,12 +1245,15 @@ function boardChips(t){
 }
 
 function cardHtml(t, idx){
+  const sp = spaceOf(t);
+  const isLast = sp.stages.findIndex(s=>s.id===t.stage) >= sp.stages.length-1;
   return '<div class="card '+(t.done?"done":"")+'" style="animation-delay:'+dly(idx)+'" draggable="true" data-act="open-task" data-id="'+t.id+'">'+
     '<div class="card-top">'+
       '<button class="check" data-act="toggle" data-id="'+t.id+'">'+(t.done?"✓":"")+'</button>'+
-      '<div class="c-title">'+esc(t.title)+'</div>'+
+      '<div class="c-title" style="padding-right:16px">'+esc(t.title)+'</div>'+
     '</div>'+
-    (t.due||t.priority||t.repeat ? '<div class="t-chips">'+boardChips(t)+'</div>' : '')+
+    (t.due||t.priority||t.repeat||(t.checklist&&t.checklist.length) ? '<div class="t-chips">'+boardChips(t)+'</div>' : '')+
+    (isLast ? '' : '<button class="c-next" data-act="stage-next" data-id="'+t.id+'" title="Move to next stage">›</button>')+
   '</div>';
 }
 
@@ -1257,12 +1324,21 @@ function renderView(){
   const ac = currentAccent();
   if(ac) document.documentElement.style.setProperty("--accent", ac);
   else document.documentElement.style.removeProperty("--accent");
-  if(ui.view==="today"){ renderToday(); return; }
-  if(ui.view==="pad"){ renderPad(); return; }
-  const s = getSpace(ui.spaceId);
-  if(ui.tab==="board"){ renderBoardView(s); bindBoardDnD(); }
-  else if(ui.tab==="notes"){ renderNotesView(s); }
-  else { renderListView(s); }
+  const key = ui.view+"|"+ui.spaceId+"|"+ui.tab;
+  const viewChanged = key !== renderView._last;
+  renderView._last = key;
+  if(ui.view==="today"){ renderToday(); }
+  else if(ui.view==="pad"){ renderPad(); }
+  else {
+    const s = getSpace(ui.spaceId);
+    if(ui.tab==="board"){ renderBoardView(s); bindBoardDnD(); }
+    else if(ui.tab==="notes"){ renderNotesView(s); }
+    else { renderListView(s); }
+  }
+  if(viewChanged){
+    const vi = $("#view").firstElementChild;
+    if(vi) vi.classList.add("view-anim");
+  }
 }
 function render(){ renderSidebar(); renderTopbar(); renderTabs(); renderView(); }
 
@@ -1473,6 +1549,7 @@ function openNoteModal(spaceId, noteId, defPinned){
 function toggleTask(id, el){
   const t = state.tasks.find(x=>x.id===id); if(!t) return;
   if(t.repeat && !t.done){
+    const wasDue = t.due && dayDiff(t.due) <= 0;
     t.completedAt = todayStr();
     t.due = nextOccurrence(t.repeat);
     save();
@@ -1481,8 +1558,10 @@ function toggleTask(id, el){
       confettiBurst(r.left + r.width/2, r.top + r.height/2, spaceOf(t).color);
     }
     mascotHappy();
+    bumpDoneCount();
     render();
     showToast("✓ "+t.title+" done for today ↻ next: "+fmtDue(t.due));
+    maybeCelebrateClear(wasDue);
     return;
   }
   t.done = !t.done;
@@ -1492,9 +1571,11 @@ function toggleTask(id, el){
     const r = el.getBoundingClientRect();
     confettiBurst(r.left + r.width/2, r.top + r.height/2, spaceOf(t).color);
     mascotHappy();
+    bumpDoneCount();
     if(Math.random() < .35) mascotSay(pick(["Nice one! 🎉","Done and dusted ✨","+1 for future you","That's the stuff 💪"]), 2000);
   }
   render();
+  if(t.done) maybeCelebrateClear(t.due && dayDiff(t.due) <= 0);
 }
 
 function deleteTasks(ids, msg){
@@ -1646,10 +1727,11 @@ const pick = a=>a[Math.floor(Math.random()*a.length)];
 function applyMascot(){ const m = $("#mascot"); if(m) m.style.display = mascotOn ? "" : "none"; }
 
 function mascotSay(text, ms){
-  if(!mascotOn) return;
+  if(!mascotOn || orbieChatOpen) return;
   const b = $("#mascot-bubble"); if(!b) return;
   b.textContent = text;
   b.classList.add("show");
+  b.classList.remove("chat");
   clearTimeout(mascotSay._t);
   mascotSay._t = setTimeout(()=>b.classList.remove("show"), ms||2800);
 }
@@ -1681,13 +1763,85 @@ function mascotLines(){
   return L;
 }
 
+/* talk with Orbie, Tarsi style: type a task in plain language, it logs and confirms */
+let orbieChatOpen = false;
+const reEsc = s=>s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+function orbieFormHtml(ph){
+  return '<form id="orbie-form" data-form="orbie"><input name="oi" placeholder="'+ph+'" autocomplete="off"><button type="submit">Go</button></form>';
+}
+function mascotChat(line){
+  const b = $("#mascot-bubble"); if(!b) return;
+  orbieChatOpen = true;
+  clearTimeout(mascotSay._t);
+  b.classList.add("show","chat");
+  b.innerHTML = '<div class="mb-line">'+line+'</div>'+orbieFormHtml("Tell me a task… gym tomorrow !med");
+  setTimeout(()=>{ const i = b.querySelector("input"); if(i) i.focus(); }, 30);
+}
+function closeOrbieChat(){
+  const b = $("#mascot-bubble");
+  if(b) b.classList.remove("show","chat");
+  orbieChatOpen = false;
+}
+function orbieAddTask(raw){
+  let text = raw, target = null;
+  for(const s of state.spaces){
+    const re = new RegExp("\\s*\\b(?:in|to|@)\\s+"+reEsc(s.name)+"\\b","i");
+    if(re.test(text)){ target = s; text = text.replace(re,""); break; }
+  }
+  const p = parseQuick(text);
+  if(!p.title) return null;
+  const sp = target || (ui.view==="space" && getSpace(ui.spaceId)) || getSpace(defaultNotesSpaceId()) || state.spaces[0];
+  state.tasks.push({id:uid(), spaceId:sp.id, title:p.title, desc:"", due:p.due, priority:p.priority,
+    repeat:p.repeat, stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null, checklist:[]});
+  save(); render();
+  return {p:p, sp:sp};
+}
 function mascotClicked(){
   mascotHappy();
-  mascotSay(pick(mascotLines()));
-  if(Math.random() < .18){
+  if(orbieChatOpen){ closeOrbieChat(); return; }
+  mascotChat(esc(pick(mascotLines())));
+  if(Math.random() < .15){
     const m = $("#mascot");
     if(m){ const r = m.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+10, "#8f7be8"); }
   }
+}
+
+/* all time completion milestones */
+const DONE_KEY = "orbit-done-count";
+function bumpDoneCount(){
+  let n = 0;
+  try{ n = (+localStorage.getItem(DONE_KEY)||0) + 1; localStorage.setItem(DONE_KEY, String(n)); }catch(e){}
+  if([10,25,50,100,250,500].indexOf(n) > -1){
+    mascotHappy();
+    mascotSay(n+" tasks completed all time! 🏆", 3400);
+    const m = $("#mascot");
+    if(m){ const r = m.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+10, "#e0a83c"); }
+  }
+}
+
+/* celebrate clearing everything due today */
+function maybeCelebrateClear(wasDueToday){
+  if(!wasDueToday) return;
+  const stillDue = state.tasks.some(x=>!x.done && x.due && dayDiff(x.due) <= 0);
+  if(!stillDue){ mascotHappy(); mascotSay("Everything due today is DONE 🏆", 3200); }
+}
+
+/* Orbie falls asleep when you are away, wakes on activity */
+let idleT = null;
+function mascotIdleReset(){
+  const m = $("#mascot"); if(!m) return;
+  if(m.classList.contains("sleep")){
+    m.classList.remove("sleep");
+    const z = $("#mascot-zzz"); if(z) z.style.display = "none";
+  }
+  clearTimeout(idleT);
+  idleT = setTimeout(()=>{
+    if(mascotOn && m){
+      m.classList.add("sleep");
+      const z = $("#mascot-zzz"); if(z) z.style.display = "block";
+    }
+  }, 70000);
 }
 
 function initMascot(){
@@ -1728,16 +1882,21 @@ function initMascot(){
       blinkLoop();
     }, 2200 + Math.random()*3800);
   })();
+  document.addEventListener("mousemove", mascotIdleReset, {passive:true});
+  document.addEventListener("keydown", mascotIdleReset);
+  document.addEventListener("touchstart", mascotIdleReset, {passive:true});
+  mascotIdleReset();
   try{
     if(!sessionStorage.getItem("orbit-hi")){
       sessionStorage.setItem("orbit-hi","1");
-      setTimeout(()=>mascotSay("Hi "+state.userName+"! Click me anytime 🪐", 3200), 1200);
+      setTimeout(()=>mascotSay("Hi "+state.userName+"! Click me and tell me a task 🪐", 3400), 1200);
     }
   }catch(e){}
 }
 
 /* ---------------- event delegation ---------------- */
 document.addEventListener("click", e=>{
+  if(orbieChatOpen && !e.target.closest("#mascot")) closeOrbieChat();
   if(e.target.classList && e.target.classList.contains("overlay")){ closeModal(); return; }
   const el = e.target.closest("[data-act]");
   if(!el) return;
@@ -1854,13 +2013,35 @@ document.addEventListener("click", e=>{
       if(n){ save(); render(); showToast(n+" task"+(n>1?"s":"")+" moved to today"); }
       break;
     }
+    case "stage-next": {
+      const t = state.tasks.find(x=>x.id===el.dataset.id); if(!t) break;
+      const sp = spaceOf(t);
+      const idx = sp.stages.findIndex(s=>s.id===t.stage);
+      if(idx > -1 && idx < sp.stages.length-1){
+        t.stage = sp.stages[idx+1].id;
+        save(); render(); showToast("Moved to "+sp.stages[idx+1].name);
+      }
+      break;
+    }
+    case "pad-download": {
+      try{
+        const blob = new Blob([state.scratch||""], {type:"text/plain"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "orbit-notepad-"+todayStr()+".txt";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+        showToast("Notepad downloaded 📄");
+      }catch(e){ showToast("Download failed"); }
+      break;
+    }
     case "export": doExport(); break;
     case "import": $("#import-file").click(); break;
     case "undo": applyUndo(); break;
     case "sync": handleSyncClick(); break;
     case "toggle-theme": toggleTheme(); break;
     case "toggle-sb": toggleSidebar(); break;
-    case "mascot": mascotClicked(); break;
+    case "mascot": if(e.target.closest("#mascot-bubble")) break; mascotClicked(); break;
     case "rename-user": {
       const v = prompt("What should Orbit call you?", state.userName);
       if(v && v.trim()){ state.userName = v.trim().slice(0,24); save(); render(); }
@@ -1884,6 +2065,24 @@ document.addEventListener("submit", e=>{
   else if(kind==="task") submitTask(f);
   else if(kind==="space") submitSpace(f);
   else if(kind==="note") submitNote(f);
+  else if(kind==="orbie"){
+    const v = f.elements["oi"].value.trim(); if(!v) return;
+    const out = orbieAddTask(v);
+    const b = $("#mascot-bubble");
+    if(!b) return;
+    if(!out){
+      b.innerHTML = '<div class="mb-line">Hmm, tell me a bit more 🙂</div>'+orbieFormHtml("e.g. call mom fri !high");
+    } else {
+      mascotHappy();
+      const bits = [];
+      if(out.p.due) bits.push(fmtDue(out.p.due));
+      if(out.p.repeat) bits.push(REPEAT_NAMES[out.p.repeat]);
+      if(out.p.priority) bits.push(PRI_NAMES[out.p.priority]);
+      b.classList.add("show","chat");
+      b.innerHTML = '<div class="mb-line">Added <b>'+esc(out.p.title)+'</b>'+(bits.length? " · "+bits.join(" · "):"")+' → '+esc(out.sp.icon+" "+out.sp.name)+' ✓</div>'+orbieFormHtml("Another one?");
+    }
+    setTimeout(()=>{ const i = b.querySelector("input"); if(i) i.focus(); }, 30);
+  }
 });
 
 let searchT = null;
@@ -1897,7 +2096,7 @@ document.addEventListener("input", e=>{
 
 document.addEventListener("keydown", e=>{
   if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); openCmd(); return; }
-  if(e.key==="Escape"){ closeModal(); return; }
+  if(e.key==="Escape"){ closeModal(); closeOrbieChat(); return; }
   const tag = (e.target.tagName||"").toLowerCase();
   if(tag==="input" || tag==="textarea" || tag==="select" || e.target.isContentEditable) return;
   if(e.key==="/"){ e.preventDefault(); const s=$("#search"); if(s) s.focus(); }
@@ -1945,7 +2144,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "2.0";
+const APP_VERSION = "2.3";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
