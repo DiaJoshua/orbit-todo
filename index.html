@@ -75,7 +75,7 @@ html[data-theme="dark"]{
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
-  font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,"Segoe UI",sans-serif;
   background:var(--bg); color:var(--text);
   font-size:14.5px; line-height:1.5; overflow:hidden;
   -webkit-font-smoothing:antialiased;
@@ -219,6 +219,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .day-prog{display:flex;align-items:center;gap:11px;margin:2px 2px 8px;font-size:12px;color:var(--muted);animation:fadeUp .3s ease both}
 .day-prog .prog-track{flex:1;width:auto;height:6px}
 .day-prog b{color:var(--text);font-weight:700}
+.ui-tip{margin-top:26px;text-align:center;font-size:12px;color:var(--faint);animation:fadeIn .3s ease}
 
 /* view switch transition */
 .view-anim{animation:viewIn .22s ease}
@@ -937,6 +938,9 @@ const SUN_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" str
 const MOON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.6 14.3A8.7 8.7 0 0 1 9.7 3.4a8.8 8.8 0 1 0 10.9 10.9z"/></svg>';
 
 /* ---------------- theme ---------------- */
+const IS_APPLE = /Mac|iPhone|iPad|iPod/.test((navigator.platform||"")+(navigator.userAgent||""));
+function hapt(n){ try{ if(navigator.vibrate) navigator.vibrate(n||8); }catch(e){} }
+
 const THEME_KEY = "orbit-theme";
 let theme = "light";
 try{ theme = localStorage.getItem(THEME_KEY)==="dark" ? "dark" : "light"; }catch(e){}
@@ -947,6 +951,7 @@ function applyTheme(){
 }
 applyTheme();
 function toggleTheme(){
+  hapt(6);
   theme = theme==="dark" ? "light" : "dark";
   try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
   const root = document.documentElement;
@@ -1109,7 +1114,7 @@ function renderTopbar(){
     '<button class="icon-btn" id="menu-btn" data-act="toggle-sb" title="Show or hide the sidebar">'+MENU_SVG+'</button>'+
     '<div class="tb-title"><span class="emoji">'+esc(emoji)+'</span><span class="tb-name">'+esc(title)+'</span></div>'+
     '<div class="tb-spacer"></div>'+
-    '<button class="kbd-hint" data-act="cmdk" title="Command palette: jump anywhere, create anything">Ctrl K</button>'+
+    '<button class="kbd-hint" data-act="cmdk" title="Command palette: jump anywhere, create anything">'+(IS_APPLE?"⌘ K":"Ctrl K")+'</button>'+
     '<button class="icon-btn" id="theme-btn" data-act="toggle-theme" title="'+(theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(theme==="dark"?SUN_SVG:MOON_SVG)+'</button>'+
     '<div class="searchwrap">'+SEARCH_SVG+'<input id="search" placeholder="'+(isMobile()?"Search…":"Search…  ( / )")+'" value="'+esc(ui.search)+'" autocomplete="off"></div>'+
     '<button class="btn primary" data-act="new-task">＋<span class="bt-txt"> New task</span></button>';
@@ -1241,10 +1246,50 @@ function renderToday(){
     h += groupSection("today:dt","Due today","var(--amber)",dueToday,true);
     h += groupSection("today:wk","Next 7 days","var(--cyan)",week,true);
   }
+  h += uiTip("today");
   h += '</div>';
   $("#view").innerHTML = h;
   updateClock();
   animateNums();
+}
+
+/* rotating contextual tips, one per view per day */
+function uiTip(ctx){
+  const cmdk = IS_APPLE ? "⌘K" : "Ctrl K";
+  const menuHint = isMobile() ? "Long press" : "Right click";
+  const T = {
+    today: [
+      "Click Orbie and type a task in plain words. He gets it.",
+      isMobile() ? "Install Orbit: Share, then Add to Home Screen." : "Press "+cmdk+" to jump anywhere without the mouse.",
+      "Pin any note 📌 and it shows up right here.",
+      "Complete one task every day to grow your 🔥 streak.",
+      menuHint+" a task for quick actions."
+    ],
+    list: [
+      'Type "fri", "tomorrow", "aug 25" or "!high" while adding. Orbit fills in the rest.',
+      menuHint+" any task: done, duplicate, calendar, delete.",
+      '"Clinic daily" makes a task repeat every day.',
+      "Drag spaces in the sidebar to reorder them."
+    ],
+    board: [
+      "Drag cards between stages, or tap › to move one forward.",
+      "Edit stages any time with the ⚙ button up top.",
+      "Great for job hunting: Wishlist → Applied → Interview → Offer."
+    ],
+    notes: [
+      "Pin a note 📌 and it appears on your dashboard.",
+      "Click a note to open the big editor.",
+      "Use colors as meaning: amber for urgent, green for ideas."
+    ],
+    pad: [
+      "Type / on a new line for headings, checklists and templates.",
+      "Highlight a line, then ＋ Task from selection turns it into a task.",
+      "Make separate pages for work, study and life. They all sync."
+    ]
+  };
+  const pool = T[ctx] || T.today;
+  const doy = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 864e5);
+  return '<div class="ui-tip">💡 '+pool[doy % pool.length]+'</div>';
 }
 
 const REDUCE_MOTION = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false;
@@ -1290,6 +1335,7 @@ function renderPad(){
     '<span class="pad-meta" id="pad-meta">'+countWords(pg.body)+' words · saved ✓</span>'+
     '<button class="head-link" data-act="insert-menu" style="margin-left:0">＋ Insert</button>'+
     '<button class="head-link" data-act="sel-task" style="margin-left:0">＋ Task from selection</button>'+
+    '<button class="head-link" data-act="share-page" style="margin-left:0">↗ Share</button>'+
     '<button class="head-link" data-act="pad-download" style="margin-left:0">.txt</button>'+
     (state.pages.length>1 ? '<button class="head-link" data-act="del-page" style="margin-left:0">🗑</button>' : "")+
     '</div>'+
@@ -1303,12 +1349,14 @@ function renderPad(){
        '<button class="head-link" data-act="new-dash-note">＋ New note</button></div>';
   if(!all.length){
     h += '<div class="empty"><span class="art">🗒</span><h3>'+(ui.search?"No matching notes":"No notes yet")+'</h3><p>Notes you create in any space show up here, full size, easy to read.</p></div>';
+    h += uiTip("pad");
   } else {
     h += all.map((p,i)=>'<div class="note-row" style="--nc:'+esc(p.n.color||"#8b7cff")+';animation-delay:'+dly(i)+'" data-act="open-note" data-id="'+p.n.id+'" data-space="'+p.s.id+'">'+
       '<div class="nr-head">'+(p.n.pinned?'<span>📌</span>':'')+'<span class="nr-title">'+esc(p.n.title||"Untitled")+'</span>'+
       '<span class="chip space-chip" style="--c:'+p.s.color+'">'+esc(p.s.icon+" "+p.s.name)+'</span></div>'+
       (p.n.body?'<div class="nr-body">'+esc(p.n.body)+'</div>':'')+
     '</div>').join("");
+    h += uiTip("pad");
   }
   h += '</div>';
   $("#view").innerHTML = h;
@@ -1410,6 +1458,7 @@ function renderListView(s){
     h += groupSection(s.id+":done","Completed","var(--green)",done,false,
       '<button class="clear-done" data-act="clear-done" data-id="'+s.id+'">Clear completed</button>');
   }
+  h += uiTip("list");
   h += '</div>';
   $("#view").innerHTML = h;
   bindQuickAdd();
@@ -1470,7 +1519,7 @@ function renderBoardView(s){
   }).join("");
   $("#view").innerHTML = '<div class="view-inner wide"><div class="board">'+cols+
     '<div class="col ghost-col"><button data-act="edit-space">＋ Add / edit stages</button></div>'+
-  '</div></div>';
+  '</div>'+uiTip("board")+'</div>';
 }
 
 function bindBoardDnD(){
@@ -1514,6 +1563,7 @@ function renderNotesView(s){
     '</div>').join("")+
   '</div>';
   if(!notes.length) h += '<div class="empty"><span class="art">🗒</span><h3>'+(ui.search?"No matching notes":"No notes yet")+'</h3><p>Sticky notes for ideas, lists, links and anything you want to keep. Pin one to see it on the dashboard.</p></div>';
+  h += uiTip("notes");
   h += '</div>';
   $("#view").innerHTML = h;
 }
@@ -1602,6 +1652,7 @@ function cmdActions(){
       applyMascot();
       if(mascotOn) mascotSay("I'm back! 🪐");
     }},
+    {icon:"🔔", label:(function(){ try{ return localStorage.getItem("orbit-notif")==="on" ? "Turn off daily reminders" : "Enable daily reminders"; }catch(e){ return "Enable daily reminders"; } })(), run:toggleNotif},
     {icon:"⏳", label:"Move all overdue to today", run:()=>{ if(!moveOverdueToToday(null)) showToast("No overdue tasks 🎉"); }},
     {icon:"📄", label:"Download notepad (.txt)", run:padDownload},
     {icon:"⬇", label:"Export backup", run:doExport}
@@ -1787,6 +1838,7 @@ function toggleTask(id, el){
   t.completedAt = t.done ? todayStr() : null;
   save();
   if(t.done && el){
+    hapt();
     const r = el.getBoundingClientRect();
     confettiBurst(r.left + r.width/2, r.top + r.height/2, spaceOf(t).color);
     mascotHappy();
@@ -1895,6 +1947,17 @@ function padDownload(){
     showToast("Notepad downloaded 📄");
   }catch(e){ showToast("Download failed"); }
 }
+function taskICS(t){
+  const dt = (t.due||todayStr()).replace(/-/g,"");
+  const esc2 = s=>String(s||"").replace(/([,;])/g,"\\$1").replace(/\r?\n/g,"\\n");
+  return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Orbit//EN\r\nBEGIN:VEVENT\r\nUID:"+t.id+"@orbit\r\nDTSTAMP:"+dt+"T090000Z\r\nDTSTART;VALUE=DATE:"+dt+"\r\nSUMMARY:"+esc2(t.title)+"\r\nDESCRIPTION:"+esc2(t.desc)+"\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
+}
+function shareText(txt){
+  if(navigator.share){ navigator.share({text: txt}).catch(()=>{}); return; }
+  try{ navigator.clipboard.writeText(txt).then(()=>showToast("Copied to clipboard ✓")); }
+  catch(e){ showToast("Sharing is not available here"); }
+}
+
 function moveOverdueToToday(sid){
   let n = 0;
   state.tasks.forEach(t=>{ if(!t.done && t.due && dayDiff(t.due)<0 && (!sid || t.spaceId===sid)){ t.due = todayStr(); n++; } });
@@ -1976,6 +2039,8 @@ function openTaskMenu(taskId, x, y){
     '<button data-act="toggle" data-id="'+t.id+'">'+(t.done ? "↺ Mark not done" : "✓ Mark done")+'</button>'+
     '<button data-act="open-task" data-id="'+t.id+'">✏️ Edit</button>'+
     '<button data-act="dup-task" data-id="'+t.id+'">⧉ Duplicate</button>'+
+    '<button data-act="share-task" data-id="'+t.id+'">↗ Share</button>'+
+    (t.due ? '<button data-act="cal-task" data-id="'+t.id+'">🗓 Add to Calendar</button>' : "")+
     '<div class="sep"></div>'+
     '<button data-act="menu-due" data-id="'+t.id+'" data-d="0">📆 Due today</button>'+
     '<button data-act="menu-due" data-id="'+t.id+'" data-d="1">🌤 Due tomorrow</button>'+
@@ -2029,7 +2094,7 @@ function mascotLines(){
   const L = [
     "Hi "+state.userName+"! 👋",
     "You got this 💪",
-    isMobile() ? "Swipe from the left edge for your spaces ✨" : "Press Ctrl K to fly around ✨",
+    isMobile() ? "Swipe from the left edge for your spaces ✨" : "Press "+(IS_APPLE?"⌘K":"Ctrl K")+" to fly around ✨",
     isMobile() ? "Long press a task for quick actions 📋" : "Right click a task for quick actions 📋",
     "Pin a note and it lands on the dashboard 📌",
     "Type me a task: call mom fri !high",
@@ -2238,6 +2303,32 @@ function initMascot(){
   }catch(e){}
 }
 
+/* ---------------- daily reminder notifications ---------------- */
+const NOTIF_KEY = "orbit-notif";
+async function toggleNotif(){
+  try{
+    if(typeof Notification === "undefined"){ showToast("Notifications are not supported here"); return; }
+    if(localStorage.getItem(NOTIF_KEY)==="on"){ localStorage.setItem(NOTIF_KEY,"off"); showToast("Daily reminders off"); return; }
+    const p = await Notification.requestPermission();
+    if(p==="granted"){ localStorage.setItem(NOTIF_KEY,"on"); showToast("Daily reminders on ✓"); maybeNotify(true); }
+    else showToast("Permission was not granted");
+  }catch(e){}
+}
+function maybeNotify(force){
+  try{
+    if(typeof Notification === "undefined") return;
+    if(localStorage.getItem(NOTIF_KEY)!=="on" || Notification.permission!=="granted") return;
+    if(!force && localStorage.getItem("orbit-notif-day")===todayStr()) return;
+    const open = state.tasks.filter(t=>!t.done);
+    const due = open.filter(t=>t.due && dayDiff(t.due)===0).length;
+    const od  = open.filter(t=>t.due && dayDiff(t.due)<0).length;
+    if(due || od){
+      new Notification("Orbit", {body: due+" due today"+(od ? ", "+od+" overdue" : "")+". You got this 💪", icon:"icon.svg"});
+      localStorage.setItem("orbit-notif-day", todayStr());
+    }
+  }catch(e){}
+}
+
 /* ---------------- event delegation ---------------- */
 document.addEventListener("click", e=>{
   if(orbieChatOpen && !e.target.closest("#mascot")) closeOrbieChat();
@@ -2410,7 +2501,31 @@ document.addEventListener("click", e=>{
     case "menu-due": {
       const t = state.tasks.find(x=>x.id===el.dataset.id); if(!t) break;
       t.due = addDays(+el.dataset.d);
+      hapt();
       save(); render(); showToast("Due "+fmtDue(t.due));
+      break;
+    }
+    case "share-task": {
+      const t = state.tasks.find(x=>x.id===el.dataset.id); if(!t) break;
+      shareText(t.title+(t.due?" (due "+fmtDue(t.due)+")":"")+(t.desc?"\n"+t.desc:""));
+      break;
+    }
+    case "cal-task": {
+      const t = state.tasks.find(x=>x.id===el.dataset.id); if(!t) break;
+      try{
+        const blob = new Blob([taskICS(t)], {type:"text/calendar"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = t.title.toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,40)+".ics";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+        showToast("Calendar file ready. Open it to add the event 🗓");
+      }catch(e){ showToast("Could not create the calendar file"); }
+      break;
+    }
+    case "share-page": {
+      const pg = activePage();
+      shareText(pg.title+"\n\n"+(pg.body||""));
       break;
     }
     case "export": doExport(); break;
@@ -2519,7 +2634,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "3.2";
+const APP_VERSION = "3.3";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
@@ -2530,6 +2645,35 @@ updateFab();
 render();
 initMascot();
 initCloud();
+maybeNotify();
+
+/* deep link: yoursite/?add=Buy milk tomorrow  (works with iPhone Shortcuts + Siri) */
+(function deepLink(){
+  try{
+    const q = new URLSearchParams(location.search);
+    const raw = q.get("add") || q.get("task");
+    if(raw && raw.trim()){
+      const out = orbieAddTask(raw.trim());
+      if(out){ showToast("✓ Added from link: "+out.p.title); mascotHappy(); }
+      history.replaceState(null, "", location.pathname);
+    }
+  }catch(e){}
+})();
+
+/* gentle one time install tip on phones */
+(function installNudge(){
+  try{
+    if(!isMobile()) return;
+    if(window.matchMedia && matchMedia("(display-mode: standalone)").matches) return;
+    if(localStorage.getItem("orbit-nudged")) return;
+    const v = (+localStorage.getItem("orbit-visits")||0)+1;
+    localStorage.setItem("orbit-visits", String(v));
+    if(v >= 2){
+      localStorage.setItem("orbit-nudged","1");
+      setTimeout(()=>showToast(IS_APPLE ? "Tip: Share → Add to Home Screen installs Orbit as an app" : "Tip: browser menu → Install app puts Orbit on your home screen"), 2500);
+    }
+  }catch(e){}
+})();
 </script>
 </body>
 </html>

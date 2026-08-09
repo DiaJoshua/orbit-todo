@@ -43,6 +43,14 @@ Upload all of these to GitHub:
 | `sw.js` | Offline support |
 | `icon.svg` | App icon |
 
+## Apple style integrations
+
+- **Share sheet**: Share on any task menu or notepad page opens your device's native share sheet (AirDrop, Messages, anything)
+- **Calendar**: tasks with a due date have Add to Calendar in their menu; it downloads an .ics that opens straight into Apple or Google Calendar
+- **Siri and Shortcuts**: the app understands links like `https://YOUR-URL/?add=Buy milk tomorrow`. To add tasks by voice on iPhone: open **Shortcuts** → ＋ → add **Dictate Text** → add **URL** set to `https://YOUR-URL/?add=` followed by the Dictated Text variable → add **Open URLs** → name it "Add to Orbit". Now "Hey Siri, Add to Orbit" captures a task by voice
+- **Daily reminders**: enable from the ⌘K / Ctrl K palette; once a day Orbit notifies you what is due
+- **Native feel**: SF Pro typography on Apple devices, ⌘K hints on Mac, haptic ticks on Android, and a one time Add to Home Screen tip
+
 ## Run it
 
 **Option A, just open it:** double click `index.html`. (Cloud sync sign in needs a real URL, see below.)
