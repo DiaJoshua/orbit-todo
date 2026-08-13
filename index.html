@@ -88,10 +88,18 @@ button{cursor:pointer;background:none;border:none}
 ::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:8px;border:2px solid transparent;background-clip:content-box}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 
-/* smooth crossfade when switching themes */
+/* smooth crossfade when switching themes (fallback path) */
 html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after{
   transition:background-color .45s ease, color .45s ease, border-color .45s ease, box-shadow .45s ease !important;
 }
+/* circular reveal theme switch (View Transitions API).
+   The old theme is snapshotted and held perfectly still while the new
+   theme expands over it as a circle growing from the toggle button.
+   The clip-path animation itself is driven from toggleTheme(). */
+html.vt-theme::view-transition-old(root),
+html.vt-theme::view-transition-new(root){animation:none;mix-blend-mode:normal}
+html.vt-theme::view-transition-old(root){z-index:1}
+html.vt-theme::view-transition-new(root){z-index:2}
 
 /* ============ ambient glow ============ */
 #bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
@@ -144,6 +152,10 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .nav-item:hover{background:var(--panel2);color:var(--text)}
 .nav-item.active{background:var(--panel2);color:var(--text);font-weight:600}
 .nav-item.active::before{content:"";position:absolute;left:0;top:22%;bottom:22%;width:3px;border-radius:3px;background:var(--ac,var(--accent))}
+.nav-item.just-active::before{animation:barIn .3s cubic-bezier(.3,1.4,.4,1)}
+.nav-item.just-active .ico{animation:icoPop .32s cubic-bezier(.3,1.4,.4,1)}
+@keyframes barIn{from{transform:scaleY(0)}}
+@keyframes icoPop{50%{transform:scale(1.14) rotate(-4deg)}}
 .nav-item .ico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:15px;background:color-mix(in srgb,var(--ac,var(--accent)) 15%,transparent);flex-shrink:0;transition:transform .18s ease}
 .nav-item:hover .ico{transform:scale(1.1) rotate(-5deg)}
 .nav-item .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -197,6 +209,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .tabs button{padding:6px 16px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s;display:flex;align-items:center;gap:6px}
 .tabs button:hover{color:var(--text)}
 .tabs button.active{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--text)}
+.tabs button.active.just-active{animation:tabPop .22s cubic-bezier(.3,1.3,.4,1)}
+@keyframes tabPop{from{transform:scale(.92)}}
 .prog-wrap{display:flex;align-items:center;gap:10px;margin-left:auto;color:var(--muted);font-size:12.5px}
 .prog-track{width:110px;height:5px;border-radius:5px;background:var(--track);overflow:hidden}
 .prog-track i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#fff));transition:width .5s ease}
@@ -210,7 +224,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .greet .quote{margin-top:7px;font-size:13px;color:var(--faint);font-style:italic}
 .streak{display:inline-flex;align-items:center;gap:5px;margin-left:12px;font-size:12.5px;font-weight:700;color:var(--amber);background:color-mix(in srgb,var(--amber) 11%,transparent);padding:3px 12px;border-radius:999px;vertical-align:middle;animation:pop .4s ease}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin:22px 0 8px}
-.stat{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:15px 56px 15px 17px;transition:.18s;position:relative;overflow:hidden;box-shadow:var(--card-shadow);animation:fadeUp .25s ease both}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:15px 56px 15px 17px;transition:.18s;position:relative;overflow:hidden;box-shadow:var(--card-shadow);animation:var(--enter,none)}
 .stat .s-ico{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;background:color-mix(in srgb,var(--sc,var(--accent)) 11%,transparent);transition:transform .18s}
 .stat:hover .s-ico{transform:scale(1.12) rotate(-6deg)}
 .stats .stat:nth-child(2){animation-delay:40ms}
@@ -220,14 +234,18 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .stat .num{font-size:26px;font-weight:800;line-height:1.1;color:var(--sc,var(--text))}
 .stat .lbl{font-size:12px;color:var(--muted);margin-top:3px}
 
-.day-prog{display:flex;align-items:center;gap:11px;margin:2px 2px 8px;font-size:12px;color:var(--muted);animation:fadeUp .3s ease both}
+.day-prog{display:flex;align-items:center;gap:11px;margin:2px 2px 8px;font-size:12px;color:var(--muted);animation:var(--enter-slow,none)}
 .day-prog .prog-track{flex:1;width:auto;height:6px}
 .day-prog b{color:var(--text);font-weight:700}
-.ui-tip{margin-top:26px;text-align:center;font-size:12px;color:var(--faint);animation:fadeIn .3s ease}
+.ui-tip{margin-top:26px;text-align:center;font-size:12px;color:var(--faint);animation:var(--enter-fade,none)}
 
 /* view switch transition */
 .view-anim{animation:viewIn .22s ease}
 @keyframes viewIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+/* entrance animations only play when the view actually changes
+   (renderView toggles .anim-in) so re-renders never flicker or replay */
+#view.anim-in{--enter:fadeUp .22s ease both;--enter-slow:fadeUp .3s ease both;--enter-note:noteIn .25s ease backwards;--enter-fade:fadeIn .3s ease}
+.task.just-in,.card.just-in,.note.just-in{animation:fadeUp .28s cubic-bezier(.2,.8,.3,1) both !important;animation-delay:0s !important}
 
 /* ============ groups & task rows ============ */
 .group-head{
@@ -242,14 +260,21 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .group-head .clear-done{margin-left:auto;font-size:11px;letter-spacing:.4px;color:var(--faint);text-transform:none;padding:3px 9px;border-radius:8px}
 .group-head .clear-done:hover{color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)}
 
+/* groups open and close with a smooth height + fade, no re-render */
+.group-body{display:grid;grid-template-rows:1fr;transition:grid-template-rows .3s cubic-bezier(.4,0,.2,1)}
+.group-body.closed{grid-template-rows:0fr}
+.gb-in{overflow:hidden;min-height:0;transition:opacity .22s ease}
+.group-body.closed .gb-in{opacity:0}
+
 .task{
   display:flex;align-items:flex-start;gap:12px;
   background:var(--panel);border:1px solid var(--border);border-radius:14px;
   padding:12px 14px;margin-bottom:8px;cursor:pointer;box-shadow:var(--card-shadow);
   transition:transform .13s,border-color .13s,background .13s,opacity .25s;
-  animation:fadeUp .22s ease both;
+  animation:var(--enter,none);
 }
 .task:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));background:var(--bg2)}
+.task:active{transform:scale(.995)}
 .task.done{opacity:.55}
 .task.done .t-title{text-decoration:line-through;text-decoration-color:var(--muted)}
 .check{
@@ -259,7 +284,8 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 }
 .check:hover{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 15%,transparent)}
 .check:active{transform:scale(.82)}
-.task.done .check,.card.done .check{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#fff));border-color:transparent;animation:pop .3s ease}
+.task.done .check,.card.done .check{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#fff));border-color:transparent}
+.just-done .check{animation:pop .3s ease}
 @keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
 .t-main{flex:1;min-width:0}
 .t-title{font-weight:600;font-size:14.5px;word-break:break-word}
@@ -306,7 +332,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .col-body.drop-hint{background:color-mix(in srgb,var(--accent) 8%,transparent);outline:2px dashed color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:-4px}
 .card{
   background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:11px 12px;
-  cursor:grab;transition:transform .13s,border-color .13s;animation:fadeUp .22s ease both;box-shadow:var(--card-shadow);
+  cursor:grab;transition:transform .13s,border-color .13s;animation:var(--enter,none);box-shadow:var(--card-shadow);
 }
 .card{position:relative}
 .card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--border));transform:translateY(-1px)}
@@ -336,7 +362,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   background:color-mix(in srgb,var(--nc) 10%,var(--note-base));
   border:1px solid color-mix(in srgb,var(--nc) 30%,transparent);
   display:flex;flex-direction:column;gap:7px;transition:transform .18s,box-shadow .18s;
-  animation:noteIn .25s ease backwards;box-shadow:var(--card-shadow);
+  animation:var(--enter-note,none);box-shadow:var(--card-shadow);
 }
 .note:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:var(--hover-shadow)}
 .notes-grid .note:nth-child(odd):not(.add-note){transform:rotate(-.8deg)}
@@ -373,7 +399,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .note-row{
   background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--nc,#8b7cff);
   border-radius:14px;padding:14px 17px;margin-bottom:10px;cursor:pointer;
-  box-shadow:var(--card-shadow);transition:transform .15s,background .15s;animation:fadeUp .3s ease both;
+  box-shadow:var(--card-shadow);transition:transform .15s,background .15s;animation:var(--enter-slow,none);
 }
 .note-row:hover{transform:translateY(-1px);background:var(--bg2)}
 .nr-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
@@ -383,7 +409,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .head-link:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
 
 /* ============ empty state ============ */
-.empty{text-align:center;padding:56px 20px;color:var(--muted);animation:fadeUp .3s ease both}
+.empty{text-align:center;padding:56px 20px;color:var(--muted);animation:var(--enter-slow,none)}
 .empty .art{font-size:42px;margin-bottom:12px;display:block;filter:saturate(.85);animation:floaty 4s ease-in-out infinite}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .empty h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
@@ -405,6 +431,10 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   box-shadow:var(--pop-shadow);animation:zoomIn .18s cubic-bezier(.2,.9,.3,1.2);
 }
 @keyframes zoomIn{from{opacity:0;transform:scale(.94) translateY(8px)}}
+#modal-root .overlay.closing{animation:fadeOut .15s ease forwards}
+.overlay.closing .modal,.overlay.closing .cmd{animation:zoomOut .15s ease forwards}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes zoomOut{to{opacity:0;transform:scale(.96) translateY(6px)}}
 .modal h2{font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
 .modal .info{font-size:13.5px;color:var(--muted);line-height:1.65;margin-top:4px}
 .modal .info b{color:var(--text)}
@@ -484,15 +514,16 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 #popover button:hover{background:var(--panel2);color:var(--text)}
 #popover button.danger:hover{background:color-mix(in srgb,var(--rose) 12%,transparent);color:var(--rose)}
 #popover .sep{height:1px;background:var(--border);margin:4px 6px}
+#popover.closing{animation:zoomOut .12s ease forwards}
 
 /* ============ toast ============ */
 #toast{
-  position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);z-index:80;
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px) scale(.97);z-index:80;
   background:var(--toast-bg);border:1px solid var(--border2);border-radius:13px;padding:10px 16px;
   font-size:13.5px;display:flex;align-items:center;gap:12px;
   opacity:0;pointer-events:none;transition:.25s;box-shadow:var(--pop-shadow);
 }
-#toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast.show{opacity:1;transform:translate(-50%,0) scale(1);pointer-events:auto}
 #toast button{color:var(--accent);font-weight:700;font-size:13px}
 #toast button:hover{text-decoration:underline}
 
@@ -549,6 +580,30 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 #fab:active{transform:scale(.88)}
 #fab{animation:pop .35s ease}
 
+/* ============ focus timer pill ============ */
+#focus-pill{
+  position:fixed;left:50%;bottom:24px;z-index:70;
+  transform:translate(-50%,90px);opacity:0;pointer-events:none;
+  display:flex;align-items:center;gap:11px;
+  background:var(--modal-bg);border:1px solid var(--border2);border-radius:999px;
+  padding:8px 10px 8px 14px;box-shadow:var(--pop-shadow);
+  transition:transform .4s cubic-bezier(.3,1.3,.4,1),opacity .3s ease;
+}
+body.focus-on #focus-pill{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+body.focus-on #toast{bottom:92px}
+#focus-pill .fring{width:30px;height:30px;transform:rotate(-90deg);flex-shrink:0}
+#focus-pill .fring .bgc{fill:none;stroke:var(--track);stroke-width:3.4}
+#focus-pill .fring .fgc{fill:none;stroke:var(--accent);stroke-width:3.4;stroke-linecap:round;transition:stroke-dashoffset .9s linear}
+#focus-pill .ft{font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;letter-spacing:.3px;line-height:1.2}
+#focus-pill .fl{font-size:11.5px;color:var(--muted);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#focus-pill .icon-btn{width:30px;height:30px;font-size:13px}
+#focus-pill.paused .fgc{stroke:var(--amber)}
+#focus-pill.paused .ft{color:var(--amber)}
+@media(max-width:880px){
+  #focus-pill{bottom:88px;max-width:92vw}
+  body.focus-on #toast{bottom:150px}
+}
+
 /* ============ responsive ============ */
 @media(max-width:880px){
   #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:40;width:min(280px,84vw);margin-left:0;transform:translateX(-105%);box-shadow:20px 0 60px rgba(0,0,0,.35)}
@@ -590,6 +645,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 <div id="modal-root"></div>
 <div id="popover"></div>
 <div id="toast"></div>
+<div id="focus-pill"></div>
 <button id="fab" data-act="toggle-sb" aria-label="Open menu">☰</button>
 <div id="mascot" data-act="mascot" title="Orbie" role="button" aria-label="Orbie the mascot">
   <div id="mascot-bubble"></div>
@@ -853,6 +909,10 @@ function mergeStates(a, b){
   const pSig = p=>((p.title||"")+"|"+(p.body||"")).trim().toLowerCase();
   const haveP = new Set(m.pages.map(pSig));
   (older.pages||[]).forEach(p=>{ if(!haveP.has(pSig(p))){ m.pages.push(p); haveP.add(pSig(p)); } });
+  m.prefs = Object.assign({}, older.prefs||{}, m.prefs||{});
+  if(!m.focus || typeof m.focus !== "object") m.focus = {};
+  const oldF = (older.focus && typeof older.focus === "object") ? older.focus : {};
+  Object.keys(oldF).forEach(k=>{ m.focus[k] = Math.max(+m.focus[k]||0, +oldF[k]||0); });
   return m;
 }
 
@@ -870,6 +930,9 @@ function applyRemote(remote, first){
     }
     state.updatedAt = Date.now();
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); localStorage.setItem("orbit-dirty","1"); }catch(e){}
+    ensureExtras();
+    syncThemeFromState(true);
+    syncMascotFromState();
     pushCloud(true);
     render();
     updateBadge();
@@ -878,6 +941,9 @@ function applyRemote(remote, first){
   if((remote.updatedAt||0) > (state.updatedAt||0)){
     state = remote;
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+    ensureExtras();
+    syncThemeFromState(true);
+    syncMascotFromState();
     const ae = document.activeElement;
     if(ae && (ae.id==="scratch-pad" || ae.tagName==="TEXTAREA" || ae.tagName==="INPUT")) ui._pendingRender = true;
     else render();
@@ -899,9 +965,25 @@ async function pullCloud(first){
 function pushCloud(now){
   if(!cloud.on || !window.puter) return;
   clearTimeout(pushTimer);
+  syncHint("☁ Syncing…");
   pushTimer = setTimeout(()=>{
-    try{ puter.kv.set(KV_KEY, JSON.stringify(state)); }catch(e){}
-  }, now ? 50 : 600);
+    pushTimer = null;
+    try{
+      const p = puter.kv.set(KV_KEY, JSON.stringify(state));
+      if(p && p.then) p.then(()=>{ cloud.last = Date.now(); syncHint("☁ Synced just now"); }).catch(function(){});
+    }catch(e){}
+  }, now ? 50 : 300);
+}
+function syncHint(msg){
+  if(syncStatus!=="on") return;
+  const h = $("#sync-hint");
+  if(h) h.textContent = msg;
+}
+/* never lose the last few keystrokes: flush pending pushes when leaving */
+function flushPush(){
+  if(!cloud.on || !window.puter || !pushTimer) return;
+  clearTimeout(pushTimer); pushTimer = null;
+  try{ puter.kv.set(KV_KEY, JSON.stringify(state)); }catch(e){}
 }
 
 async function handleSyncClick(){
@@ -977,16 +1059,77 @@ function applyTheme(){
   if(mt) mt.content = theme==="dark" ? "#151517" : "#f7f7f5";
 }
 applyTheme();
-function toggleTheme(){
-  hapt(6);
-  theme = theme==="dark" ? "light" : "dark";
+
+/* cloud-synced extras: prefs (theme, mascot) and daily focus minutes */
+function ensureExtras(){
+  if(!state.prefs || typeof state.prefs !== "object") state.prefs = {};
+  if(!state.focus || typeof state.focus !== "object") state.focus = {};
+}
+ensureExtras();
+if(state.prefs.theme==null) state.prefs.theme = theme;
+if(state.prefs.mascot==null){ let m0 = true; try{ m0 = localStorage.getItem("orbit-mascot") !== "off"; }catch(e){} state.prefs.mascot = m0; }
+
+function setTheme(next, animate){
+  theme = next;
   try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+  if(state.prefs) state.prefs.theme = theme;
+  if(animate){
+    const root = document.documentElement;
+    root.classList.add("theme-anim");
+    applyTheme(); renderTopbar();
+    setTimeout(()=>root.classList.remove("theme-anim"), 500);
+  } else { applyTheme(); renderTopbar(); }
+}
+/* your theme follows you across devices: adopt the synced preference */
+function syncThemeFromState(animate){
+  const t = state.prefs && state.prefs.theme;
+  if((t==="dark" || t==="light") && t!==theme) setTheme(t, animate);
+}
+function syncMascotFromState(){
+  if(state.prefs && typeof state.prefs.mascot === "boolean" && state.prefs.mascot !== mascotOn){
+    mascotOn = state.prefs.mascot;
+    try{ localStorage.setItem(MASCOT_KEY, mascotOn ? "on" : "off"); }catch(e){}
+    applyMascot();
+  }
+}
+syncThemeFromState(false);
+
+/* Theme switch design: the new theme reveals as a circle growing out of
+   the toggle button (View Transitions API). The old theme is snapshotted
+   and stays perfectly still underneath while the new one expands over it
+   with a fast-out, gentle-land curve (550ms). Falls back to a soft 450ms
+   crossfade, and to an instant switch when reduced motion is preferred. */
+function toggleTheme(x, y){
+  hapt(6);
+  const next = theme==="dark" ? "light" : "dark";
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(!document.startViewTransition || reduce){
+    setTheme(next, !reduce);
+    const b = $("#theme-btn"); if(b) b.classList.add("spin");
+    save();
+    return;
+  }
+  if(x==null){
+    const b = $("#theme-btn");
+    if(b){ const r = b.getBoundingClientRect(); x = r.left + r.width/2; y = r.top + r.height/2; }
+    else { x = innerWidth - 40; y = 30; }
+  }
   const root = document.documentElement;
-  root.classList.add("theme-anim");
-  applyTheme();
-  renderTopbar();
-  const b = $("#theme-btn"); if(b) b.classList.add("spin");
-  setTimeout(()=>root.classList.remove("theme-anim"), 500);
+  root.classList.add("vt-theme");
+  const vt = document.startViewTransition(()=>{
+    theme = next;
+    try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+    state.prefs.theme = theme;
+    applyTheme(); renderTopbar();
+  });
+  vt.ready.then(()=>{
+    const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 40;
+    root.animate(
+      {clipPath:["circle(0px at "+x+"px "+y+"px)", "circle("+r+"px at "+x+"px "+y+"px)"]},
+      {duration:550, easing:"cubic-bezier(.25,.75,.2,1)", pseudoElement:"::view-transition-new(root)"}
+    );
+  }).catch(function(){});
+  vt.finished.finally(()=>{ root.classList.remove("vt-theme"); save(); });
 }
 
 /* ---------------- sidebar open/close ---------------- */
@@ -1018,12 +1161,15 @@ function toggleSidebar(){
 /* ---------------- chrome: sidebar ---------------- */
 function renderSidebar(){
   const todayCnt = state.tasks.filter(t=>!t.done && t.due && dayDiff(t.due)<=0).length;
+  const navKey = ui.view+"|"+(ui.spaceId||"");
+  const navMoved = navKey !== renderSidebar._nav;
+  renderSidebar._nav = navKey;
   const spacesHtml = state.spaces.map(s=>{
     const total = state.tasks.filter(t=>t.spaceId===s.id).length;
     const done  = state.tasks.filter(t=>t.spaceId===s.id && t.done).length;
     const pct   = total ? Math.round(done/total*100) : 0;
     const active = ui.view==="space" && ui.spaceId===s.id;
-    return '<button class="nav-item '+(active?"active":"")+'" style="--ac:'+s.color+'" data-act="nav-space" data-id="'+s.id+'" draggable="true" title="Drag to reorder">'+
+    return '<button class="nav-item '+(active?"active"+(navMoved?" just-active":""):"")+'" style="--ac:'+s.color+'" data-act="nav-space" data-id="'+s.id+'" draggable="true" title="Drag to reorder">'+
       '<span class="ico">'+esc(s.icon)+'</span><span class="nm">'+esc(s.name)+'</span>'+
       '<span class="cnt">'+openCount(s.id)+'</span>'+
       (total? '<span class="bar"><i style="width:'+pct+'%"></i></span>':'')+
@@ -1034,9 +1180,9 @@ function renderSidebar(){
     '<div class="logo" data-act="nav-today" title="Go to dashboard"><span class="logo-tile">'+MARK_SVG+'</span><span class="word2">'+(state.userName && state.userName!=="friend" ? esc(state.userName)+'’s Orbit' : 'Orbit')+'</span>'+
       '<button class="rn" data-act="rename-user" title="Rename workspace">✏️</button></div>'+
     '<div class="sb-scroll">'+
-      '<button class="nav-item '+(ui.view==="today"?"active":"")+'" style="--ac:#8b7cff" data-act="nav-today">'+
+      '<button class="nav-item '+(ui.view==="today"?"active"+(navMoved?" just-active":""):"")+'" style="--ac:#8b7cff" data-act="nav-today">'+
         '<span class="ico">☀️</span><span class="nm">Today</span><span class="cnt">'+todayCnt+'</span></button>'+
-      '<button class="nav-item '+(ui.view==="pad"?"active":"")+'" style="--ac:#2ab1dd" data-act="nav-pad">'+
+      '<button class="nav-item '+(ui.view==="pad"?"active"+(navMoved?" just-active":""):"")+'" style="--ac:#2ab1dd" data-act="nav-pad">'+
         '<span class="ico">🗒</span><span class="nm">Notepad</span></button>'+
       '<div class="sb-label"><span>Spaces</span><button data-act="new-space" title="New space">＋</button></div>'+
       spacesHtml+
@@ -1044,7 +1190,7 @@ function renderSidebar(){
     '<div class="sb-foot">'+
       '<button class="mini'+(syncStatus==="on"?" on":"")+'" data-act="sync" id="sync-btn">'+syncLabel()+'</button>'+
       '<div class="row"><button class="mini" data-act="export">⬇ Export</button><button class="mini" data-act="import">⬆ Import</button></div>'+
-      '<div class="hint">'+(syncStatus==="on"?"Changes save to the cloud automatically":"Data is saved in this browser · Export to back up")+'</div>'+
+      '<div class="hint" id="sync-hint">'+(syncStatus==="on"?"Changes save to the cloud automatically":"Data is saved in this browser · Export to back up")+'</div>'+
     '</div>';
   bindSpaceDnD();
 }
@@ -1054,6 +1200,8 @@ function makeSortable(list, sel, commit, grid, sameGroupOnly){
   const items = $$(sel, list);
   let dragEl = null;
   const groupOf = el=>{
+    const body = el.closest(".group-body");
+    if(body) return body.previousElementSibling;
     let p = el.previousElementSibling;
     while(p && !p.classList.contains("group-head")) p = p.previousElementSibling;
     return p;
@@ -1064,8 +1212,8 @@ function makeSortable(list, sel, commit, grid, sameGroupOnly){
     let before;
     if(grid) before = (y < r.top) || (y <= r.bottom && x < r.left + r.width/2);
     else before = y < r.top + r.height/2;
-    if(before) list.insertBefore(el, t);
-    else list.insertBefore(el, t.nextSibling);
+    if(before) t.parentNode.insertBefore(el, t);
+    else t.parentNode.insertBefore(el, t.nextSibling);
   };
   items.forEach(it=>{
     it.setAttribute("draggable","true");
@@ -1128,12 +1276,12 @@ function makeSortable(list, sel, commit, grid, sameGroupOnly){
 
 function commitTaskOrderFromDom(container){
   let counter = 0, changed = false;
-  Array.from(container.children).forEach(ch=>{
+  $$(".group-head, .task[data-id]", container).forEach(ch=>{
     if(ch.classList.contains("group-head")){ counter = 0; return; }
-    if(ch.classList.contains("task") && ch.dataset.id){
-      const t = state.tasks.find(x=>x.id===ch.dataset.id);
-      if(t && t.order !== counter){ t.order = counter; changed = true; }
-      else if(t) t.order = counter;
+    const t = state.tasks.find(x=>x.id===ch.dataset.id);
+    if(t){
+      if(t.order !== counter) changed = true;
+      t.order = counter;
       counter++;
     }
   });
@@ -1259,7 +1407,10 @@ function renderTabs(){
   const total = state.tasks.filter(t=>t.spaceId===s.id).length;
   const done  = state.tasks.filter(t=>t.spaceId===s.id && t.done).length;
   const pct   = total ? Math.round(done/total*100) : 0;
-  const tab = n=>'<button class="'+(ui.tab===n?"active":"")+'" data-act="tab" data-tab="'+n+'">';
+  const tabKey = ui.spaceId+"|"+ui.tab;
+  const tabMoved = tabKey !== renderTabs._k;
+  renderTabs._k = tabKey;
+  const tab = n=>'<button class="'+(ui.tab===n?"active"+(tabMoved?" just-active":""):"")+'" data-act="tab" data-tab="'+n+'">';
   slot.innerHTML =
     '<div class="tabsrow '+(ui.tab==="board"?"wide":"")+'"><div class="inner">'+
       '<div class="tabs">'+
@@ -1287,7 +1438,8 @@ function chipsHtml(t, withSpace){
 }
 
 function taskRow(t, withSpace, idx){
-  return '<div class="task '+(t.done?"done":"")+'" style="animation-delay:'+dly(idx)+'" data-act="open-task" data-id="'+t.id+'">'+
+  const flair = (t.id===ui._justAdded ? " just-in" : "") + (t.id===ui._justToggled ? " just-done" : "");
+  return '<div class="task '+(t.done?"done":"")+flair+'" style="animation-delay:'+dly(idx)+'" data-act="open-task" data-id="'+t.id+'">'+
     '<button class="check" data-act="toggle" data-id="'+t.id+'" title="'+(t.repeat?"Done for today":"Mark done")+'">'+(t.done?"✓":"")+'</button>'+
     '<div class="t-main">'+
       '<div class="t-title">'+esc(t.title)+'</div>'+
@@ -1321,7 +1473,7 @@ function groupSection(key, label, dotColor, tasks, withSpace, extras){
       '<span class="chev">▼</span><span class="dot" style="--gc:'+dotColor+'"></span>'+label+
       ' <span class="gcnt">'+tasks.length+'</span>'+(extras||"")+
     '</div>'+
-    (col ? "" : tasks.map((t,i)=>taskRow(t, withSpace, i)).join(""));
+    '<div class="group-body'+(col?" closed":"")+'"><div class="gb-in">'+tasks.map((t,i)=>taskRow(t, withSpace, i)).join("")+'</div></div>';
 }
 
 /* ---------------- today view ---------------- */
@@ -1339,6 +1491,7 @@ function renderToday(){
   const quote = QUOTES[doy % QUOTES.length];
   const stk = streakDays();
   const stat = (n,l,c,ico)=>'<div class="stat" style="--sc:'+c+'"><span class="s-ico">'+ico+'</span><div class="num" data-n="'+n+'">'+n+'</div><div class="lbl">'+l+'</div></div>';
+  const statRaw = (n,l,c,ico)=>'<div class="stat" style="--sc:'+c+'"><span class="s-ico">'+ico+'</span><div class="num">'+n+'</div><div class="lbl">'+l+'</div></div>';
   let h = '<div class="view-inner">'+
     '<div class="greet"><h1><span class="grad">'+greet+'</span>, <span class="uname" data-act="rename-user" title="Click to change name">'+esc(state.userName)+'</span> ✨'+
       (stk>0?'<span class="streak" title="Days in a row with at least one task completed">🔥 '+stk+' day streak</span>':'')+'</h1>'+
@@ -1349,6 +1502,7 @@ function renderToday(){
       stat(overdue.length,"Overdue","var(--rose)","⏳")+
       stat(doneToday,"Done today","var(--green)","✅")+
       stat(open.length,"Open tasks","var(--cyan)","🗂")+
+      (focusToday()>0 ? statRaw(fmtMin(focusToday()),"Focus today","var(--accent)","🎯") : "")+
     '</div>';
 
   const dayTotal = doneToday + dueToday.length + overdue.length;
@@ -1371,17 +1525,15 @@ function renderToday(){
   h += '<div class="group-head '+(notesCol?"collapsed":"")+'" data-act="collapse" data-key="today:notes">'+
        '<span class="chev">▼</span><span class="dot" style="--gc:var(--accent)"></span>Pinned notes <span class="gcnt">'+pinned.length+'</span>'+
        '<button class="head-link" data-act="nav-pad">Open notepad →</button></div>';
-  if(!notesCol){
-    h += '<div class="notes-grid dash">'+
+  h += '<div class="group-body'+(notesCol?" closed":"")+'"><div class="gb-in"><div class="notes-grid dash">'+
       '<div class="note add-note" data-act="new-dash-note" role="button" tabindex="0"><span class="big">＋</span>New note</div>'+
-      pinned.map((p,i)=>'<div class="note" style="--nc:'+esc(p.n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+p.n.id+'" data-space="'+p.s.id+'">'+
+      pinned.map((p,i)=>'<div class="note'+(p.n.id===ui._justAdded?" just-in":"")+'" style="--nc:'+esc(p.n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+p.n.id+'" data-space="'+p.s.id+'">'+
         '<span class="pin">📌</span>'+
         '<div class="n-title">'+esc(p.n.title||"Untitled")+'</div>'+
         '<div class="n-body">'+esc(p.n.body||"")+'</div>'+
         '<div class="n-date">'+esc(p.s.icon+" "+p.s.name)+'</div>'+
       '</div>').join("")+
-    '</div>';
-  }
+    '</div></div></div>';
 
   if(!overdue.length && !dueToday.length && !week.length){
     h += '<div class="empty"><span class="art">🪐</span><h3>'+(ui.search?"No matches":"All clear")+'</h3><p>'+
@@ -1446,6 +1598,7 @@ function uiTip(ctx){
 const REDUCE_MOTION = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false;
 function animateNums(){
   $$(".stat .num").forEach(el=>{
+    if(el.dataset.n==null) return;
     const n = +el.dataset.n || 0;
     if(REDUCE_MOTION || n <= 0){ el.textContent = n; return; }
     const t0 = performance.now(), dur = 420;
@@ -1549,6 +1702,7 @@ const SNIPPETS = {
 function openInsertMenu(fromSlash){
   const ta = $("#scratch-pad"); if(!ta) return;
   const p = $("#popover");
+  clearTimeout(closePopover._t); p.classList.remove("closing");
   const item = (k,ic,lb)=>'<button data-act="pad-insert" data-k="'+k+'" data-slash="'+(fromSlash?1:0)+'"><span>'+ic+'</span>'+lb+'</button>';
   p.innerHTML =
     item("h1","#","Heading")+
@@ -1651,7 +1805,8 @@ function boardChips(t){
 function cardHtml(t, idx){
   const sp = spaceOf(t);
   const isLast = sp.stages.findIndex(s=>s.id===t.stage) >= sp.stages.length-1;
-  return '<div class="card '+(t.done?"done":"")+'" style="animation-delay:'+dly(idx)+'" draggable="true" data-act="open-task" data-id="'+t.id+'">'+
+  const flair = (t.id===ui._justAdded || t.id===ui._justMoved ? " just-in" : "") + (t.id===ui._justToggled ? " just-done" : "");
+  return '<div class="card '+(t.done?"done":"")+flair+'" style="animation-delay:'+dly(idx)+'" draggable="true" data-act="open-task" data-id="'+t.id+'">'+
     '<div class="card-top">'+
       '<button class="check" data-act="toggle" data-id="'+t.id+'">'+(t.done?"✓":"")+'</button>'+
       '<div class="c-title" style="padding-right:16px">'+esc(t.title)+'</div>'+
@@ -1699,7 +1854,7 @@ function bindBoardDnD(){
       e.preventDefault(); b.classList.remove("drop-hint");
       let id = ui.dragTask; try{ id = id || e.dataTransfer.getData("text/plain"); }catch(_){}
       const t = state.tasks.find(x=>x.id===id);
-      if(t && t.stage!==b.dataset.stage){ t.stage = b.dataset.stage; save(); render(); }
+      if(t && t.stage!==b.dataset.stage){ t.stage = b.dataset.stage; ui._justMoved = t.id; save(); render(); }
     });
   });
 }
@@ -1710,7 +1865,7 @@ function renderNotesView(s){
   const notes = s.notes.filter(noteMatches).sort(noteSort);
   let h = '<div class="view-inner"><div class="notes-grid">'+
     '<div class="note add-note" data-act="new-note" role="button" tabindex="0"><span class="big">＋</span>New note</div>'+
-    notes.map((n,i)=>'<div class="note" style="--nc:'+esc(n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+n.id+'" data-space="'+s.id+'">'+
+    notes.map((n,i)=>'<div class="note'+(n.id===ui._justAdded?" just-in":"")+'" style="--nc:'+esc(n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+n.id+'" data-space="'+s.id+'">'+
       (n.pinned?'<span class="pin">📌</span>':'')+
       '<div class="n-title">'+esc(n.title||"Untitled")+'</div>'+
       '<div class="n-body">'+esc(n.body||"")+'</div>'+
@@ -1736,6 +1891,10 @@ function renderView(){
   const key = ui.view+"|"+ui.spaceId+"|"+ui.tab;
   const viewChanged = key !== renderView._last;
   renderView._last = key;
+  const viewEl = $("#view");
+  const keepScroll = viewChanged ? 0 : viewEl.scrollTop;
+  /* entrance animations only on real view changes → re-renders feel instant */
+  viewEl.classList.toggle("anim-in", viewChanged);
   if(ui.view==="today"){ renderToday(); }
   else if(ui.view==="pad"){ renderPad(); }
   else {
@@ -1745,11 +1904,25 @@ function renderView(){
     else { renderListView(s); }
   }
   if(viewChanged){
-    const vi = $("#view").firstElementChild;
+    const vi = viewEl.firstElementChild;
     if(vi) vi.classList.add("view-anim");
+  } else {
+    /* keep the exact scroll position across re-renders */
+    viewEl.style.scrollBehavior = "auto";
+    viewEl.scrollTop = keepScroll;
+    viewEl.style.scrollBehavior = "";
   }
+  ui._justAdded = ui._justToggled = ui._justMoved = null;
 }
-function render(){ renderSidebar(); renderTopbar(); renderTabs(); renderView(); }
+/* renders coalesce into one animation frame: many state changes, one paint */
+let _renderRaf = null;
+function render(){
+  if(_renderRaf) return;
+  _renderRaf = requestAnimationFrame(()=>{
+    _renderRaf = null;
+    renderSidebar(); renderTopbar(); renderTabs(); renderView();
+  });
+}
 
 /* ---------------- quick add parsing ---------------- */
 function parseQuick(text){
@@ -1782,8 +1955,20 @@ function parseQuick(text){
 }
 
 /* ---------------- modals ---------------- */
-function modalShell(inner, wide){ $("#modal-root").innerHTML = '<div class="overlay"><div class="modal'+(wide?" wide":"")+'">'+inner+'</div></div>'; }
-function closeModal(){ $("#modal-root").innerHTML = ""; }
+function modalShell(inner, wide){
+  clearTimeout(closeModal._t);
+  $("#modal-root").innerHTML = '<div class="overlay"><div class="modal'+(wide?" wide":"")+'">'+inner+'</div></div>';
+}
+function closeModal(){
+  const root = $("#modal-root");
+  const ov = root.firstElementChild;
+  if(!ov) return;
+  if(REDUCE_MOTION){ root.innerHTML = ""; return; }
+  if(ov.classList.contains("closing")) return;
+  ov.classList.add("closing");
+  clearTimeout(closeModal._t);
+  closeModal._t = setTimeout(()=>{ if(root.firstElementChild===ov) root.innerHTML = ""; }, 150);
+}
 
 /* ---------------- command palette (Ctrl K) ---------------- */
 let cmdSel = 0;
@@ -1805,9 +1990,11 @@ function cmdActions(){
     {icon:"📌", label:"New note (pinned to dashboard)", run:()=>openNoteModal(defaultNotesSpaceId(), null, true)},
     {icon:"🪐", label:"New space", run:()=>openSpaceModal(null)},
     {icon:theme==="dark"?"☀️":"🌙", label:theme==="dark"?"Switch to light mode":"Switch to dark mode", run:toggleTheme},
+    {icon:"🎯", label:"Focus for 25 minutes", run:()=>startFocus(null)},
     {icon:"🪐", label: mascotOn ? "Hide Orbie (mascot)" : "Show Orbie (mascot)", run:()=>{
       mascotOn = !mascotOn;
       try{ localStorage.setItem(MASCOT_KEY, mascotOn ? "on" : "off"); }catch(e){}
+      if(state.prefs){ state.prefs.mascot = mascotOn; save(); }
       applyMascot();
       if(mascotOn) mascotSay("I'm back! 🪐");
     }},
@@ -1832,6 +2019,7 @@ function renderCmdList(q){
     : '<div class="cmd-empty">No matches</div>';
 }
 function openCmd(){
+  clearTimeout(closeModal._t);
   $("#modal-root").innerHTML = '<div class="overlay top"><div class="cmd">'+
     '<input id="cmd-in" placeholder="Jump to a space, create, switch theme…" autocomplete="off">'+
     '<div id="cmd-list"></div></div></div>';
@@ -1978,6 +2166,7 @@ function openNoteModal(spaceId, noteId, defPinned){
 /* ---------------- mutations ---------------- */
 function toggleTask(id, el){
   const t = state.tasks.find(x=>x.id===id); if(!t) return;
+  ui._justToggled = id;
   if(t.repeat && !t.done){
     const wasDue = t.due && dayDiff(t.due) <= 0;
     t.completedAt = todayStr();
@@ -2055,7 +2244,11 @@ function submitTask(f){
   const vals = { title, desc:f.elements["desc"].value.trim(), due,
                  priority:pri, spaceId:nsp.id, stage, repeat, checklist };
   if(id){ const t = state.tasks.find(x=>x.id===id); if(t) Object.assign(t, vals); }
-  else state.tasks.push(Object.assign({id:uid(), done:false, createdAt:Date.now(), completedAt:null}, vals));
+  else {
+    const nt = Object.assign({id:uid(), done:false, createdAt:Date.now(), completedAt:null}, vals);
+    state.tasks.push(nt);
+    ui._justAdded = nt.id;
+  }
   save(); closeModal(); render();
 }
 
@@ -2090,7 +2283,11 @@ function submitNote(f){
   const pinned = f.elements["pinned"].checked;
   const id = f.dataset.id;
   if(id){ const n = sp.notes.find(x=>x.id===id); if(n) Object.assign(n,{title,body,color,pinned}); }
-  else sp.notes.push({id:uid(), title, body, color, pinned, createdAt:Date.now()});
+  else {
+    const nn = {id:uid(), title, body, color, pinned, createdAt:Date.now()};
+    sp.notes.push(nn);
+    ui._justAdded = nn.id;
+  }
   save(); closeModal(); render();
 }
 
@@ -2143,7 +2340,7 @@ $("#import-file").addEventListener("change", e=>{
     try{
       const d = JSON.parse(rd.result);
       if(!d || !Array.isArray(d.spaces) || !Array.isArray(d.tasks)) throw new Error("bad");
-      state = d; save();
+      state = d; ensureExtras(); save();
       ui = {view:"today", spaceId:null, tab:"tasks", search:"", collapsed:{}, dragTask:null};
       render(); showToast("Data imported ✓");
     }catch(err){ showToast("Import failed. Not a valid Orbit backup."); }
@@ -2195,10 +2392,12 @@ function tick(){
 function openTaskMenu(taskId, x, y){
   const t = state.tasks.find(v=>v.id===taskId); if(!t) return;
   const p = $("#popover");
+  clearTimeout(closePopover._t); p.classList.remove("closing");
   p.innerHTML =
     '<button data-act="toggle" data-id="'+t.id+'">'+(t.done ? "↺ Mark not done" : "✓ Mark done")+'</button>'+
     '<button data-act="open-task" data-id="'+t.id+'">✏️ Edit</button>'+
     '<button data-act="dup-task" data-id="'+t.id+'">⧉ Duplicate</button>'+
+    '<button data-act="focus-task" data-id="'+t.id+'">🎯 Focus 25 min</button>'+
     '<button data-act="share-task" data-id="'+t.id+'">↗ Share</button>'+
     (t.due ? '<button data-act="cal-task" data-id="'+t.id+'">🗓 Add to Calendar</button>' : "")+
     '<div class="sep"></div>'+
@@ -2212,7 +2411,13 @@ function openTaskMenu(taskId, x, y){
   p.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 10))+"px";
   p.style.top  = Math.max(8, Math.min(y, innerHeight - r.height - 10))+"px";
 }
-function closePopover(){ const p = $("#popover"); if(p) p.style.display = "none"; }
+function closePopover(){
+  const p = $("#popover");
+  if(!p || p.style.display !== "block" || p.classList.contains("closing")) return;
+  if(REDUCE_MOTION){ p.style.display = "none"; return; }
+  p.classList.add("closing");
+  closePopover._t = setTimeout(()=>{ p.classList.remove("closing"); p.style.display = "none"; }, 110);
+}
 
 document.addEventListener("contextmenu", e=>{
   if(ui._lifting){ e.preventDefault(); return; }
@@ -2227,6 +2432,7 @@ document.addEventListener("contextmenu", e=>{
 const MASCOT_KEY = "orbit-mascot";
 let mascotOn = true;
 try{ mascotOn = localStorage.getItem(MASCOT_KEY) !== "off"; }catch(e){}
+if(state.prefs && typeof state.prefs.mascot === "boolean") mascotOn = state.prefs.mascot;
 const pick = a=>a[Math.floor(Math.random()*a.length)];
 
 function applyMascot(){ const m = $("#mascot"); if(m) m.style.display = mascotOn ? "" : "none"; }
@@ -2313,7 +2519,9 @@ function orbieHandle(raw){
     const sp = getSpace(defaultNotesSpaceId());
     if(!sp.notes) sp.notes = [];
     const body = m[1].trim();
-    sp.notes.push({id:uid(), title: body.slice(0,34)+(body.length>34?"…":""), body: body, color: pick(NOTE_COLORS), pinned: true, createdAt: Date.now()});
+    const nn = {id:uid(), title: body.slice(0,34)+(body.length>34?"…":""), body: body, color: pick(NOTE_COLORS), pinned: true, createdAt: Date.now()};
+    sp.notes.push(nn);
+    ui._justAdded = nn.id;
     save(); render();
     return 'Pinned a note to your dashboard 📌';
   }
@@ -2362,8 +2570,10 @@ function orbieAddTask(raw){
   const p = parseQuick(text);
   if(!p.title) return null;
   const sp = target || (ui.view==="space" && getSpace(ui.spaceId)) || getSpace(defaultNotesSpaceId()) || state.spaces[0];
-  state.tasks.push({id:uid(), spaceId:sp.id, title:p.title, desc:"", due:p.due, priority:p.priority,
-    repeat:p.repeat, stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null, checklist:[]});
+  const nt = {id:uid(), spaceId:sp.id, title:p.title, desc:"", due:p.due, priority:p.priority,
+    repeat:p.repeat, stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null, checklist:[]};
+  state.tasks.push(nt);
+  ui._justAdded = nt.id;
   save(); render();
   return {p:p, sp:sp};
 }
@@ -2519,6 +2729,88 @@ function maybeNotify(force){
   }catch(e){}
 }
 
+/* ================================================================
+   FOCUS TIMER · 25 minute sessions on any task.
+   The pill floats above everything, survives reloads, and completed
+   minutes are written into state.focus so they sync to your cloud
+   and show up on every device's dashboard.
+   ================================================================ */
+const FOCUS_LEN = 25*60000;
+const FOCUS_SS = "orbit-focus-session";
+let fsess = null;
+try{ fsess = JSON.parse(localStorage.getItem(FOCUS_SS)||"null"); }catch(e){}
+function fsSave(){ try{ fsess ? localStorage.setItem(FOCUS_SS, JSON.stringify(fsess)) : localStorage.removeItem(FOCUS_SS); }catch(e){} }
+const fsRemain = ()=> fsess ? (fsess.remain!=null ? fsess.remain : Math.max(0, fsess.end - Date.now())) : 0;
+const fmtMin = m=> m>=60 ? Math.floor(m/60)+"h"+(m%60 ? " "+(m%60)+"m" : "") : m+"m";
+function focusToday(){ return Math.round(+((state.focus||{})[todayStr()])||0); }
+
+function startFocus(taskId){
+  const t = taskId ? state.tasks.find(x=>x.id===taskId) : null;
+  fsess = { taskId: t?t.id:null, title: t?t.title:"Deep focus", end: Date.now()+FOCUS_LEN, remain:null, total:FOCUS_LEN };
+  fsSave(); renderFocusPill();
+  document.body.classList.add("focus-on");
+  hapt();
+  mascotSay("Focus time. I'll keep quiet 🤫", 2200);
+}
+function pauseFocus(){
+  if(!fsess) return;
+  if(fsess.remain!=null){ fsess.end = Date.now()+fsess.remain; fsess.remain = null; }
+  else fsess.remain = Math.max(0, fsess.end - Date.now());
+  fsSave(); renderFocusPill();
+}
+function logFocus(mins){
+  if(mins<1) return;
+  if(!state.focus || typeof state.focus !== "object") state.focus = {};
+  state.focus[todayStr()] = (+state.focus[todayStr()]||0) + mins;
+  save();
+}
+function stopFocus(finished){
+  if(!fsess) return;
+  const spent = Math.round((fsess.total - fsRemain())/60000);
+  fsess = null; fsSave();
+  document.body.classList.remove("focus-on");
+  if(finished){
+    logFocus(Math.round(FOCUS_LEN/60000));
+    confettiBurst(innerWidth/2, innerHeight-110, "#8f7be8");
+    mascotHappy();
+    showToast("🎯 25 focused minutes done · "+fmtMin(focusToday())+" today");
+    render();
+  } else if(spent>=1){
+    logFocus(spent);
+    showToast("Focus ended · "+spent+" min counted");
+    render();
+  }
+}
+function renderFocusPill(){
+  const el = $("#focus-pill"); if(!el) return;
+  if(!fsess){ el.innerHTML = ""; return; }
+  const paused = fsess.remain!=null;
+  el.classList.toggle("paused", paused);
+  const C = (2*Math.PI*13).toFixed(1);
+  el.innerHTML =
+    '<svg class="fring" viewBox="0 0 30 30" aria-hidden="true"><circle class="bgc" cx="15" cy="15" r="13"/>'+
+    '<circle class="fgc" id="f-ring" cx="15" cy="15" r="13" stroke-dasharray="'+C+'" stroke-dashoffset="0"/></svg>'+
+    '<div><div class="ft" id="f-time">25:00</div><div class="fl">'+esc(fsess.title)+'</div></div>'+
+    '<button class="icon-btn" data-act="focus-pause" title="'+(paused?"Resume":"Pause")+'">'+(paused?"▶":"⏸")+'</button>'+
+    '<button class="icon-btn" data-act="focus-stop" title="End focus">✕</button>';
+  updateFocusPill();
+}
+function updateFocusPill(){
+  if(!fsess) return;
+  const rem = fsRemain();
+  const tEl = $("#f-time"), rEl = $("#f-ring");
+  if(tEl){
+    const sec = Math.ceil(rem/1000);
+    tEl.textContent = Math.floor(sec/60)+":"+pad(sec%60);
+  }
+  if(rEl) rEl.style.strokeDashoffset = (2*Math.PI*13 * (rem/fsess.total)).toFixed(1);
+}
+setInterval(()=>{
+  if(!fsess) return;
+  if(fsess.remain==null && fsRemain()<=0){ stopFocus(true); return; }
+  updateFocusPill();
+}, 1000);
+
 /* ---------------- event delegation ---------------- */
 document.addEventListener("click", e=>{
   if(orbieChatOpen && !e.target.closest("#mascot")) closeOrbieChat();
@@ -2565,8 +2857,12 @@ document.addEventListener("click", e=>{
     case "close-modal": closeModal(); break;
     case "collapse": {
       const key = el.dataset.key;
-      ui.collapsed[key] = !isCollapsed(key, key.endsWith(":done"));
-      renderView();
+      const closed = !isCollapsed(key, key.endsWith(":done"));
+      ui.collapsed[key] = closed;
+      el.classList.toggle("collapsed", closed);
+      const body = el.nextElementSibling;
+      if(body && body.classList.contains("group-body")) body.classList.toggle("closed", closed);
+      else renderView();
       break;
     }
     case "clear-done": {
@@ -2631,6 +2927,7 @@ document.addEventListener("click", e=>{
       c.id = uid(); c.title = t.title+" (copy)"; c.done = false; c.completedAt = null; c.createdAt = Date.now();
       if(c.checklist) c.checklist = c.checklist.map(i=>({id:uid(), text:i.text, done:false}));
       state.tasks.push(c);
+      ui._justAdded = c.id;
       save(); closeModal(); render(); showToast("Task duplicated");
       break;
     }
@@ -2641,6 +2938,7 @@ document.addEventListener("click", e=>{
       const idx = sp.stages.findIndex(s=>s.id===t.stage);
       if(idx > -1 && idx < sp.stages.length-1){
         t.stage = sp.stages[idx+1].id;
+        ui._justMoved = t.id;
         save(); render(); showToast("Moved to "+sp.stages[idx+1].name);
       }
       break;
@@ -2722,7 +3020,10 @@ document.addEventListener("click", e=>{
     case "import": $("#import-file").click(); break;
     case "undo": applyUndo(); break;
     case "sync": handleSyncClick(); break;
-    case "toggle-theme": toggleTheme(); break;
+    case "toggle-theme": { const tb = el.getBoundingClientRect(); toggleTheme(tb.left + tb.width/2, tb.top + tb.height/2); break; }
+    case "focus-task": startFocus(el.dataset.id); break;
+    case "focus-pause": pauseFocus(); break;
+    case "focus-stop": stopFocus(false); break;
     case "toggle-sb": toggleSidebar(); break;
     case "mascot": if(e.target.closest("#mascot-bubble")) break; mascotClicked(); break;
     case "rename-user": renameUser(); break;
@@ -2748,8 +3049,10 @@ document.addEventListener("submit", e=>{
     const v = f.elements["qa"].value.trim(); if(!v) return;
     const p = parseQuick(v); if(!p.title) return;
     const sp = getSpace(f.dataset.space); if(!sp) return;
-    state.tasks.push({id:uid(), spaceId:sp.id, title:p.title, desc:"", due:p.due, priority:p.priority,
-      repeat:p.repeat, stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null});
+    const nt = {id:uid(), spaceId:sp.id, title:p.title, desc:"", due:p.due, priority:p.priority,
+      repeat:p.repeat, stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null};
+    state.tasks.push(nt);
+    ui._justAdded = nt.id;
     save(); ui._focusQA = true; render();
   }
   else if(kind==="task") submitTask(f);
@@ -2790,7 +3093,8 @@ document.addEventListener("keydown", e=>{
 $("#sb-backdrop").addEventListener("click", closeSb);
 setInterval(updateClock, 30000);
 addEventListener("focus", ()=>pullCloud(false));
-document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) pullCloud(false); });
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden) flushPush(); else pullCloud(false); });
+addEventListener("pagehide", flushPush);
 
 /* swipe gestures on phones: swipe in from the left edge to open, swipe left to close */
 let touchX = null, touchY = null, edgeSwipe = false;
@@ -2815,14 +3119,16 @@ addEventListener("resize", ()=>{ if(!isMobile()) closeSb(); });
 /* flush unsaved notepad text if the tab closes mid-typing */
 addEventListener("beforeunload", ()=>{
   const ta = $("#scratch-pad");
-  if(!ta) return;
-  const pg = activePage();
-  if(ta.value !== (pg.body||"")){
-    pg.body = ta.value;
-    pg.updatedAt = Date.now();
-    state.updatedAt = Date.now();
-    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  if(ta){
+    const pg = activePage();
+    if(ta.value !== (pg.body||"")){
+      pg.body = ta.value;
+      pg.updatedAt = Date.now();
+      state.updatedAt = Date.now();
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+    }
   }
+  flushPush();
 });
 
 /* offline support + install as an app */
@@ -2831,7 +3137,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "4.1";
+const APP_VERSION = "5.0";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
@@ -2842,6 +3148,7 @@ updateFab();
 render();
 initMascot();
 initCloud();
+if(fsess){ document.body.classList.add("focus-on"); renderFocusPill(); }
 maybeNotify();
 updateBadge();
 maybeOnboard();
