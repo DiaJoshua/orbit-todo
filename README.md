@@ -10,6 +10,9 @@ A personal command center for everything: job applications, work, reminders, hou
 - **Smart quick-add** — type `Call recruiter tomorrow !high` and Orbit parses the date and priority (`today`, `tomorrow`, `next week`, `!high !med !low`)
 - **Focus timer** — 🎯 in a task's right-click menu (or ⌘K → "Focus for 25 minutes") starts a 25-minute session. A floating pill shows a live progress ring, survives reloads, and finished minutes land in a "Focus today" dashboard stat that syncs to all your devices.
 - **Synced preferences** — your theme and mascot choice are part of your cloud data, so they follow you to every signed-in device.
+- **Redesigned editors** — task and space sheets use iOS-style grouped sections on frosted glass: tap chips to pick space, stage and repeat; quick dates include Weekend and Clear; checklists count themselves and Enter adds the next item; ⌘/Ctrl+Enter saves
+- **Space customization** — live sidebar preview while you edit, emoji picker grid, 12 color presets plus a full color wheel, per-stage colors that show on Board columns, drag ≡ to reorder stages, and one-tap templates (Job hunt, Project, Fitness, Study, Travel)
+- **Appearance panel** — 🎨 Style in the sidebar (or ⌘K): app-wide accent color (presets + custom wheel), frosted glass on/off, theme and mascot — all synced to your devices
 - **Extras** — search (`/`), keyboard `n` for new task, confetti on completing tasks, undo for deletes, JSON export/import backups
 
 ## Design: how the dark/light switch animates
@@ -52,4 +55,4 @@ Data is stored in the browser's `localStorage`, tied to the URL you use. Sign in
 
 ## Customizing
 
-Everything lives in one `index.html` — colors are CSS variables in `:root` at the top, app logic is the single `<script>` at the bottom.
+Start with the 🎨 Style panel for accent, glass and theme — no code needed. Under the hood everything lives in one `index.html`: colors are CSS variables in `:root` at the top, app logic is the single `<script>` at the bottom. Glass surfaces use `backdrop-filter` behind an `@supports` guard, so older browsers simply get solid panels.
