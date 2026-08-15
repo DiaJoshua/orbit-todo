@@ -75,10 +75,10 @@ html[data-theme="dark"]{
 /* ============ glass materials (Apple-style translucency) ============ */
 :root{--glass-bg:rgba(253,253,252,.72);--glass-panel:rgba(255,255,255,.55)}
 html[data-theme="dark"]{--glass-bg:rgba(28,28,32,.74);--glass-panel:rgba(255,255,255,.05)}
-:root{--panel-g:rgba(255,255,255,.55);--bg2-g:rgba(255,255,255,.42);--edge:rgba(255,255,255,.6)}
-html[data-theme="dark"]{--panel-g:rgba(20,20,24,.55);--bg2-g:rgba(26,26,31,.5);--edge:rgba(255,255,255,.08)}
-html[data-glass="max"]{--panel-g:rgba(255,255,255,.38);--bg2-g:rgba(255,255,255,.3);--glass-bg:rgba(253,253,252,.55)}
-html[data-theme="dark"][data-glass="max"]{--panel-g:rgba(16,16,20,.45);--bg2-g:rgba(20,20,25,.4);--glass-bg:rgba(24,24,28,.55)}
+:root{--panel-g:rgba(255,255,255,.66);--bg2-g:rgba(255,255,255,.55);--edge:rgba(255,255,255,.6)}
+html[data-theme="dark"]{--panel-g:rgba(22,22,26,.6);--bg2-g:rgba(27,27,32,.55);--edge:rgba(255,255,255,.08)}
+html[data-glass="max"]{--panel-g:rgba(255,255,255,.5);--bg2-g:rgba(255,255,255,.42);--glass-bg:rgba(253,253,252,.62)}
+html[data-theme="dark"][data-glass="max"]{--panel-g:rgba(17,17,21,.52);--bg2-g:rgba(22,22,27,.47);--glass-bg:rgba(24,24,28,.6)}
 /* Liquid Glass: every surface goes translucent over the ambient glow.
    Cheap by design — per-card blur only in Max mode below. */
 html:not([data-glass="off"]) .task,
@@ -108,8 +108,8 @@ html:not([data-glass="off"]) #scratch-pad{background:var(--panel-g);box-shadow:i
   html[data-glass="max"] .quickadd,
   html[data-glass="max"] .col,
   html[data-glass="max"] .tabs{
-    backdrop-filter:blur(18px) saturate(1.6);
-    -webkit-backdrop-filter:blur(18px) saturate(1.6);
+    backdrop-filter:blur(18px) saturate(1.2);
+    -webkit-backdrop-filter:blur(18px) saturate(1.2);
   }
 }
 
@@ -139,13 +139,14 @@ html[data-motion="reduce"] *,html[data-motion="reduce"] *::before,html[data-moti
   html:not([data-glass="off"]) #popover,
   html:not([data-glass="off"]) #toast,
   html:not([data-glass="off"]) #focus-pill,
-  html:not([data-glass="off"]) #mascot-bubble{
+  html:not([data-glass="off"]) #mascot-bubble,
+  html:not([data-glass="off"]) #orbie-panel{
     background:var(--glass-bg);
-    backdrop-filter:blur(26px) saturate(1.7);
-    -webkit-backdrop-filter:blur(26px) saturate(1.7);
+    backdrop-filter:blur(26px) saturate(1.25);
+    -webkit-backdrop-filter:blur(26px) saturate(1.25);
   }
-  html:not([data-glass="off"]) #sidebar{backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5)}
-  html:not([data-glass="off"]) #topbar{backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5)}
+  html:not([data-glass="off"]) #sidebar{backdrop-filter:blur(24px) saturate(1.15);-webkit-backdrop-filter:blur(24px) saturate(1.15)}
+  html:not([data-glass="off"]) #topbar{backdrop-filter:blur(18px) saturate(1.15);-webkit-backdrop-filter:blur(18px) saturate(1.15)}
 }
 
 /* ============ reset & base ============ */
@@ -184,21 +185,22 @@ html.vt-theme::view-transition-new(root){z-index:2}
 /* ============ ambient atmosphere — the light source behind the glass ============ */
 #bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 #bg-glow::before,#bg-glow::after,#bg-glow i{
-  content:"";position:absolute;width:52vw;height:52vw;border-radius:50%;
-  filter:blur(110px);opacity:var(--glow-op);display:block;
+  content:"";position:absolute;width:58vw;height:58vw;border-radius:50%;
+  filter:blur(150px);opacity:var(--glow-op);display:block;
   animation:drift 45s ease-in-out infinite alternate;
 }
-#bg-glow::before{background:#8b5cf6;top:-22vw;left:-14vw}
-#bg-glow::after{background:#3b82f6;bottom:-26vw;right:-14vw;animation-delay:-22s}
-#bg-glow .g3{background:color-mix(in srgb,var(--accent) 85%,#ffffff);top:26%;left:56%;width:42vw;height:42vw;animation-delay:-11s;animation-duration:56s}
-#bg-glow .g4{background:#f59e0b;bottom:-16vw;left:20%;width:38vw;height:38vw;animation-delay:-33s;animation-duration:62s;opacity:calc(var(--glow-op)*.65)}
+#bg-glow::before{background:color-mix(in srgb,var(--blob1) 50%,var(--bg));top:-24vw;left:-16vw}
+#bg-glow::after{background:color-mix(in srgb,var(--blob2) 50%,var(--bg));bottom:-28vw;right:-16vw;animation-delay:-22s}
+#bg-glow .g3{background:color-mix(in srgb,var(--accent) 32%,var(--bg));top:28%;left:58%;width:46vw;height:46vw;animation-delay:-11s;animation-duration:56s}
+#bg-glow .g4{background:color-mix(in srgb,var(--blob4) 45%,var(--bg));bottom:-18vw;left:20%;width:42vw;height:42vw;animation-delay:-33s;animation-duration:62s;opacity:calc(var(--glow-op)*.45)}
 @keyframes drift{from{transform:translate(0,0)}to{transform:translate(3vw,3vh) scale(1.07)}}
 /* the atmosphere turns up with each glass level — this is what makes
    Off, Frosted and Max unmistakably different */
-html[data-glass="on"]{--glow-op:.42}
-html[data-theme="dark"][data-glass="on"]{--glow-op:.2}
-html[data-glass="max"]{--glow-op:.62}
-html[data-theme="dark"][data-glass="max"]{--glow-op:.3}
+:root{--blob1:#a78bfa;--blob2:#93c5fd;--blob4:#fbd8b0}
+html[data-glass="on"]{--glow-op:.26}
+html[data-theme="dark"][data-glass="on"]{--glow-op:.13}
+html[data-glass="max"]{--glow-op:.38}
+html[data-theme="dark"][data-glass="max"]{--glow-op:.2}
 
 /* ============ layout ============ */
 #app{position:relative;z-index:1;display:flex;height:100vh}
@@ -385,7 +387,7 @@ html[data-theme="dark"][data-glass="max"]{--glow-op:.3}
 .t-desc{font-size:12.5px;color:var(--muted);margin-top:2px;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .t-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
 .t-chips:empty{display:none}
-.chip{font-size:11px;font-weight:600;padding:2.5px 9px;border-radius:999px;background:var(--chip-bg);color:var(--muted);display:inline-flex;align-items:center;gap:5px;line-height:1.5}
+.chip{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--chip-bg);color:var(--muted);display:inline-flex;align-items:center;gap:4px;line-height:1.5}
 .chip.due.today{background:color-mix(in srgb,var(--amber) 14%,transparent);color:var(--amber)}
 .chip.due.overdue{background:color-mix(in srgb,var(--rose) 13%,transparent);color:var(--rose)}
 .chip.pri.p3{background:color-mix(in srgb,var(--rose) 12%,transparent);color:var(--rose)}
@@ -677,7 +679,7 @@ html:not([data-glass="off"]) .fsec{background:var(--glass-panel)}
 #mascot:hover{opacity:1}
 #mascot:hover{transform:scale(1.06)}
 #mascot:active{transform:scale(.93)}
-#mascot svg{display:block;animation:mascotBob 4.5s ease-in-out infinite;filter:drop-shadow(0 6px 14px rgba(20,20,40,.18))}
+#mascot svg{display:block;width:62px;height:62px;animation:mascotBob 4.5s ease-in-out infinite;filter:drop-shadow(0 5px 12px rgba(20,20,40,.18))}
 #mascot.happy svg{animation:mascotJump .55s cubic-bezier(.3,1.5,.4,1)}
 @keyframes mascotBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes mascotJump{0%{transform:translateY(0)}30%{transform:translateY(-16px) rotate(-7deg)}60%{transform:translateY(1px) rotate(4deg)}100%{transform:translateY(0) rotate(0)}}
@@ -690,13 +692,22 @@ html:not([data-glass="off"]) .fsec{background:var(--glass-panel)}
 #mascot.sleep .m-moon{animation-duration:34s}
 @keyframes orbitSpin{to{transform:rotate(360deg)}}
 #mascot-bubble{
-  position:absolute;bottom:96px;right:2px;min-width:150px;max-width:230px;
+  position:absolute;bottom:74px;right:2px;min-width:150px;max-width:230px;
   background:var(--modal-bg);border:1px solid var(--border2);border-radius:12px;padding:9px 12px;
   font-size:12.5px;line-height:1.45;color:var(--text);box-shadow:var(--pop-shadow);
   opacity:0;transform:translateY(6px);transition:.22s;pointer-events:none;
 }
 #mascot-bubble.show{opacity:1;transform:none}
-#mascot-bubble.chat{pointer-events:auto;max-width:250px;min-width:220px;cursor:default}
+#mascot-bubble.chat{pointer-events:auto;max-width:290px;min-width:252px;cursor:default}
+#orbie-thread{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;padding:2px 0 4px}
+.ob{max-width:88%;padding:6px 10px;border-radius:12px;font-size:12.5px;line-height:1.45;word-break:break-word}
+.ob.bot{background:var(--panel2);color:var(--text);border-bottom-left-radius:4px;align-self:flex-start}
+.ob.me{background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--text);border-bottom-right-radius:4px;align-self:flex-end}
+.ob-typing{display:inline-flex;gap:3px;padding:2px 0}
+.ob-typing i{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:obT 1s ease-in-out infinite}
+.ob-typing i:nth-child(2){animation-delay:.15s}
+.ob-typing i:nth-child(3){animation-delay:.3s}
+@keyframes obT{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
 .mb-line{margin-bottom:2px}
 .mb-line b{color:var(--text)}
 #orbie-form{display:flex;gap:6px;margin-top:8px}
@@ -706,8 +717,8 @@ html:not([data-glass="off"]) .fsec{background:var(--glass-panel)}
 #mascot-bubble::after{content:"";position:absolute;bottom:-6px;right:28px;width:10px;height:10px;background:var(--modal-bg);border-right:1px solid var(--border2);border-bottom:1px solid var(--border2);transform:rotate(45deg)}
 @media(max-width:880px){
   #mascot{right:16px;bottom:86px}
-  #mascot svg{width:56px;height:56px}
-  #mascot-bubble{bottom:64px}
+  #mascot svg{width:44px;height:44px}
+  #mascot-bubble{bottom:52px}
 }
 
 /* ============ floating menu button (mobile) ============ */
@@ -800,6 +811,37 @@ html[data-theme="dark"] .af-frames iframe{background:#141416}
 }
 @media(max-width:1099px){#af-pin{display:none}}
 
+/* ============ Orbie chat panel ============ */
+#orbie-panel{
+  position:fixed;right:18px;bottom:90px;z-index:66;
+  width:min(316px,calc(100vw - 24px));height:min(430px,60vh);
+  display:none;flex-direction:column;
+  background:var(--modal-bg);border:1px solid var(--border2);border-radius:20px;
+  box-shadow:var(--pop-shadow);overflow:hidden;
+}
+body.orbie-open #orbie-panel{display:flex;animation:zoomIn .18s cubic-bezier(.2,.9,.3,1.15)}
+body.orbie-open #mascot-bubble{display:none}
+.op-head{display:flex;align-items:center;gap:9px;padding:9px 11px;border-bottom:1px solid var(--border);flex-shrink:0}
+.op-ava{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;background:linear-gradient(135deg,#9b87f5,#4f8ef7);box-shadow:0 3px 10px color-mix(in srgb,#6e56cf 35%,transparent);flex-shrink:0}
+.op-name{font-weight:750;font-size:14px;line-height:1.2}
+.op-status{font-size:10.5px;color:var(--faint)}
+#orbie-panel #orbie-thread{flex:1;max-height:none;padding:10px 12px;overflow-y:auto}
+.op-chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 9px;flex-shrink:0}
+.op-chips button{font-size:11px;font-weight:650;color:var(--muted);background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:5px 11px;transition:.13s}
+.op-chips button:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));transform:translateY(-1px)}
+.op-input{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0;align-items:center}
+.op-input input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:7px 12px;font-size:12.5px;outline:none;color:var(--text)}
+.op-input input:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.op-send{width:31px;height:31px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-size:15px;flex-shrink:0;transition:.15s}
+.op-send:hover{filter:brightness(1.08);transform:scale(1.05)}
+.op-send:active{transform:scale(.9)}
+.ob-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.ob-acts button{font-size:11px;font-weight:700;color:color-mix(in srgb,var(--accent) 75%,var(--tint-mix));background:color-mix(in srgb,var(--accent) 14%,transparent);border-radius:999px;padding:4px 11px;transition:.13s}
+.ob-acts button:hover{background:color-mix(in srgb,var(--accent) 26%,transparent);transform:translateY(-1px)}
+@media(max-width:880px){
+  #orbie-panel{right:8px;left:8px;bottom:8px;width:auto;height:min(470px,64vh);border-radius:16px}
+}
+
 /* ============ focus timer pill ============ */
 #focus-pill{
   position:fixed;left:50%;bottom:24px;z-index:70;
@@ -823,6 +865,87 @@ body.focus-on #toast{bottom:92px}
   #focus-pill{bottom:88px;max-width:92vw}
   body.focus-on #toast{bottom:150px}
 }
+
+/* ============ interface styles — five design languages ============ */
+/* anything that isn't Liquid Glass: atmosphere off, surfaces solid */
+html:not([data-style="glass"]) #bg-glow{display:none}
+html:not([data-style="glass"]) .task,
+html:not([data-style="glass"]) .card,
+html:not([data-style="glass"]) .stat,
+html:not([data-style="glass"]) .note-row,
+html:not([data-style="glass"]) .habit-row,
+html:not([data-style="glass"]) .quickadd,
+html:not([data-style="glass"]) .col,
+html:not([data-style="glass"]) .tabs,
+html:not([data-style="glass"]) .searchwrap,
+html:not([data-style="glass"]) .page-chip,
+html:not([data-style="glass"]) .ov-banner,
+html:not([data-style="glass"]) .sb-foot .mini,
+html:not([data-style="glass"]) #scratch-pad{
+  background:var(--panel) !important;
+  box-shadow:var(--card-shadow) !important;
+  backdrop-filter:none !important;-webkit-backdrop-filter:none !important;
+}
+html:not([data-style="glass"]) .card{background:var(--bg2) !important}
+html:not([data-style="glass"]) .fsec{background:var(--panel2) !important}
+html:not([data-style="glass"]) .modal,
+html:not([data-style="glass"]) .cmd,
+html:not([data-style="glass"]) #popover,
+html:not([data-style="glass"]) #toast,
+html:not([data-style="glass"]) #focus-pill,
+html:not([data-style="glass"]) #mascot-bubble,
+html:not([data-style="glass"]) #orbie-panel{background:var(--modal-bg) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+html:not([data-style="glass"]) #sidebar,
+html:not([data-style="glass"]) #topbar{background:var(--bg) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+
+/* 🍃 Zen — borderless, airy, one calm column (Things-style) */
+html[data-style="minimal"]{--card-shadow:0 1px 2px rgba(18,18,23,.05);--hover-shadow:0 6px 18px rgba(18,18,23,.07);--pop-shadow:0 18px 44px rgba(18,18,23,.14);--radius:14px}
+html[data-style="minimal"] .task,html[data-style="minimal"] .card,html[data-style="minimal"] .stat,html[data-style="minimal"] .note-row,html[data-style="minimal"] .habit-row,html[data-style="minimal"] .quickadd,html[data-style="minimal"] .col,html[data-style="minimal"] .tabs,html[data-style="minimal"] .searchwrap,html[data-style="minimal"] .ov-banner{border-color:transparent !important}
+html[data-style="minimal"] #sidebar{border-right-color:transparent}
+html[data-style="minimal"] #topbar{border-bottom-color:transparent}
+html[data-style="minimal"] .view-inner{max-width:660px}
+html[data-style="minimal"] .task{padding:14px 16px;margin-bottom:10px;border-radius:14px}
+html[data-style="minimal"] .btn.primary{background:var(--accent);box-shadow:none}
+html[data-style="minimal"] .stat .s-ico{display:none}
+html[data-style="minimal"] .stat{padding:15px 17px}
+html[data-style="minimal"] .group-head .dot{display:none}
+html[data-style="minimal"] .chip{background:transparent !important;padding:2px 1px}
+html[data-style="minimal"] #view{padding-top:34px}
+
+/* 📐 Pro — dense, squared, engineered (Linear-style) */
+html[data-style="pro"]{--radius:6px;--card-shadow:none;--hover-shadow:none;--pop-shadow:0 16px 40px rgba(0,0,0,.2)}
+html[data-style="pro"] body{font-size:13px}
+html[data-style="pro"] #view{padding:16px 22px 110px}
+html[data-style="pro"] .task,html[data-style="pro"] .card,html[data-style="pro"] .stat,html[data-style="pro"] .note-row,html[data-style="pro"] .habit-row,html[data-style="pro"] .quickadd,html[data-style="pro"] .modal,html[data-style="pro"] .col{border-radius:6px}
+html[data-style="pro"] .task{padding:8px 11px;margin-bottom:4px}
+html[data-style="pro"] .t-title{font-size:13px}
+html[data-style="pro"] .btn,html[data-style="pro"] .pick,html[data-style="pro"] .tabs,html[data-style="pro"] .searchwrap,html[data-style="pro"] .nav-item{border-radius:6px}
+html[data-style="pro"] .btn{padding:6px 12px;font-size:12.5px}
+html[data-style="pro"] .btn.primary{background:var(--accent);box-shadow:none}
+html[data-style="pro"] .chip{border-radius:4px;padding:1.5px 6px;font-size:10px}
+html[data-style="pro"] .greet h1{font-size:20px;letter-spacing:-.3px}
+html[data-style="pro"] .stats.bento{gap:8px}
+html[data-style="pro"] .stat{padding:10px 40px 10px 12px}
+html[data-style="pro"] .stat .num{font-size:20px}
+html[data-style="pro"] .nav-item{padding:5px 9px;font-size:13px;margin-bottom:1px}
+html[data-style="pro"] .nav-item .ico{width:22px;height:22px;font-size:12px;border-radius:5px}
+html[data-style="pro"] .group-head{margin:14px 0 6px}
+
+/* ⚡ Pop — neubrutalist: ink borders, hard offset shadows */
+html[data-style="brutal"] .task,html[data-style="brutal"] .card,html[data-style="brutal"] .stat,html[data-style="brutal"] .note-row,html[data-style="brutal"] .habit-row,html[data-style="brutal"] .quickadd,html[data-style="brutal"] .note,html[data-style="brutal"] .col{border:2px solid var(--text) !important;box-shadow:4px 4px 0 var(--text) !important;border-radius:9px}
+html[data-style="brutal"] .task:hover,html[data-style="brutal"] .card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--text) !important}
+html[data-style="brutal"] .btn{border:2px solid var(--text);box-shadow:3px 3px 0 var(--text);border-radius:9px}
+html[data-style="brutal"] .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--text)}
+html[data-style="brutal"] .btn.primary{background:var(--accent);box-shadow:3px 3px 0 var(--text)}
+html[data-style="brutal"] .modal,html[data-style="brutal"] .cmd{border:2px solid var(--text) !important;box-shadow:8px 8px 0 var(--text) !important}
+html[data-style="brutal"] .tabs,html[data-style="brutal"] .searchwrap{border:2px solid var(--text) !important}
+html[data-style="brutal"] .check{border-width:2px;border-color:var(--text)}
+
+/* 📜 Journal — warm paper, serif display */
+html[data-style="paper"]{--bg:#f6f1e7;--bg2:#fffdf7;--panel:#fffdf7;--panel2:rgba(84,62,26,.06);--border:rgba(84,62,26,.14);--border2:rgba(84,62,26,.24);--text:#2f2a20;--muted:#6f6552;--faint:#a2957c;--chip-bg:rgba(84,62,26,.07);--track:rgba(84,62,26,.1);--col-bg:rgba(255,253,247,.6);--modal-bg:#fffdf7;--toast-bg:#fffdf7;--note-base:#fffdf7;--card-shadow:0 1px 2px rgba(84,62,26,.08),0 10px 22px -14px rgba(84,62,26,.2)}
+html[data-theme="dark"][data-style="paper"]{--bg:#191512;--bg2:#211c17;--panel:#201b16;--panel2:rgba(255,240,214,.06);--border:rgba(255,240,214,.1);--border2:rgba(255,240,214,.18);--text:#ede4d4;--muted:#b3a68d;--faint:#7a6f5c;--chip-bg:rgba(255,240,214,.07);--track:rgba(255,240,214,.09);--modal-bg:#241f19;--toast-bg:#241f19;--note-base:rgba(255,240,214,.04)}
+html[data-style="paper"] .greet h1,html[data-style="paper"] .tb-name,html[data-style="paper"] .n-title,html[data-style="paper"] .nr-title,html[data-style="paper"] .pad-title,html[data-style="paper"] .h-name{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;letter-spacing:0}
+html[data-style="paper"] .greet h1 .grad{background:none;color:var(--text)}
 
 /* ============ responsive ============ */
 @media(max-width:880px){
@@ -933,7 +1056,15 @@ const SPACE_COLORS = ["#7c66dc","#3e8ef7","#30a46c","#d6a327","#e5484d","#d6409f
 const STAGE_DOTS = ["","#7c66dc","#3e8ef7","#2ab1dd","#30a46c","#d6a327","#e17435","#e5484d","#d6409f"];
 const EMOJI_SET = "💼 🖥 🏠 ⏰ 🌱 📚 💪 ✈️ 💰 🎯 🛒 ❤️ 🧠 🎨 🎵 🎮 🍳 🧺 🐾 👶 🚗 🔧 📈 📞 ✉️ 🏥 💊 🏋️ 🧘 ⚽ 🌊 🎓 ✍️ 💡 🔬 ⚖️ 🪴 🎁 📷 🎬 ☕ 🧳 🗝 🧩 🛠 🖌 🥗 🌙".split(" ");
 const ACCENT_PRESETS = ["#6e56cf","#2f7fe0","#0ca678","#1f9d55","#c98a10","#e17435","#e5484d","#d6409f","#5a5a66"];
+const STYLES = [
+  {k:"glass",   n:"Liquid Glass", e:"💎"},
+  {k:"minimal", n:"Zen",          e:"🍃"},
+  {k:"pro",     n:"Pro",          e:"📐"},
+  {k:"brutal",  n:"Pop",          e:"⚡"},
+  {k:"paper",   n:"Journal",      e:"📜"}
+];
 const SPACE_TPLS = [
+  {k:"workhq", n:"Work HQ",  icon:"🏢", color:"#3e8ef7", stages:["Inbox","To do","In progress","Waiting on","Done"]},
   {k:"job",    n:"Job hunt", icon:"💼", color:"#8b7cff", stages:["Wishlist","Applied","Interview","Offer","Rejected"]},
   {k:"proj",   n:"Project",  icon:"🚀", color:"#3e8ef7", stages:["Backlog","In progress","Review","Done"]},
   {k:"fit",    n:"Fitness",  icon:"💪", color:"#30a46c", stages:["Plan","This week","Done"]},
@@ -941,6 +1072,60 @@ const SPACE_TPLS = [
   {k:"travel", n:"Travel",   icon:"✈️", color:"#2ab1dd", stages:["Ideas","Booked","Packed","Done"]}
 ];
 const FOCUS_GOAL = 60; /* minutes per day for the dashboard ring */
+
+/* ================================================================
+   WORK HQ · a one-tap corporate starter kit: pipeline with a
+   "Waiting on" column, recurring work rituals, ready-made notes
+   (1:1 doc, meeting template, decisions log…) and notepad pages.
+   ================================================================ */
+function seedWorkHQ(sp){
+  const st = i=>sp.stages[Math.min(i, sp.stages.length-1)].id;
+  const nextFri = (function(){ let dd = (5 - new Date().getDay() + 7) % 7; if(dd===0) dd = 7; return addDays(dd); })();
+  const T = (title, desc, due, pri, repeat, stageIdx, cl)=>({id:uid(), spaceId:sp.id, title:title, desc:desc, due:due, priority:pri, repeat:repeat, stage:st(stageIdx), done:false, createdAt:Date.now(), completedAt:null, checklist:(cl||[]).map(x=>({id:uid(), text:x, done:false}))});
+  state.tasks.push(
+    T("Plan the top 3 for today","Fill the checklist with the three things that matter most. Everything else is bonus.", todayStr(), 3, "weekdays", 1, ["#1 —","#2 —","#3 —"]),
+    T("Submit timesheet","", nextFri, 3, "weekly", 1),
+    T("Weekly review — wins, loose ends, next week","15 minutes on Friday.", nextFri, 2, "weekly", 1, ["Update the brag doc","Clear the Waiting on column","Inbox sweep to zero","Plan the Monday top 3"]),
+    T("Update brag doc","One line per win. Future-you at review time says thanks.", nextFri, 1, "weekly", 1),
+    T("Example: waiting on a reply — nudge if silent","Keep one card per person you are waiting on. Drag it here from any stage.", addDays(2), 2, null, 3),
+    T("Book next 1:1 with manager","Bring the 1:1 running doc note.", addDays(7), 2, null, 1, ["Pick a time","Send the invite","Add agenda points from the 1:1 note"]),
+    T("Project kickoff — checklist","Duplicate this card for every new project (⋯ → Duplicate).", null, 2, null, 0, ["Goal + success metric written","Stakeholders listed","Kickoff meeting booked","Board stages set up","First three tasks created"]),
+    T("Big meeting prep — checklist","Duplicate for each important meeting.", null, 1, null, 0, ["Agenda sent the day before","Doc or slides ready","Room or link booked","Action items captured afterwards"])
+  );
+  sp.notes = sp.notes || [];
+  const N = (title, body, color, pinned)=>({id:uid(), title:title, body:body, color:color, pinned:pinned, createdAt:Date.now()});
+  sp.notes.push(
+    N("Meeting notes — template", "With:\nAgenda:\n• \nDecisions:\n• \nAction items:\n[ ] who — what — by when\nParking lot:\n• \n\nTip: in the Notepad, type /meeting on a new line for a fresh copy any time.", "#3e8ef7", true),
+    N("Waiting on / delegated", "who — what — since — ping when\n• Alex — Q3 numbers — since Tue — ping Friday\n• \n\nMirror of the Waiting on column on the Board.", "#d6a327", true),
+    N("1:1 with manager — running doc", "Bring to next 1:1\n• \n\nWins since last time\n• \n\nBlockers / need from them\n• \n\nCareer + growth\n• \n\nNotes\n• ", "#7c66dc", false),
+    N("Decisions log", "date — decision — why — who\n• Example: chose vendor A — cheaper, faster support — JD\n• ", "#30a46c", false),
+    N("Important links", "HR portal: \nPayroll: \nPTO requests: \nTeam wiki: \nBoard / tickets: \nShared drive: \nExpenses: \n\nPaste the real links after the colons — they sync to all your devices.", "#8b8d98", false),
+    N("Contacts cheat sheet", "Manager: \nHR contact: \nIT helpdesk: \n\nname — role — note\n• \n• ", "#e5484d", false),
+    N("Handover / OOO — template", "Covering for me: \nDates away: \n\nIn flight — status — next step\n• \n• \n\nWhere things live: \nEscalate to: \n\nCopy this into an email or chat before you log off.", "#2ab1dd", false)
+  );
+  state.pages = state.pages || [];
+  const today = new Date().toLocaleDateString(undefined, {month:"short", day:"numeric"});
+  const P = (title, icon, body)=>{ if(!state.pages.some(p=>p.title===title)) state.pages.push({id:uid(), title:title, icon:icon, body:body, createdAt:Date.now(), updatedAt:Date.now()}); };
+  P("Work log","🗞", "# Work log\n\n"+today+": set up Work HQ 🏢\n\nOne dated line per day — decisions, progress, who said what. Type / on a new line for a date stamp.");
+  P("Meeting notes","🗣", "# Meeting notes\n\nType /meeting on a new line for a fresh template.\n\n──────────\n");
+  P("Brag doc","🏆", "# Brag doc\n\nOne line per win, with dates — gold at review time.\n• "+today+": Built a proper work command center\n• ");
+}
+function buildWorkHQ(){
+  let sp = state.spaces.find(x=>x.name==="Work HQ");
+  if(sp){
+    showToast("Work HQ already exists — opening it");
+  } else {
+    sp = {id:uid(), name:"Work HQ", icon:"🏢", color:"#3e8ef7",
+      stages:[{id:uid(),name:"Inbox"},{id:uid(),name:"To do"},{id:uid(),name:"In progress"},{id:uid(),name:"Waiting on"},{id:uid(),name:"Done"}], notes:[]};
+    state.spaces.push(sp);
+    seedWorkHQ(sp);
+    playSound("add");
+    showToast("🏢 Work HQ is ready — pipeline, rituals, notes and pages");
+    mascotSay("Corporate mode: engaged 🏢", 2600);
+  }
+  ui.view = "space"; ui.spaceId = sp.id; ui.tab = "tasks"; ui.search = "";
+  save(); closeSb(); render();
+}
 const HABIT_EMOJIS = "💧 🏃 📖 🧘 🌙 🥗 💪 🦷 ✍️ 🚶 🧠 💊 🎸 🗣 🚭 💤 🌅 📵 🙏 🧹 ☀️ 🎹 🧊 🍎".split(" ");
 const MIC_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.2"/></svg>';
 const SR_OK = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
@@ -1331,6 +1516,7 @@ function ensureExtras(){
   if(!state.prefs.tiles || typeof state.prefs.tiles !== "object") state.prefs.tiles = {};
   if(state.prefs.lockHash) state.prefs.lockHash = null; /* app lock removed */
   if(state.prefs.privacyBlur!=null) delete state.prefs.privacyBlur; /* removed — it never had a visible effect */
+  if(state.prefs.look!=null) delete state.prefs.look; /* design presets removed — accent color covers it */
 }
 ensureExtras();
 if(state.prefs.theme==null) state.prefs.theme = theme;
@@ -1484,6 +1670,7 @@ function syncMascotFromState(){
 function applyLook(){
   const p = state.prefs || {};
   document.documentElement.dataset.glass = p.glass==="off" ? "off" : (p.glass==="max" ? "max" : "on");
+  document.documentElement.dataset.style = p.style || "glass";
   document.documentElement.dataset.density = p.density==="compact" ? "compact" : "cozy";
   if(p.reduceMotion) document.documentElement.dataset.motion = "reduce";
   else delete document.documentElement.dataset.motion;
@@ -1599,8 +1786,7 @@ function renderSidebar(){
     '</div>'+
     '<div class="sb-foot">'+
       '<button class="mini'+(syncStatus==="on"?" on":"")+'" data-act="sync" id="sync-btn">'+syncLabel()+'</button>'+
-      '<div class="row"><button class="mini" data-act="export">⬇ Export</button><button class="mini" data-act="import">⬆ Import</button><button class="mini" data-act="appearance" title="Settings — appearance, features, privacy">⚙ Settings</button></div>'+
-      '<div class="hint" id="sync-hint">'+(syncStatus==="on"?"Changes save to the cloud automatically":"Data is saved in this browser · Export to back up")+'</div>'+
+      '<div class="row"><button class="mini" data-act="appearance" title="Settings — appearance, features, backup">⚙ Settings</button></div>'+
     '</div>';
   bindSpaceDnD();
 }
@@ -1814,7 +2000,7 @@ function renderTopbar(){
     '<button class="kbd-hint" data-act="cmdk" title="Command palette: jump anywhere, create anything">'+(IS_APPLE?"⌘ K":"Ctrl K")+'</button>'+
     '<button class="icon-btn" id="sound-btn" data-act="toggle-sound" title="'+(featOn("sounds")?"Sounds on · click or press M to mute":"Sounds off · click or press M to unmute")+'" aria-pressed="'+featOn("sounds")+'">'+(featOn("sounds")?SND_ON_SVG:SND_OFF_SVG)+'</button>'+
     '<button class="icon-btn" id="theme-btn" data-act="toggle-theme" title="'+(theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(theme==="dark"?SUN_SVG:MOON_SVG)+'</button>'+
-    '<div class="searchwrap">'+SEARCH_SVG+'<input id="search" placeholder="'+(isMobile()?"Search…":"Search…  ( / )")+'" value="'+esc(ui.search)+'" autocomplete="off"></div>'+
+    '<div class="searchwrap">'+SEARCH_SVG+'<input id="search" placeholder="Search" value="'+esc(ui.search)+'" autocomplete="off"></div>'+
     '<button class="btn primary" data-act="new-task">＋<span class="bt-txt"> New task</span></button>';
 }
 
@@ -1933,7 +2119,7 @@ function renderToday(){
 
   h += '<form class="quickadd" data-form="quickadd-today" style="margin-top:10px">'+
     '<span class="plus">＋</span>'+
-    '<input name="qa" placeholder=\'Quick add… e.g. "'+pick(QA_HINTS)+'"  (add "in Work" to pick the space)\' autocomplete="off">'+
+    '<input name="qa" placeholder=\'Add a task…  "'+pick(QA_HINTS)+'"\' autocomplete="off">'+
     micHtml()+
     '<button type="submit">Add</button>'+
   '</form>'+
@@ -2180,7 +2366,7 @@ function renderListView(s){
   let h = '<div class="view-inner">'+
     '<form class="quickadd" data-form="quickadd" data-space="'+s.id+'">'+
       '<span class="plus">＋</span>'+
-      '<input name="qa" placeholder=\'Add to '+esc(s.name)+'…  e.g. "'+pick(QA_HINTS)+'"\' autocomplete="off">'+
+      '<input name="qa" placeholder=\'Add to '+esc(s.name)+'…\' autocomplete="off">'+
       micHtml()+
       '<button type="submit">Add</button>'+
     '</form>'+
@@ -2496,7 +2682,9 @@ function openAppearance(){
     '<h2>Settings · Appearance</h2>'+
     row("Theme","Circular reveal on switch · Auto follows your system",
       pickset("app-theme", [["light","☀️ Light"],["dark","🌙 Dark"],["auto","✨ Auto"]], mode))+
-    '<div class="ap-row" style="border-bottom:none;padding-bottom:4px"><div class="ap-l"><div class="ap-t">Accent color</div><div class="ap-s">Buttons, highlights and glow · follows you to every device</div></div></div>'+
+    row("Style","Five design languages — pick how Orbit is built, not just its colors",
+      '<div class="pick-row">'+STYLES.map(S2=>'<button type="button" class="pick'+((p.style||"glass")===S2.k?" on":"")+'" data-act="set-style" data-v="'+S2.k+'">'+S2.e+' '+S2.n+'</button>').join("")+'</div>')+
+    '<div class="ap-row" style="border-bottom:none;padding-bottom:4px"><div class="ap-l"><div class="ap-t">Accent color</div><div class="ap-s">Recolors buttons, highlights and the background atmosphere · follows you to every device</div></div></div>'+
     '<div class="swatches" style="padding:0 2px 12px;border-bottom:1px solid var(--border)">'+
       '<button type="button" class="swatch'+(acc===""?" active":"")+'" style="background:linear-gradient(135deg,#6e56cf,#2f7fe0);--swc:#6e56cf" data-act="app-accent" data-c="" title="Auto (Orbit default)"></button>'+
       ACCENT_PRESETS.map(c=>'<button type="button" class="swatch'+(acc===c?" active":"")+'" style="background:'+c+';--swc:'+c+'" data-act="app-accent" data-c="'+c+'" title="'+c+'"></button>').join("")+
@@ -2573,10 +2761,12 @@ function cmdActions(){
     {icon:"＋", label:"New task", run:()=>openTaskModal(null)},
     {icon:"📌", label:"New note (pinned to dashboard)", run:()=>openNoteModal(defaultNotesSpaceId(), null, true)},
     {icon:"🪐", label:"New space", run:()=>openSpaceModal(null)},
+    {icon:"🏢", label:"Set up Work HQ (corporate starter kit)", run:buildWorkHQ},
     {icon:"🌱", label:"New habit", run:()=>openHabitModal(null)},
     {icon:"🧩", label:"Add an app (embed a website)", run:()=>openAppModal(null)},
     {icon:theme==="dark"?"☀️":"🌙", label:theme==="dark"?"Switch to light mode":"Switch to dark mode", run:toggleTheme},
     {icon:"🎯", label:"Focus for 25 minutes", run:()=>startFocus(null)},
+    {icon:"🪐", label:"Chat with Orbie (O)", run:()=>openOrbiePanel()},
     {icon:"⚙️", label:"Settings — appearance, features, privacy", run:openAppearance},
     {icon:featOn("sounds")?"🔊":"🔇", label:featOn("sounds")?"Mute sounds":"Unmute sounds", run:toggleSound},
     {icon:"⌨️", label:"Keyboard shortcuts", run:openShortcuts},
@@ -2900,6 +3090,7 @@ function submitSpace(f){
   } else {
     const s = {id:uid(), name, icon, color, stages, notes:[]};
     state.spaces.push(s);
+    if(f.dataset.kit==="workhq") seedWorkHQ(s);
     ui.view="space"; ui.spaceId=s.id; ui.tab="tasks";
   }
   save(); closeModal(); render();
@@ -3131,8 +3322,8 @@ function findTask(q, includeDone){
       || null;
 }
 
-/* Orbie's brain: commands first, otherwise add a task */
-function orbieHandle(raw){
+/* Orbie's command brain: explicit actions only (chat + tasks route separately) */
+function orbieCommand(raw){
   const low = raw.toLowerCase().trim();
   let m;
   if((m = low.match(/^(done|complete|finish|check(?: off)?)\s+(.+)/))){
@@ -3176,27 +3367,326 @@ function orbieHandle(raw){
     return n ? 'Moved '+n+' overdue to today ✅' : 'No overdue tasks 🎉';
   }
   if(/^(help|what can you do|\?)$/.test(low)){
-    return 'I understand things like:<br>• <b>gym tomorrow !med in Personal</b><br>• <b>done clinic</b> · <b>delete old task</b><br>• <b>note: brilliant idea</b><br>• <b>find resume</b> · <b>go to work</b><br>• <b>clear overdue</b>';
+    return 'I understand things like:<br>• <b>gym tomorrow !med in Personal</b><br>• <b>done clinic</b> · <b>delete old task</b><br>• <b>note: brilliant idea</b><br>• <b>find resume</b> · <b>go to work</b><br>• <b>clear overdue</b> · <b>focus</b><br>• or just talk to me — a simple <b>hi</b> works 👋';
   }
-  const out = orbieAddTask(raw);
-  if(!out) return 'Tell me a bit more 🙂 (or type <b>help</b>)';
+  return null;
+}
+
+/* ================================================================
+   ORBIE 2.0 · smalltalk + conversation. Local intents answer
+   instantly and offline; when you are signed in, unmatched chat
+   goes to free AI (puter.ai) with a typing indicator.
+   ================================================================ */
+let orbieLog = [];
+try{ orbieLog = (JSON.parse(sessionStorage.getItem("orbie-log")||"[]")||[]).filter(m=>m && !m.typing).slice(-20); }catch(e){}
+let orbiePending = null;
+function orbieSaveLog(){ try{ sessionStorage.setItem("orbie-log", JSON.stringify(orbieLog.filter(m=>!m.typing).slice(-20))); }catch(e){} }
+function buildOrbiePanel(){
+  if(document.getElementById("orbie-panel")) return;
+  const p = document.createElement("div");
+  p.id = "orbie-panel";
+  p.setAttribute("role","dialog");
+  p.setAttribute("aria-label","Chat with Orbie");
+  p.innerHTML =
+    '<div class="op-head">'+
+      '<span class="op-ava">🪐</span>'+
+      '<div style="flex:1;min-width:0"><div class="op-name">Orbie</div><div class="op-status" id="op-status"></div></div>'+
+      '<button class="icon-btn" data-act="orbie-clear" title="Clear conversation">🧹</button>'+
+      '<button class="icon-btn" data-act="orbie-close" title="Close (O)">✕</button>'+
+    '</div>'+
+    '<div id="orbie-thread"></div>'+
+    '<div class="op-chips" id="orbie-chips"></div>'+
+    '<form class="op-input" data-form="orbie">'+
+      '<input name="oi" placeholder="Message Orbie…" autocomplete="off">'+
+      micHtml()+
+      '<button type="submit" class="op-send" title="Send">➤</button>'+
+    '</form>';
+  document.body.appendChild(p);
+}
+function updateOrbieStatus(){
+  const el = document.getElementById("op-status");
+  if(el) el.textContent = orbieAIReady() ? "online · free AI + instant smarts ✨" : "instant smarts · sign in to sync for AI chat";
+}
+function renderOrbieChips(){
+  const c = document.getElementById("orbie-chips"); if(!c) return;
+  const od = state.tasks.filter(t=>!t.done && t.due && dayDiff(t.due)<0).length;
+  c.innerHTML =
+    '<button type="button" data-act="ob-chip" data-v="my day">☀️ My day</button>'+
+    '<button type="button" data-act="ob-chip" data-v="__add">➕ Add task</button>'+
+    '<button type="button" data-act="ob-chip" data-v="what should I do first">🧭 What first?</button>'+
+    '<button type="button" data-act="ob-chip" data-v="focus">🎯 Focus</button>'+
+    (od ? '<button type="button" data-act="ob-chip" data-v="clear overdue">⏳ Fix overdue ('+od+')</button>' : '')+
+    '<button type="button" data-act="ob-chip" data-v="tell me a joke">😄 Joke</button>';
+}
+function openOrbiePanel(seed){
+  buildOrbiePanel();
+  document.body.classList.add("orbie-open");
+  orbieChatOpen = true;
+  const b = $("#mascot-bubble"); if(b) b.classList.remove("show","chat");
+  if(!orbieLog.length) orbieLog.push({r:"b", t: seed || "Hi "+esc(state.userName)+"! 👋 Say hi, ask <b>what first?</b>, or hand me a task in plain words."});
+  renderOrbieThread(); renderOrbieChips(); updateOrbieStatus();
+  playSound("tap");
+  setTimeout(()=>{ const i = document.querySelector('#orbie-panel input[name="oi"]'); if(i) i.focus(); }, 40);
+}
+function orbieReply(t){
+  orbieLog.push({r:"b", t:t});
+  renderOrbieThread(); renderOrbieChips(); orbieSaveLog();
+  playSound("pop");
+}
+function stripObActs(){
+  orbieLog.forEach(m=>{ if(m.t) m.t = m.t.replace(/<span class="ob-acts">[\s\S]*?<\/span>/g,""); });
+}
+function orbieDoAdd(text){
+  const out = orbieAddTask(text);
+  if(!out){ orbieReply("Say that again with a couple more words? 🙂"); return; }
+  const nt = state.tasks[state.tasks.length-1];
   const bits = [];
   if(out.p.due) bits.push(fmtDue(out.p.due));
   if(out.p.repeat) bits.push(REPEAT_NAMES[out.p.repeat]);
   if(out.p.priority) bits.push(PRI_NAMES[out.p.priority]);
-  return 'Added <b>'+esc(out.p.title)+'</b>'+(bits.length? " · "+bits.join(" · "):"")+' → '+esc(out.sp.icon+" "+out.sp.name)+' ✓';
+  let t = 'Added <b>'+esc(out.p.title)+'</b>'+(bits.length?' · '+bits.join(' · '):'')+' → '+esc(out.sp.icon+' '+out.sp.name)+' ✓';
+  if(!out.p.due){
+    t += '<span class="ob-acts">'+
+      '<button type="button" data-act="ob-due" data-id="'+nt.id+'" data-d="0">Today</button>'+
+      '<button type="button" data-act="ob-due" data-id="'+nt.id+'" data-d="1">Tomorrow</button>'+
+      '<button type="button" data-act="ob-due" data-id="'+nt.id+'" data-d="wknd">Weekend</button>'+
+      '<button type="button" data-act="ob-due" data-id="'+nt.id+'" data-d="7">Next week</button>'+
+    '</span>';
+  }
+  orbieReply(t);
 }
-function mascotChat(line){
-  const b = $("#mascot-bubble"); if(!b) return;
-  orbieChatOpen = true;
-  clearTimeout(mascotSay._t);
-  b.classList.add("show","chat");
-  b.innerHTML = '<div class="mb-line">'+line+'</div>'+orbieFormHtml("Tell me a task… gym tomorrow !med");
-  setTimeout(()=>{ const i = b.querySelector("input"); if(i) i.focus(); }, 30);
+/* smarter local intents: recommendations, finishing, rescheduling, habits */
+function orbieLocal(raw){
+  const low = raw.toLowerCase().trim();
+  let m;
+  if(/what should i (do|work on)|what.s (first|next)\b|^what (first|next)/.test(low)){
+    const open = state.tasks.filter(t=>!t.done);
+    if(!open.length) return "Nothing on the list — enjoy the quiet, or hand me something ☀️";
+    const scored = open.slice().sort((a,b)=>{
+      const av = a.due ? (dayDiff(a.due)<0?0:dayDiff(a.due)===0?1:2) : 3;
+      const bv = b.due ? (dayDiff(b.due)<0?0:dayDiff(b.due)===0?1:2) : 3;
+      if(av!==bv) return av-bv;
+      if(a.priority!==b.priority) return b.priority-a.priority;
+      return a.createdAt-b.createdAt;
+    });
+    const t = scored[0], sp = spaceOf(t);
+    return 'I would start with <b>'+esc(t.title)+'</b> ('+esc(sp.name)+(t.due?' · '+fmtDue(t.due):'')+').'+
+      '<span class="ob-acts"><button type="button" data-act="ob-focus" data-id="'+t.id+'">🎯 Focus on it</button>'+
+      '<button type="button" data-act="ob-done" data-id="'+t.id+'">✓ Done</button></span>';
+  }
+  if((m = low.match(/^i (?:just )?(?:finished|did|completed)\s+(.+)/))){
+    const t = findTask(m[1]);
+    if(!t) return 'No open task like "'+esc(m[1])+'" — but look at you go 🎉';
+    toggleTask(t.id, $("#mascot"));
+    return 'Boom — checked off <b>'+esc(t.title)+'</b> 🎉';
+  }
+  if((m = raw.match(/^(?:move|reschedule|push)\s+(.+?)\s+to\s+(.+)$/i))){
+    const t = findTask(m[1]);
+    if(!t) return 'No task like "'+esc(m[1])+'" found 🤔';
+    const p = parseQuick("x "+m[2]);
+    if(!p.due) return 'When exactly? Try <b>to tomorrow</b> or <b>to fri</b>.';
+    t.due = p.due; save(); render();
+    return '📅 <b>'+esc(t.title)+'</b> moved to '+fmtDue(t.due)+'.';
+  }
+  if(/how many (tasks|things|todos)/.test(low)){
+    return state.tasks.filter(t=>!t.done).length+" open in total — "+orbieStatusLine()+".";
+  }
+  if(/^(my )?habits$/.test(low) || /habits (left|today)/.test(low)){
+    const hs = state.habits || [];
+    if(!hs.length) return "No habits yet — say <b>add habit drink water</b> 🌱";
+    const left = hs.filter(x=>!(x.days && x.days[todayStr()]));
+    return left.length ? "Still open today: "+left.map(x=>esc((x.icon||"")+" "+x.name)).join(", ") : "All habits done today 🌟";
+  }
+  if((m = low.match(/^add habit\s+(.+)/))){
+    const nm = m[1].trim().slice(0,40);
+    state.habits.push({id:uid(), name:nm.charAt(0).toUpperCase()+nm.slice(1), icon:"🌱", color:SPACE_COLORS[(state.habits||[]).length % SPACE_COLORS.length], days:{}, createdAt:Date.now()});
+    save(); render();
+    return 'New habit: <b>'+esc(nm)+'</b> 🌱 Its dots live on the Habits page.';
+  }
+  if((m = low.match(/^(?:log|i drank|i took)\s+(.+)/))){
+    const q = m[1].trim();
+    const hb = (state.habits||[]).find(x=>x.name.toLowerCase().includes(q));
+    if(hb){
+      hb.days = hb.days || {};
+      hb.days[todayStr()] = true;
+      save(); render();
+      const st2 = habitStreak(hb);
+      return esc((hb.icon||"")+" "+hb.name)+' logged — 🔥 '+st2.n+' day'+(st2.n>1?'s':'')+'!';
+    }
+  }
+  return null;
 }
+/* AI can return actions as JSON — Orbie executes them */
+function aiDo(cmd){
+  try{
+    if(cmd.do==="add" && cmd.title){
+      const sp = getSpace(defaultNotesSpaceId()) || state.spaces[0];
+      let due = null;
+      if(cmd.due==="today") due = todayStr();
+      else if(cmd.due==="tomorrow") due = addDays(1);
+      else if(/^\d{4}-\d{2}-\d{2}$/.test(cmd.due||"")) due = cmd.due;
+      const nt = {id:uid(), spaceId:sp.id, title:String(cmd.title).slice(0,140), desc:"", due:due, priority:Math.min(3, Math.max(0, +cmd.priority||0)), repeat:null, stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null, checklist:[]};
+      state.tasks.push(nt); ui._justAdded = nt.id;
+      playSound("add"); save(); render();
+      return 'Added <b>'+esc(nt.title)+'</b>'+(due?' · '+fmtDue(due):'')+' → '+esc(sp.icon+" "+sp.name)+' ✓';
+    }
+    if(cmd.do==="done" && cmd.query){
+      const t = findTask(String(cmd.query));
+      if(t){ toggleTask(t.id, $("#mascot")); return 'Checked off <b>'+esc(t.title)+'</b> ✓'; }
+      return "Could not find that task 🤔";
+    }
+    if(cmd.do==="due" && cmd.query){
+      const t = findTask(String(cmd.query));
+      if(!t) return "Could not find that task 🤔";
+      let due = cmd.due==="today" ? todayStr() : cmd.due==="tomorrow" ? addDays(1) : (/^\d{4}-\d{2}-\d{2}$/.test(cmd.due||"") ? cmd.due : null);
+      if(!due) return "When exactly? 📅";
+      t.due = due; save(); render();
+      return '📅 <b>'+esc(t.title)+'</b> → '+fmtDue(due);
+    }
+    if(cmd.do==="focus"){ if(!fsess) startFocus(null); return "🎯 Focus started."; }
+  }catch(e){}
+  return null;
+}
+/* the router: pending add → smalltalk → smart local → commands → tasks → AI → fallback */
+function orbieProcess(v){
+  orbieLog.push({r:"u", t:esc(v)});
+  renderOrbieThread(); orbieSaveLog();
+  playSound("tap");
+  if(orbiePending==="add"){
+    orbiePending = null;
+    orbieDoAdd(v.replace(/^(add|task|todo)\s*[:\-]?\s*/i,""));
+    return;
+  }
+  const small = orbieSmalltalk(v);
+  if(small){ orbieReply(small); return; }
+  const local = orbieLocal(v);
+  if(local){ orbieReply(local); return; }
+  const cmd = orbieCommand(v);
+  if(cmd){ orbieReply(cmd); return; }
+  if(taskish(v)){
+    orbieDoAdd(v.replace(/^(add|task|todo)\s*[:\-]?\s*/i,"").replace(/^remind me( to)?\s*/i,"").replace(/^remember to\s*/i,""));
+    return;
+  }
+  if(orbieAIReady()){
+    const ph = {r:"b", t:"", typing:true};
+    orbieLog.push(ph);
+    renderOrbieThread();
+    orbieAsk(v).then(r=>{
+      ph.typing = false;
+      let txt = (aiText(r)||"").trim().replace(/^```(json)?/i,"").replace(/```$/,"").trim();
+      if(/^\{/.test(txt)){
+        try{
+          const done = aiDo(JSON.parse(txt));
+          if(done){ ph.t = done; renderOrbieThread(); renderOrbieChips(); orbieSaveLog(); playSound("pop"); return; }
+        }catch(e){}
+      }
+      ph.t = txt ? esc(txt.slice(0, 280)) : "Hmm, my antenna glitched 📡 Try that again?";
+      renderOrbieThread(); orbieSaveLog();
+      playSound("pop");
+    }).catch(()=>{
+      ph.typing = false;
+      ph.t = "My antenna glitched 📡 — the instant smarts still work though!";
+      renderOrbieThread(); orbieSaveLog();
+    });
+    return;
+  }
+  orbieReply(pick([
+    "Tell me more 🙂 Or hand me a task — <b>call mom fri !high</b>",
+    "I chat even better once you sign in to sync ☁ (free AI). Meanwhile <b>help</b> shows my tricks.",
+    "Try <b>what first?</b>, <b>my day</b>, or just give me something to remember 📝"
+  ]));
+}
+function orbieStatusLine(){
+  const open = state.tasks.filter(t=>!t.done);
+  const dt = open.filter(t=>t.due && dayDiff(t.due)===0).length;
+  const od = open.filter(t=>t.due && dayDiff(t.due)<0).length;
+  const hs = state.habits || [];
+  const hLeft = hs.filter(x=>!(x.days && x.days[todayStr()])).length;
+  const fm = focusToday();
+  let bits = [];
+  bits.push(dt ? dt+" due today" : "nothing due today ☀️");
+  if(od) bits.push(od+" overdue");
+  if(hs.length) bits.push(hLeft ? hLeft+" habits left" : "all habits done ✅");
+  if(fm) bits.push(fm+"m focused");
+  return bits.join(" · ");
+}
+function orbieSmalltalk(raw){
+  const low = raw.toLowerCase().trim();
+  const P2 = a=>pick(a);
+  if(/^(hi+|hii+|hello+|hey+|heyo|yo|sup|hiya|hola|good\s*(morning|afternoon|evening))\b/.test(low) || low==="hi")
+    return P2(["Hey "+esc(state.userName)+"! 👋 ","Hi hi! 🪐 ","Hello hello! "]) + orbieStatusLine() + ".";
+  if(/how are (you|u)|how r u|how.s it going|hows it going|how is it going|whats up|what.s up/.test(low))
+    return P2(["Orbiting happily 🪐 how about you?","Running at full glass power 💎 You?","Zero gravity, zero stress. How are you doing?"]);
+  if(/^(i.m |im |i am ).*(good|great|fine|okay|ok|tired|sad|stressed)/.test(low)){
+    if(/tired|sad|stressed|exhausted|overwhelmed/.test(low)) return "That is allowed 💜 Pick one tiny thing and I will cheer — or type <b>focus</b> and we do 25 quiet minutes together.";
+    return P2(["Love that! Want to point that energy at your top 3? 🎯","Excellent. The universe approves ✨"]);
+  }
+  if(/^(thanks|thank you|thx|ty|tysm)\b/.test(low))
+    return P2(["Anytime! 💜","You got it.","That is what moons are for 🌙"]);
+  if(/who are you|your name|what are you/.test(low))
+    return "I am <b>Orbie</b> — your pocket planet. I add tasks in plain words, check things off, keep your streaks honest, and chat when you need a moment 🪐";
+  if(/joke|make me laugh|funny/.test(low))
+    return P2(["Why did the task cross the board? To get to the <b>Done</b> side 🥁","My to-do list and I are in a committed relationship. It keeps growing on me.","I asked the calendar for a day off. It said my days are numbered 📆"]);
+  if(/motivat|inspire me|encourage/.test(low))
+    return P2(["Small steps every day — that is the entire trick. Pick one and go, I am watching 👀✨","Done beats perfect. Future-you is already grateful.","One task. Twenty-five minutes. Type <b>focus</b> and I will keep quiet 🤫"]);
+  if(/what time is it|the time/.test(low))
+    return "It is "+new Date().toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})+" ⏰";
+  if(/what (day|date)|todays date|today.s date/.test(low))
+    return "Today is "+new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"})+" 📆";
+  if(/how am i doing|my status|status|summary|my day|whats due|what.s due|what is due/.test(low))
+    return "Here is the orbit report: "+orbieStatusLine()+".";
+  if(/^(bye|goodbye|good\s*night|gn|see (ya|you))\b/.test(low))
+    return P2(["Rest well! I will keep the lights dim 🌙","Bye "+esc(state.userName)+"! I will hold the fort 🪐"]);
+  if(/love (you|u)|good bot|you.re (great|awesome|amazing)|great job|well done/.test(low))
+    return P2(["🥹 Saving that in my core memory.","Right back at you 💜","I am blushing in ultraviolet."]);
+  if(/^(start )?focus\b/.test(low)){ if(!fsess) startFocus(null); return "Focus started — quiet mode engaged 🎯"; }
+  if(/dark mode/.test(low)){ if(theme!=="dark") toggleTheme(); return "Lights off 🌙"; }
+  if(/light mode/.test(low)){ if(theme!=="light") toggleTheme(); return "Lights on ☀️"; }
+  if(/open settings|settings please/.test(low)){ openAppearance(); return "Settings open ⚙"; }
+  return null;
+}
+function taskish(raw){
+  const low = raw.toLowerCase().trim();
+  if(/^(add|task|todo|remind me|remember to)\b/.test(low)) return true;
+  const p = parseQuick(raw);
+  if(p.due || p.priority || p.repeat) return true;
+  if(state.spaces.some(s2=>new RegExp("\\b(in|to|@)\\s+"+reEsc(s2.name.toLowerCase())+"\\b").test(low))) return true;
+  if(low.split(/\s+/).length <= 7 && /^(buy|call|pay|email|send|book|finish|submit|review|write|clean|fix|check|prep|plan|schedule|update|renew|get|pick)\b/.test(low)) return true;
+  return false;
+}
+function orbieAIReady(){ return !!(cloud.on && window.puter && puter.ai && puter.ai.chat); }
+function aiText(r){
+  try{
+    if(typeof r === "string") return r;
+    if(r && r.message){
+      const c = r.message.content;
+      if(typeof c === "string") return c;
+      if(Array.isArray(c)) return c.map(x=>x && (x.text||"")).join(" ");
+    }
+    if(r && typeof r.text === "string") return r.text;
+    if(r && typeof r.toString === "function"){ const t2 = r.toString(); if(t2 && t2 !== "[object Object]") return t2; }
+  }catch(e){}
+  return "";
+}
+function orbieAsk(raw){
+  const sys = "You are Orbie, a tiny friendly planet mascot living inside Orbit, a personal task app. "+
+    "If the user is asking you to CREATE a task, COMPLETE a task, RESCHEDULE one, or START a focus session, respond with ONLY compact JSON, no other text: "+
+    '{"do":"add","title":"...","due":"today|tomorrow|YYYY-MM-DD or empty","priority":0} or {"do":"done","query":"..."} or {"do":"due","query":"...","due":"tomorrow"} or {"do":"focus"}. '+
+    "Otherwise reply in one or two short warm sentences, playful, occasional emoji, never invent app features, never give harmful advice. "+
+    "Facts right now: "+orbieStatusLine()+". The user is called "+state.userName+".";
+  const hist = orbieLog.slice(-6).filter(m=>!m.typing).map(m=>(m.r==="u"?"User: ":"Orbie: ")+m.t.replace(/<[^>]+>/g,"")).join("\n");
+  return puter.ai.chat(sys+"\n\n"+hist+"\nUser: "+raw+"\nOrbie:");
+}
+function renderOrbieThread(){
+  const th = $("#orbie-thread"); if(!th) return;
+  th.innerHTML = orbieLog.slice(-12).map(m=>'<div class="ob '+(m.r==="u"?"me":"bot")+'">'+(m.typing?'<span class="ob-typing"><i></i><i></i><i></i></span>':m.t)+'</div>').join("");
+  th.scrollTop = th.scrollHeight;
+}
+function mascotChat(line){ openOrbiePanel(line); }
 function closeOrbieChat(){
   const b = $("#mascot-bubble");
   if(b) b.classList.remove("show","chat");
+  document.body.classList.remove("orbie-open");
   orbieChatOpen = false;
 }
 function orbieAddTask(raw){
@@ -3218,7 +3708,7 @@ function orbieAddTask(raw){
 function mascotClicked(){
   mascotHappy();
   if(orbieChatOpen){ closeOrbieChat(); return; }
-  mascotChat(esc(pick(mascotLines())));
+  openOrbiePanel(esc(pick(mascotLines())));
   if(Math.random() < .15){
     const m = $("#mascot");
     if(m){ const r = m.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+10, "#8f7be8"); }
@@ -3536,7 +4026,7 @@ function startVoice(btn){
   if(!SRC) return;
   if(activeRec){ try{ activeRec.stop(); }catch(e){} activeRec = null; $$(".mic.rec").forEach(b=>b.classList.remove("rec")); return; }
   const form = btn.closest("form");
-  const inp = form && form.elements["qa"];
+  const inp = form && (form.elements["qa"] || form.elements["oi"]);
   if(!inp) return;
   const r = new SRC();
   activeRec = r;
@@ -3639,6 +4129,7 @@ function openShortcuts(){
       row("P","Notepad")+
       row("F","Start a focus session")+
       row("M","Mute / unmute sounds")+
+      row("O","Chat with Orbie")+
       row(IS_APPLE?"⌘ ↵":"Ctrl ↵","Save open sheet")+
       row("Esc","Close anything")+
     '</div>'+
@@ -3908,7 +4399,7 @@ setInterval(()=>{
 
 /* ---------------- event delegation ---------------- */
 document.addEventListener("click", e=>{
-  if(orbieChatOpen && !e.target.closest("#mascot")) closeOrbieChat();
+  if(orbieChatOpen && !e.target.closest("#mascot") && !e.target.closest("#orbie-panel")) closeOrbieChat();
   if(!e.target.closest("#popover") && !e.target.closest('[data-act="task-menu"]')) closePopover();
   if(e.target.classList && e.target.classList.contains("overlay")){ closeModal(); return; }
   const el = e.target.closest("[data-act]");
@@ -3918,7 +4409,7 @@ document.addEventListener("click", e=>{
   if(fromPopover) closePopover();
   /* interaction sounds, centralized: navigation ticks + control clicks */
   if(act.indexOf("nav-")===0 || act==="tab") playSound("nav");
-  else if(["collapse","ftog","ttog","den-tog","motion-tog","glass-mode","app-accent","app-theme","set-start","set-flen","set-goal","set-svol","app-mascot","seg-pri","pick-space","pick-stage","pick-rep","pick-emoji","swatch","due-quick","cl-toggle","stage-color","space-tpl","app-pin"].indexOf(act) > -1) playSound("switch");
+  else if(["collapse","ftog","ttog","den-tog","motion-tog","glass-mode","app-accent","app-theme","set-start","set-flen","set-goal","set-svol","set-style","app-mascot","seg-pri","pick-space","pick-stage","pick-rep","pick-emoji","swatch","due-quick","cl-toggle","stage-color","space-tpl","app-pin"].indexOf(act) > -1) playSound("switch");
   switch(act){
     case "nav-today": ui.view="today"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
     case "nav-pad": ui.view="pad"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
@@ -4176,6 +4667,46 @@ document.addEventListener("click", e=>{
       break;
     }
     case "voice": startVoice(el); break;
+    case "orbie-close": closeOrbieChat(); break;
+    case "orbie-clear": {
+      orbieLog = []; orbiePending = null; orbieSaveLog();
+      orbieLog.push({r:"b", t:"Fresh page 📄 What are we doing?"});
+      renderOrbieThread(); renderOrbieChips();
+      break;
+    }
+    case "ob-chip": {
+      const v2 = el.dataset.v;
+      if(v2==="__add"){
+        orbiePending = "add";
+        orbieReply("What should I remember? Dates and priorities in plain words work — <b>pay rent fri !high</b> 📝");
+        const i2 = document.querySelector('#orbie-panel input[name="oi"]'); if(i2) i2.focus();
+      } else orbieProcess(v2);
+      break;
+    }
+    case "ob-due": {
+      const t = state.tasks.find(x=>x.id===el.dataset.id);
+      stripObActs();
+      if(t){
+        const dv = el.dataset.d;
+        if(dv==="wknd"){ let delta = (6 - new Date().getDay() + 7) % 7; if(delta===0) delta = 7; t.due = addDays(delta); }
+        else t.due = addDays(+dv);
+        save(); render();
+        orbieReply('📅 <b>'+esc(t.title)+'</b> → '+fmtDue(t.due));
+      } else renderOrbieThread();
+      break;
+    }
+    case "ob-focus": {
+      stripObActs();
+      startFocus(el.dataset.id);
+      orbieReply("🎯 On it — timer running. I will stay quiet.");
+      break;
+    }
+    case "ob-done": {
+      stripObActs();
+      toggleTask(el.dataset.id, el);
+      orbieReply("✓ Done and dusted!");
+      break;
+    }
     case "gcal-task": { const t = state.tasks.find(x=>x.id===el.dataset.id); if(t) window.open(gcalUrl(t), "_blank"); break; }
     case "outlook-task": { const t = state.tasks.find(x=>x.id===el.dataset.id); if(t) window.open(outlookUrl(t), "_blank"); break; }
     case "paste-go": {
@@ -4274,6 +4805,7 @@ document.addEventListener("click", e=>{
       form.elements["icon"].value = tpl.icon;
       form.elements["color"].value = tpl.color;
       if(!form.elements["name"].value.trim()) form.elements["name"].value = tpl.n;
+      form.dataset.kit = tpl.k;
       $$(".tpl-row .pick", form).forEach(b=>b.classList.toggle("on", b===el));
       $$(".swatches .swatch", form).forEach(b=>b.classList.toggle("active", b.dataset.c===tpl.color));
       $$("#emoji-grid button", form).forEach(b=>b.classList.toggle("on", b.dataset.e===tpl.icon));
@@ -4320,6 +4852,12 @@ document.addEventListener("click", e=>{
       el.setAttribute("aria-checked", mascotOn);
       applyMascot(); save();
       if(mascotOn) mascotSay("I'm back! 🪐");
+      break;
+    }
+    case "set-style": {
+      state.prefs.style = el.dataset.v;
+      applyLook(); save(); render();
+      openAppearance();
       break;
     }
     case "glass-mode": {
@@ -4464,14 +5002,10 @@ document.addEventListener("submit", e=>{
   else if(kind==="note") submitNote(f);
   else if(kind==="orbie"){
     const v = f.elements["oi"].value.trim(); if(!v) return;
-    const reply = orbieHandle(v);
-    const b = $("#mascot-bubble");
-    if(!b) return;
+    f.elements["oi"].value = "";
     mascotHappy();
-    orbieChatOpen = true;
-    b.classList.add("show","chat");
-    b.innerHTML = '<div class="mb-line">'+reply+'</div>'+orbieFormHtml("Anything else?");
-    setTimeout(()=>{ const i = b.querySelector("input"); if(i) i.focus(); }, 30);
+    if(!document.body.classList.contains("orbie-open")) openOrbiePanel();
+    orbieProcess(v);
   }
 });
 
@@ -4548,6 +5082,7 @@ document.addEventListener("keydown", e=>{
     else if(k==="p"){ e.preventDefault(); ui.view="pad"; ui.spaceId=null; render(); }
     else if(k==="f"){ e.preventDefault(); if(!fsess) startFocus(null); }
     else if(k==="m"){ e.preventDefault(); toggleSound(); }
+    else if(k==="o"){ e.preventDefault(); if(orbieChatOpen) closeOrbieChat(); else openOrbiePanel(); }
   }
 });
 
@@ -4615,7 +5150,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "6.2.2";
+const APP_VERSION = "7.0.1";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
