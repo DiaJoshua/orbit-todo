@@ -37,9 +37,9 @@
   --overlay-bg:rgba(28,28,34,.3);
   --note-base:#ffffff;
   --tint-mix:#26262c;
-  --card-shadow:0 1px 2px rgba(24,24,30,.04), 0 3px 10px rgba(24,24,30,.04);
-  --pop-shadow:0 18px 55px rgba(24,24,30,.18);
-  --hover-shadow:0 10px 26px rgba(24,24,30,.10);
+  --card-shadow:0 1px 1px rgba(18,18,23,.03), 0 2px 6px rgba(18,18,23,.04), 0 14px 28px -18px rgba(18,18,23,.1);
+  --pop-shadow:0 10px 20px -8px rgba(18,18,23,.12), 0 30px 70px -12px rgba(18,18,23,.24);
+  --hover-shadow:0 4px 10px -2px rgba(18,18,23,.08), 0 16px 32px -12px rgba(18,18,23,.14);
   --scroll:rgba(28,28,32,.18);
   --glow-op:.10;
   --radius:14px;
@@ -64,9 +64,9 @@ html[data-theme="dark"]{
   --overlay-bg:rgba(0,0,0,.55);
   --note-base:rgba(255,255,255,.03);
   --tint-mix:#ffffff;
-  --card-shadow:0 1px 2px rgba(0,0,0,.2);
-  --pop-shadow:0 22px 70px rgba(0,0,0,.55);
-  --hover-shadow:0 10px 26px rgba(0,0,0,.3);
+  --card-shadow:0 1px 1px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.2), 0 16px 32px -20px rgba(0,0,0,.5);
+  --pop-shadow:0 12px 24px -8px rgba(0,0,0,.5), 0 34px 80px -12px rgba(0,0,0,.6);
+  --hover-shadow:0 6px 14px -4px rgba(0,0,0,.38), 0 18px 36px -14px rgba(0,0,0,.44);
   --scroll:rgba(255,255,255,.13);
   --glow-op:.06;
   color-scheme:dark;
@@ -75,6 +75,64 @@ html[data-theme="dark"]{
 /* ============ glass materials (Apple-style translucency) ============ */
 :root{--glass-bg:rgba(253,253,252,.72);--glass-panel:rgba(255,255,255,.55)}
 html[data-theme="dark"]{--glass-bg:rgba(28,28,32,.74);--glass-panel:rgba(255,255,255,.05)}
+:root{--panel-g:rgba(255,255,255,.6);--bg2-g:rgba(255,255,255,.52);--edge:rgba(255,255,255,.55)}
+html[data-theme="dark"]{--panel-g:rgba(255,255,255,.055);--bg2-g:rgba(255,255,255,.045);--edge:rgba(255,255,255,.08)}
+/* Liquid Glass: every surface goes translucent over the ambient glow.
+   Cheap by design — per-card blur only in Max mode below. */
+html:not([data-glass="off"]) .task,
+html:not([data-glass="off"]) .card,
+html:not([data-glass="off"]) .stat,
+html:not([data-glass="off"]) .note-row,
+html:not([data-glass="off"]) .habit-row,
+html:not([data-glass="off"]) .quickadd,
+html:not([data-glass="off"]) .col,
+html:not([data-glass="off"]) .tabs,
+html:not([data-glass="off"]) .searchwrap,
+html:not([data-glass="off"]) .page-chip,
+html:not([data-glass="off"]) .ov-banner,
+html:not([data-glass="off"]) .sb-foot .mini{
+  background:var(--panel-g);
+  box-shadow:inset 0 1px 0 var(--edge), var(--card-shadow);
+}
+html:not([data-glass="off"]) .card{background:var(--bg2-g)}
+html:not([data-glass="off"]) .task:hover{background:var(--bg2-g)}
+html:not([data-glass="off"]) #scratch-pad{background:var(--panel-g);box-shadow:inset 0 1px 0 var(--edge), var(--card-shadow)}
+html[data-glass="max"] #bg-glow::before,html[data-glass="max"] #bg-glow::after{opacity:calc(var(--glow-op)*1.9)}
+@supports ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){
+  html[data-glass="max"] .task,
+  html[data-glass="max"] .card,
+  html[data-glass="max"] .stat,
+  html[data-glass="max"] .note-row,
+  html[data-glass="max"] .habit-row,
+  html[data-glass="max"] .quickadd,
+  html[data-glass="max"] .col,
+  html[data-glass="max"] .tabs{
+    backdrop-filter:blur(14px) saturate(1.5);
+    -webkit-backdrop-filter:blur(14px) saturate(1.5);
+  }
+}
+
+/* compact density (like iPhone display zoom) */
+html[data-density="compact"] body{font-size:13.5px}
+html[data-density="compact"] .task{padding:9px 12px;margin-bottom:6px}
+html[data-density="compact"] .nav-item{padding:7px 10px}
+html[data-density="compact"] .stat{padding:11px 46px 11px 13px}
+html[data-density="compact"] .tile2{padding:11px 13px}
+html[data-density="compact"] .note-row{padding:10px 13px}
+html[data-density="compact"] .habit-row{padding:10px 12px}
+
+/* user-forced reduce motion (mirrors the system media query) */
+html[data-motion="reduce"] *,html[data-motion="reduce"] *::before,html[data-motion="reduce"] *::after{animation:none !important;transition:none !important}
+
+/* swipe actions */
+.task.swipe-r{background:color-mix(in srgb,var(--green) 16%,var(--panel)) !important;border-color:color-mix(in srgb,var(--green) 45%,var(--border)) !important}
+.task.swipe-l{background:color-mix(in srgb,var(--rose) 16%,var(--panel)) !important;border-color:color-mix(in srgb,var(--rose) 45%,var(--border)) !important}
+
+/* privacy blur (blurs Orbit the moment you switch away) */
+body.privacy #app{filter:blur(22px)}
+.set-sel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:13px;outline:none;max-width:190px;color:var(--text)}
+.set-sel:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+
 @supports ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){
   html:not([data-glass="off"]) .modal,
   html:not([data-glass="off"]) .cmd,
@@ -96,15 +154,18 @@ html,body{height:100%}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,"Segoe UI",sans-serif;
   background:var(--bg); color:var(--text);
-  font-size:14.5px; line-height:1.5; overflow:hidden;
+  font-size:14.5px; line-height:1.55; overflow:hidden;
   -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  font-feature-settings:"cv05","cv11";
 }
 h1,h2,h3,.pad-title{letter-spacing:-.02em}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:none}
 ::selection{background:color-mix(in srgb,var(--accent) 35%,transparent)}
-::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--accent) 35%,var(--scroll));border:2px solid transparent;background-clip:content-box}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 
 /* smooth crossfade when switching themes (fallback path) */
@@ -169,7 +230,7 @@ html.vt-theme::view-transition-new(root){z-index:2}
   margin-bottom:2px;position:relative;transition:background .15s,color .15s;
 }
 .nav-item:hover{background:var(--panel2);color:var(--text)}
-.nav-item.active{background:var(--panel2);color:var(--text);font-weight:600}
+.nav-item.active{background:color-mix(in srgb,var(--ac,var(--accent)) 10%,transparent);color:var(--text);font-weight:600}
 .nav-item.active::before{content:"";position:absolute;left:0;top:22%;bottom:22%;width:3px;border-radius:3px;background:var(--ac,var(--accent))}
 .nav-item.just-active::before{animation:barIn .3s cubic-bezier(.3,1.4,.4,1)}
 .nav-item.just-active .ico{animation:icoPop .32s cubic-bezier(.3,1.4,.4,1)}
@@ -197,21 +258,26 @@ html.vt-theme::view-transition-new(root){z-index:2}
   background:var(--tb-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   position:relative;z-index:5;flex-wrap:wrap;
 }
-.tb-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;min-width:0}
-.tb-title .emoji{font-size:19px;flex-shrink:0}
+.tb-title{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:650;min-width:0;letter-spacing:-.1px}
+.tb-title .emoji{font-size:17px;flex-shrink:0}
 .tb-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .tb-spacer{flex:1}
-.searchwrap{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:7px 12px;width:230px;transition:border-color .15s}
+.searchwrap{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:7px 14px;width:250px;transition:border-color .15s,box-shadow .15s}
+.searchwrap:focus-within{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 10%,transparent)}
 .searchwrap:focus-within{border-color:color-mix(in srgb,var(--accent) 60%,transparent)}
 .searchwrap svg{flex-shrink:0;opacity:.5}
 .searchwrap input{background:none;border:none;outline:none;width:100%;font-size:13.5px}
 .searchwrap input::placeholder{color:var(--faint)}
 .btn{display:inline-flex;align-items:center;gap:7px;border-radius:12px;padding:8px 15px;font-size:13.5px;font-weight:600;transition:.15s;border:1px solid transparent}
 .btn:active{transform:scale(.97)}
-.btn.primary{background:var(--accent);color:var(--on-accent);box-shadow:0 6px 22px color-mix(in srgb,var(--accent) 35%,transparent)}
+.btn.primary{
+  background:linear-gradient(180deg, color-mix(in srgb,var(--accent) 90%,#fff), var(--accent));
+  color:var(--on-accent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 1px 2px rgba(18,18,23,.18), 0 8px 22px -6px color-mix(in srgb,var(--accent) 55%,transparent);
+}
 .btn.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .btn.ghost{background:var(--panel);border-color:var(--border);color:var(--muted)}
-.btn.ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn.ghost:hover{color:var(--text);border-color:var(--border2);background:var(--panel2)}
 .btn.danger{background:color-mix(in srgb,var(--rose) 12%,transparent);color:var(--rose);border-color:color-mix(in srgb,var(--rose) 30%,transparent)}
 .btn.danger:hover{background:color-mix(in srgb,var(--rose) 22%,transparent)}
 .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;color:var(--muted);transition:.15s;flex-shrink:0}
@@ -235,7 +301,7 @@ html.vt-theme::view-transition-new(root){z-index:2}
 .prog-track i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#fff));transition:width .5s ease}
 
 /* ============ today / greeting ============ */
-.greet h1{font-size:28px;font-weight:800;letter-spacing:-.3px}
+.greet h1{font-size:30px;font-weight:800;letter-spacing:-.75px}
 .greet h1 .uname{cursor:pointer;border-bottom:2px dotted var(--faint)}
 .greet h1 .uname:hover{color:var(--accent)}
 .greet h1 .grad{background:linear-gradient(90deg,var(--accent),#2f7fe0);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -429,7 +495,7 @@ html.vt-theme::view-transition-new(root){z-index:2}
 
 /* ============ empty state ============ */
 .empty{text-align:center;padding:56px 20px;color:var(--muted);animation:var(--enter-slow,none)}
-.empty .art{font-size:42px;margin-bottom:12px;display:block;filter:saturate(.85);animation:floaty 4s ease-in-out infinite}
+.empty .art{font-size:32px;width:72px;height:72px;border-radius:24px;background:var(--panel2);display:grid;place-items:center;margin:0 auto 14px;filter:saturate(.9);animation:floaty 4s ease-in-out infinite}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .empty h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
 .empty p{font-size:13px;color:var(--faint)}
@@ -446,7 +512,7 @@ html.vt-theme::view-transition-new(root){z-index:2}
 }
 .modal.wide{width:min(760px,96vw)}
 .modal{
-  background:var(--modal-bg);border:1px solid var(--border2);border-radius:20px;padding:24px;
+  background:var(--modal-bg);border:1px solid var(--border2);border-radius:22px;padding:26px;
   box-shadow:var(--pop-shadow);animation:zoomIn .18s cubic-bezier(.2,.9,.3,1.2);
 }
 @keyframes zoomIn{from{opacity:0;transform:scale(.94) translateY(8px)}}
@@ -565,7 +631,7 @@ html:not([data-glass="off"]) .fsec{background:var(--glass-panel)}
 .cmd-row .ci{width:24px;text-align:center;flex-shrink:0}
 .cmd-row.sel,.cmd-row:hover{background:var(--panel2);color:var(--text)}
 .cmd-empty{padding:18px;text-align:center;color:var(--faint);font-size:13px}
-.kbd-hint{font-size:11px;font-weight:600;color:var(--faint);border:1px solid var(--border);border-radius:8px;padding:6px 10px;background:var(--panel);transition:.15s;letter-spacing:.3px}
+.kbd-hint{font-size:11px;font-weight:600;color:var(--faint);border:1px solid var(--border);border-radius:999px;padding:6px 12px;background:var(--panel);transition:.15s;letter-spacing:.3px}
 .kbd-hint:hover{color:var(--text);border-color:var(--border2)}
 .quick-dates{display:flex;gap:5px;margin-top:6px}
 .quick-dates button{font-size:11px;font-weight:600;color:var(--muted);background:var(--chip-bg);border-radius:999px;padding:3.5px 10px;transition:.12s}
@@ -586,7 +652,7 @@ html:not([data-glass="off"]) .fsec{background:var(--glass-panel)}
 /* ============ toast ============ */
 #toast{
   position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px) scale(.97);z-index:80;
-  background:var(--toast-bg);border:1px solid var(--border2);border-radius:13px;padding:10px 16px;
+  background:var(--toast-bg);border:1px solid var(--border2);border-radius:999px;padding:10px 18px;
   font-size:13.5px;display:flex;align-items:center;gap:12px;
   opacity:0;pointer-events:none;transition:.25s;box-shadow:var(--pop-shadow);
 }
@@ -868,7 +934,7 @@ const FOCUS_GOAL = 60; /* minutes per day for the dashboard ring */
 const HABIT_EMOJIS = "💧 🏃 📖 🧘 🌙 🥗 💪 🦷 ✍️ 🚶 🧠 💊 🎸 🗣 🚭 💤 🌅 📵 🙏 🧹 ☀️ 🎹 🧊 🍎".split(" ");
 const MIC_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.2"/></svg>';
 const SR_OK = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
-function micHtml(){ return SR_OK ? '<button type="button" class="mic" data-act="voice" title="Speak your task">'+MIC_SVG+'</button>' : ""; }
+function micHtml(){ return (SR_OK && featOn("voice")) ? '<button type="button" class="mic" data-act="voice" title="Speak your task">'+MIC_SVG+'</button>' : ""; }
 const NOTE_COLORS  = ["#d6a327","#7c66dc","#3e8ef7","#30a46c","#e5484d","#8b8d98"];
 const EMOJIS = "💼 🖥 🏠 ⏰ 🌱 📚 💪 ✈️ 💰 🎯 🛒 ❤️".split(" ");
 
@@ -1205,7 +1271,12 @@ let undoTimer = null;
 const getSpace  = id=>state.spaces.find(s=>s.id===id);
 const spaceOf   = t=>getSpace(t.spaceId) || state.spaces[0];
 const openCount = id=>state.tasks.filter(t=>t.spaceId===id && !t.done).length;
-const defaultNotesSpaceId = ()=>{ const r = state.spaces.find(s=>/remind/i.test(s.name)); return (r || state.spaces[0]).id; };
+const defaultNotesSpaceId = ()=>{
+  const c = state.prefs && state.prefs.captureSpace;
+  if(c && state.spaces.some(s=>s.id===c)) return c;
+  const r = state.spaces.find(s=>/remind/i.test(s.name));
+  return (r || state.spaces[0]).id;
+};
 const matches   = t=>{ if(!ui.search) return true; const q=ui.search.toLowerCase(); return (t.title+" "+(t.desc||"")).toLowerCase().includes(q); };
 const noteMatches = n=>{ if(!ui.search) return true; const q=ui.search.toLowerCase(); return ((n.title||"")+" "+(n.body||"")).toLowerCase().includes(q); };
 
@@ -1223,7 +1294,7 @@ const MOON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentC
 
 /* ---------------- theme ---------------- */
 const IS_APPLE = /Mac|iPhone|iPad|iPod/.test((navigator.platform||"")+(navigator.userAgent||""));
-function hapt(n){ try{ if(navigator.vibrate) navigator.vibrate(n||8); }catch(e){} }
+function hapt(n){ try{ if(!featOn("haptics")) return; if(navigator.vibrate) navigator.vibrate(n||8); }catch(e){} }
 
 const THEME_KEY = "orbit-theme";
 let theme = "light";
@@ -1244,11 +1315,59 @@ function ensureExtras(){
     /* first-run seed: your companion app, embedded */
     state.apps = [{id:"app-trip", name:"Sipit · Trip money", icon:"✈️", color:"#2ab1dd", url:"https://uwing-uwi-trip.vercel.app/", createdAt:Date.now()}];
   }
+  if(!state.prefs.features || typeof state.prefs.features !== "object") state.prefs.features = {};
+  if(!state.prefs.tiles || typeof state.prefs.tiles !== "object") state.prefs.tiles = {};
+  if(state.prefs.lockHash) state.prefs.lockHash = null; /* app lock removed in 6.0.1 */
 }
 ensureExtras();
 if(state.prefs.theme==null) state.prefs.theme = theme;
 if(state.prefs.mascot==null){ let m0 = true; try{ m0 = localStorage.getItem("orbit-mascot") !== "off"; }catch(e){} state.prefs.mascot = m0; }
 if(state.prefs.glass==null) state.prefs.glass = "on";
+
+/* every feature is toggleable — defaults are all on except nothing */
+const FEAT_DEFAULTS = {confetti:true, sounds:true, haptics:true, voice:true, tips:true, quotes:true, streaks:true, swipes:true};
+function featOn(k){
+  const f = (state.prefs && state.prefs.features) || {};
+  return f[k]==null ? (FEAT_DEFAULTS[k]!==false) : !!f[k];
+}
+function tileOn(k){
+  const t = (state.prefs && state.prefs.tiles) || {};
+  return t[k]==null ? true : !!t[k];
+}
+function isReduced(){
+  return REDUCE_MOTION || !!(state.prefs && state.prefs.reduceMotion);
+}
+/* tiny synthesized sounds — no audio files, fully offline */
+let _ac = null;
+function playSound(kind){
+  if(!featOn("sounds")) return;
+  try{
+    _ac = _ac || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = _ac.currentTime;
+    const tone = (f, st, dur, type, gain)=>{
+      const o = _ac.createOscillator(), g = _ac.createGain();
+      o.type = type || "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(0, t0+st);
+      g.gain.linearRampToValueAtTime(gain || .11, t0+st+.01);
+      g.gain.exponentialRampToValueAtTime(.0001, t0+st+dur);
+      o.connect(g); g.connect(_ac.destination);
+      o.start(t0+st); o.stop(t0+st+dur+.05);
+    };
+    if(kind==="done"){ tone(660,0,.12); tone(880,.08,.2); }
+    else if(kind==="focus"){ tone(523,0,.2); tone(659,.15,.2); tone(784,.3,.4); }
+    else if(kind==="pop"){ tone(440,0,.08,"triangle",.08); }
+  }catch(e){}
+}
+function applyStartView(){
+  try{
+    const sv = state.prefs && state.prefs.startView;
+    if(sv==="last"){
+      const lv = localStorage.getItem("orbit-last");
+      if(["today","week","habits","pad"].indexOf(lv) > -1) ui.view = lv;
+    }
+    else if(["week","habits","pad"].indexOf(sv) > -1) ui.view = sv;
+  }catch(e){}
+}
 
 function setThemeResolved(next, animate){
   theme = next;
@@ -1292,7 +1411,10 @@ function syncMascotFromState(){
 /* accent + glass follow your synced preferences */
 function applyLook(){
   const p = state.prefs || {};
-  document.documentElement.dataset.glass = p.glass==="off" ? "off" : "on";
+  document.documentElement.dataset.glass = p.glass==="off" ? "off" : (p.glass==="max" ? "max" : "on");
+  document.documentElement.dataset.density = p.density==="compact" ? "compact" : "cozy";
+  if(p.reduceMotion) document.documentElement.dataset.motion = "reduce";
+  else delete document.documentElement.dataset.motion;
   if(!currentAccent()){
     if(p.accent) document.documentElement.style.setProperty("--accent", p.accent);
     else document.documentElement.style.removeProperty("--accent");
@@ -1309,7 +1431,7 @@ applyLook();
 function toggleTheme(x, y){
   hapt(6);
   const next = theme==="dark" ? "light" : "dark";
-  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduce = isReduced();
   if(!document.startViewTransition || reduce){
     setTheme(next, !reduce);
     const b = $("#theme-btn"); if(b) b.classList.add("spin");
@@ -1404,7 +1526,7 @@ function renderSidebar(){
     '</div>'+
     '<div class="sb-foot">'+
       '<button class="mini'+(syncStatus==="on"?" on":"")+'" data-act="sync" id="sync-btn">'+syncLabel()+'</button>'+
-      '<div class="row"><button class="mini" data-act="export">⬇ Export</button><button class="mini" data-act="import">⬆ Import</button><button class="mini" data-act="appearance" title="Appearance & style">🎨 Style</button></div>'+
+      '<div class="row"><button class="mini" data-act="export">⬇ Export</button><button class="mini" data-act="import">⬆ Import</button><button class="mini" data-act="appearance" title="Settings — appearance, features, privacy">⚙ Settings</button></div>'+
       '<div class="hint" id="sync-hint">'+(syncStatus==="on"?"Changes save to the cloud automatically":"Data is saved in this browser · Export to back up")+'</div>'+
     '</div>';
   bindSpaceDnD();
@@ -1716,17 +1838,17 @@ function renderToday(){
   const statRaw = (n,l,c,ico)=>'<div class="stat" style="--sc:'+c+'"><span class="s-ico">'+ico+'</span><div class="num">'+n+'</div><div class="lbl">'+l+'</div></div>';
   let h = '<div class="view-inner">'+
     '<div class="greet"><h1><span class="grad">'+greet+'</span>, <span class="uname" data-act="rename-user" title="Click to change name">'+esc(state.userName)+'</span> ✨'+
-      (stk>0?'<span class="streak" title="Days in a row with at least one task completed">🔥 '+stk+' day streak</span>':'')+'</h1>'+
+      (featOn("streaks") && stk>0?'<span class="streak" title="Days in a row with at least one task completed">🔥 '+stk+' day streak</span>':'')+'</h1>'+
     '<div class="sub">'+dateLine+' · <span id="now"></span></div>'+
-    '<div class="quote">"'+quote+'"</div></div>'+
+    (featOn("quotes") ? '<div class="quote">"'+quote+'"</div>' : "")+'</div>'+
     '<div class="stats bento">'+
       stat(dueToday.length,"Due today","var(--amber)","📆")+
       stat(overdue.length,"Overdue","var(--rose)","⏳")+
       stat(doneToday,"Done today","var(--green)","✅")+
       stat(open.length,"Open tasks","var(--cyan)","🗂")+
-      focusTile()+
-      weekGlanceTile(open)+
-      habitsTile()+
+      (tileOn("focus") ? focusTile() : "")+
+      (tileOn("week") ? weekGlanceTile(open) : "")+
+      (tileOn("habits") ? habitsTile() : "")+
     '</div>';
 
   const dayTotal = doneToday + dueToday.length + overdue.length;
@@ -1746,6 +1868,7 @@ function renderToday(){
   const pinned = [];
   state.spaces.forEach(s=>(s.notes||[]).forEach(n=>{ if(n.pinned && noteMatches(n)) pinned.push({n:n, s:s}); }));
   pinned.sort((a,b)=>noteSort(a.n, b.n));
+  if(tileOn("notes")){
   const notesCol = isCollapsed("today:notes", false);
   h += '<div class="group-head '+(notesCol?"collapsed":"")+'" data-act="collapse" data-key="today:notes">'+
        '<span class="chev">▼</span><span class="dot" style="--gc:var(--accent)"></span>Pinned notes <span class="gcnt">'+pinned.length+'</span>'+
@@ -1759,6 +1882,7 @@ function renderToday(){
         '<div class="n-date">'+esc(p.s.icon+" "+p.s.name)+'</div>'+
       '</div>').join("")+
     '</div></div></div>';
+  }
 
   if(!overdue.length && !dueToday.length && !week.length){
     h += '<div class="empty"><span class="art">🪐</span><h3>'+(ui.search?"No matches":"All clear")+'</h3><p>'+
@@ -1783,6 +1907,7 @@ function renderToday(){
 
 /* rotating contextual tips, one per view per day */
 function uiTip(ctx){
+  if(!featOn("tips")) return "";
   const cmdk = IS_APPLE ? "⌘K" : "Ctrl K";
   const menuHint = isMobile() ? "Long press" : "Right click";
   const T = {
@@ -1835,7 +1960,7 @@ function animateNums(){
   $$(".stat .num").forEach(el=>{
     if(el.dataset.n==null) return;
     const n = +el.dataset.n || 0;
-    if(REDUCE_MOTION || n <= 0){ el.textContent = n; return; }
+    if(isReduced() || n <= 0){ el.textContent = n; return; }
     const t0 = performance.now(), dur = 420;
     el.textContent = "0";
     (function f(t){
@@ -2152,6 +2277,8 @@ function renderView(){
     viewEl.style.scrollBehavior = "";
   }
   ui._justAdded = ui._justToggled = ui._justMoved = null;
+  try{ if(["today","week","habits","pad"].indexOf(ui.view) > -1) localStorage.setItem("orbit-last", ui.view); }catch(e){}
+  bindSwipes(viewEl);
 }
 /* renders coalesce into one animation frame: many state changes, one paint */
 let _renderRaf = null;
@@ -2202,7 +2329,7 @@ function closeModal(){
   const root = $("#modal-root");
   const ov = root.firstElementChild;
   if(!ov) return;
-  if(REDUCE_MOTION){ root.innerHTML = ""; return; }
+  if(isReduced()){ root.innerHTML = ""; return; }
   if(ov.classList.contains("closing")) return;
   ov.classList.add("closing");
   clearTimeout(closeModal._t);
@@ -2282,26 +2409,69 @@ function openAppearance(){
   const acc = p.accent || "";
   const isPreset = ACCENT_PRESETS.indexOf(acc) > -1;
   const mode = p.theme==="auto" ? "auto" : theme;
+  const sw = (on, act, k, label)=>'<button type="button" class="switch'+(on?" on":"")+'" data-act="'+act+'"'+(k?' data-k="'+k+'"':'')+' role="switch" aria-checked="'+on+'" aria-label="'+label+'"><i></i></button>';
+  const row = (t, sub, ctrl, last)=>'<div class="ap-row'+(last?" last":"")+'"><div class="ap-l"><div class="ap-t">'+t+'</div>'+(sub?'<div class="ap-s">'+sub+'</div>':'')+'</div>'+ctrl+'</div>';
+  const frow = (k, t, sub)=>row(t, sub, sw(featOn(k), "ftog", k, t));
+  const trow = (k, t)=>row(t, "", sw(tileOn(k), "ttog", k, t));
+  const pickset = (act, opts, cur)=>'<div class="pick-row">'+opts.map(o=>'<button type="button" class="pick'+(String(cur)===String(o[0])?" on":"")+'" data-act="'+act+'" data-v="'+o[0]+'">'+o[1]+'</button>').join("")+'</div>';
+  let notifLbl = "Enable"; try{ notifLbl = localStorage.getItem("orbit-notif")==="on" ? "🔔 On · turn off" : "🔕 Off · enable"; }catch(e){}
+  const kb = ((JSON.stringify(state).length)/1024).toFixed(1);
   modalShell(
-    '<h2>Appearance</h2>'+
-    '<div class="ap-row"><div class="ap-l"><div class="ap-t">Theme</div><div class="ap-s">Circular reveal on switch · Auto follows your system</div></div>'+
-      '<div class="pick-row">'+
-        '<button type="button" class="pick'+(mode==="light"?" on":"")+'" data-act="app-theme" data-v="light">☀️ Light</button>'+
-        '<button type="button" class="pick'+(mode==="dark"?" on":"")+'" data-act="app-theme" data-v="dark">🌙 Dark</button>'+
-        '<button type="button" class="pick'+(mode==="auto"?" on":"")+'" data-act="app-theme" data-v="auto">✨ Auto</button>'+
-      '</div></div>'+
+    '<h2>Settings · Appearance</h2>'+
+    row("Theme","Circular reveal on switch · Auto follows your system",
+      pickset("app-theme", [["light","☀️ Light"],["dark","🌙 Dark"],["auto","✨ Auto"]], mode))+
     '<div class="ap-row" style="border-bottom:none;padding-bottom:4px"><div class="ap-l"><div class="ap-t">Accent color</div><div class="ap-s">Buttons, highlights and glow · follows you to every device</div></div></div>'+
     '<div class="swatches" style="padding:0 2px 12px;border-bottom:1px solid var(--border)">'+
       '<button type="button" class="swatch'+(acc===""?" active":"")+'" style="background:linear-gradient(135deg,#6e56cf,#2f7fe0);--swc:#6e56cf" data-act="app-accent" data-c="" title="Auto (Orbit default)"></button>'+
       ACCENT_PRESETS.map(c=>'<button type="button" class="swatch'+(acc===c?" active":"")+'" style="background:'+c+';--swc:'+c+'" data-act="app-accent" data-c="'+c+'" title="'+c+'"></button>').join("")+
       '<button type="button" class="swatch custom'+(acc && !isPreset?" active":"")+'" title="Custom color" style="--swc:'+(acc||"#6e56cf")+'"><input type="color" id="acc-custom" value="'+(isPreset||!acc?"#6e56cf":acc)+'"></button>'+
     '</div>'+
-    '<div class="ap-row"><div class="ap-l"><div class="ap-t">Glass surfaces</div><div class="ap-s">Frosted, translucent panels and menus</div></div>'+
-      '<button type="button" class="switch'+(p.glass!=="off"?" on":"")+'" data-act="app-glass" role="switch" aria-checked="'+(p.glass!=="off")+'" aria-label="Toggle glass surfaces"><i></i></button></div>'+
-    '<div class="ap-row last"><div class="ap-l"><div class="ap-t">Orbie the mascot</div><div class="ap-s">Your planet buddy in the corner</div></div>'+
-      '<button type="button" class="switch'+(mascotOn?" on":"")+'" data-act="app-mascot" role="switch" aria-checked="'+mascotOn+'" aria-label="Toggle mascot"><i></i></button></div>'+
-    '<div class="m-foot"><span class="grow"></span><button type="button" class="btn primary" data-act="close-modal">Done</button></div>');
+    row("Liquid glass","Off · Frosted · Max (real blur on every card — needs a decent GPU)",
+      pickset("glass-mode", [["off","Off"],["on","Frosted"],["max","Max"]], p.glass==="off"?"off":(p.glass==="max"?"max":"on")))+
+    row("Compact density","Tighter rows and panels, more on screen", sw(p.density==="compact","den-tog",null,"Compact density"))+
+    row("Reduce motion","Turns off animations everywhere", sw(!!p.reduceMotion,"motion-tog",null,"Reduce motion"), true)+
+    '<h2 style="margin-top:20px">Features</h2>'+
+    frow("confetti","Confetti","Celebrate completed tasks")+
+    frow("sounds","Completion sounds","Tiny synthesized chimes — no files, fully offline")+
+    frow("haptics","Haptics","Vibration feedback on phones")+
+    frow("voice","Voice capture 🎤","Mic button on quick-add (where the browser supports it)")+
+    frow("tips","Daily tips","The 💡 hint line under each view")+
+    frow("quotes","Daily quote","The little line under your greeting")+
+    frow("streaks","Streak flame","🔥 day-streak chip on the dashboard")+
+    frow("swipes","Swipe actions","Phones: swipe a task right to complete, left to delete")+
+    row("Orbie the mascot","Your planet buddy in the corner", sw(mascotOn,"app-mascot",null,"Toggle mascot"), true)+
+    '<h2 style="margin-top:20px">Dashboard tiles</h2>'+
+    trow("focus","Focus ring")+
+    trow("week","Next 7 days chart")+
+    trow("habits","Habits chips")+
+    row("Pinned notes","", sw(tileOn("notes"),"ttog","notes","Pinned notes"), true)+
+    '<h2 style="margin-top:20px">Behavior</h2>'+
+    row("Start view","Where Orbit opens",
+      pickset("set-start", [["today","Today"],["week","Week"],["habits","Habits"],["pad","Notepad"],["last","Last used"]], p.startView||"today"))+
+    row("Quick-capture space","Where Orbie and shared links file new tasks",
+      '<select class="set-sel" id="set-cspace"><option value="">Auto (Reminders)</option>'+state.spaces.map(s2=>'<option value="'+s2.id+'"'+((p.captureSpace||"")===s2.id?" selected":"")+'>'+esc(s2.icon+" "+s2.name)+'</option>').join("")+'</select>')+
+    row("Focus session length","Minutes per 🎯 session",
+      pickset("set-flen", [[15,"15m"],[25,"25m"],[45,"45m"],[60,"60m"]], p.focusLen||25))+
+    row("Daily focus goal","The dashboard ring fills toward this",
+      pickset("set-goal", [[30,"30m"],[60,"1h"],[90,"1.5h"],[120,"2h"]], p.focusGoal||60))+
+    row("Daily reminders","One notification a day about what’s due",
+      '<button type="button" class="btn ghost" data-act="notif-tog">'+notifLbl+'</button>', true)+
+    '<h2 style="margin-top:20px">Privacy</h2>'+
+    row("Privacy blur","Blur Orbit the moment you switch away", sw(!!p.privacyBlur,"priv-tog",null,"Privacy blur"), true)+
+    '<h2 style="margin-top:20px">Data</h2>'+
+    row("Cloud sync", esc(syncLabel()), '<button type="button" class="btn ghost" data-act="sync">Manage</button>')+
+    '<div class="ap-row last" style="flex-wrap:wrap;gap:8px">'+
+      '<button type="button" class="btn ghost" data-act="export">⬇ Export JSON</button>'+
+      '<button type="button" class="btn ghost" data-act="import">⬆ Import</button>'+
+      '<button type="button" class="btn ghost" data-act="ics-all">🗓 Export .ics</button>'+
+      '<button type="button" class="btn danger" data-act="erase-all">Erase all local data</button>'+
+    '</div>'+
+    '<h2 style="margin-top:20px">About</h2>'+
+    '<div class="ap-row last"><div class="ap-l"><div class="ap-t">Orbit '+APP_VERSION+' · Liquid Glass</div>'+
+      '<div class="ap-s">'+state.tasks.length+' tasks · '+state.spaces.length+' spaces · '+((state.habits||[]).length)+' habits · '+kb+' KB · free forever, your data stays in your browser and your own cloud</div></div></div>'+
+    '<div class="m-foot"><span class="grow"></span><button type="button" class="btn primary" data-act="close-modal">Done</button></div>', true);
 }
+
 
 /* ---------------- command palette (Ctrl K) ---------------- */
 let cmdSel = 0;
@@ -2331,7 +2501,7 @@ function cmdActions(){
     {icon:"🧩", label:"Add an app (embed a website)", run:()=>openAppModal(null)},
     {icon:theme==="dark"?"☀️":"🌙", label:theme==="dark"?"Switch to light mode":"Switch to dark mode", run:toggleTheme},
     {icon:"🎯", label:"Focus for 25 minutes", run:()=>startFocus(null)},
-    {icon:"🎨", label:"Appearance & style", run:openAppearance},
+    {icon:"⚙️", label:"Settings — appearance, features, privacy", run:openAppearance},
     {icon:"⌨️", label:"Keyboard shortcuts", run:openShortcuts},
     {icon:"📋", label:"Paste to add many tasks", run:openPasteImport},
     {icon:"✉️", label:"Email my day", run:emailMyDay},
@@ -2355,7 +2525,20 @@ function cmdActions(){
 function cmdFiltered(q){
   q = (q||"").toLowerCase().trim();
   const a = cmdActions();
-  return q ? a.filter(x=>x.label.toLowerCase().includes(q)) : a;
+  let out = q ? a.filter(x=>x.label.toLowerCase().includes(q)) : a;
+  if(q.length >= 2){
+    /* Spotlight: tasks and notes surface right in the palette */
+    state.tasks.filter(t=>!t.done && t.title.toLowerCase().includes(q)).slice(0,6).forEach(t=>{
+      const sp = spaceOf(t);
+      out.push({icon:sp.icon, label:"Task: "+t.title+(t.due?" · "+fmtDue(t.due):""), run:()=>openTaskModal(t.id)});
+    });
+    state.spaces.forEach(sp=>(sp.notes||[]).forEach(nn=>{
+      if(((nn.title||"")+" "+(nn.body||"")).toLowerCase().includes(q))
+        out.push({icon:"🗒", label:"Note: "+(nn.title||"Untitled"), run:()=>openNoteModal(sp.id, nn.id)});
+    }));
+    out = out.slice(0, 24);
+  }
+  return out;
 }
 function renderCmdList(q){
   const rows = cmdFiltered(q);
@@ -2425,6 +2608,7 @@ function openTaskModal(taskId, spaceId, stageId, duePre){
       '<div class="m-foot">'+
         (t?'<button type="button" class="btn danger" data-act="modal-del-task" data-id="'+t.id+'">Delete</button>':"")+
         (t?'<button type="button" class="btn ghost" data-act="dup-task" data-id="'+t.id+'">Duplicate</button>':"")+
+        (t?'<button type="button" class="btn ghost" data-act="focus-task-close" data-id="'+t.id+'">🎯 Focus</button>':"")+
         '<span class="grow"></span>'+
         '<button type="button" class="btn ghost" data-act="close-modal">Cancel</button>'+
         '<button type="submit" class="btn primary" title="'+(IS_APPLE?"⌘":"Ctrl")+' Enter">'+(t?"Save":"Add task")+'</button>'+
@@ -2539,6 +2723,7 @@ function toggleTask(id, el){
     }
     mascotHappy();
     bumpDoneCount();
+    playSound("done");
     render();
     showToast("✓ "+t.title+" done for today ↻ next: "+fmtDue(t.due));
     maybeCelebrateClear(wasDue);
@@ -2549,6 +2734,7 @@ function toggleTask(id, el){
   save();
   if(t.done && el){
     hapt();
+    playSound("done");
     const r = el.getBoundingClientRect();
     confettiBurst(r.left + r.width/2, r.top + r.height/2, spaceOf(t).color);
     mascotHappy();
@@ -2730,6 +2916,7 @@ let parts = [], rafId = null;
 function sizeCanvas(){ cvs.width = innerWidth; cvs.height = innerHeight; }
 addEventListener("resize", sizeCanvas); sizeCanvas();
 function confettiBurst(x, y, color){
+  if(!featOn("confetti")) return;
   const colors = [color||"#8b7cff", "#38d6f5", "#fbbf24", "#fb7185", "#34d399", "#ffffff"];
   for(let i=0;i<26;i++){
     const a = Math.random()*Math.PI*2, sp = 2+Math.random()*4.5;
@@ -2781,7 +2968,7 @@ function openTaskMenu(taskId, x, y){
 function closePopover(){
   const p = $("#popover");
   if(!p || p.style.display !== "block" || p.classList.contains("closing")) return;
-  if(REDUCE_MOTION){ p.style.display = "none"; return; }
+  if(isReduced()){ p.style.display = "none"; return; }
   p.classList.add("closing");
   closePopover._t = setTimeout(()=>{ p.classList.remove("closing"); p.style.display = "none"; }, 110);
 }
@@ -3451,14 +3638,61 @@ function openAppModal(appId){
   setTimeout(()=>{ const f=$("#modal-root .f-title"); if(f && !f.value) f.focus(); }, 40);
 }
 
+/* ---------------- swipe actions (mobile): right = done, left = delete ---------------- */
+function bindSwipes(container){
+  if(!featOn("swipes") || !isMobile()) return;
+  $$(".task", container).forEach(row=>{
+    if(row.dataset.sw) return;
+    row.dataset.sw = "1";
+    let sx = 0, sy = 0, dx = 0, active = false, canceled = false;
+    row.addEventListener("touchstart", e=>{
+      const t = e.touches[0]; if(!t) return;
+      sx = t.clientX; sy = t.clientY; dx = 0; active = true; canceled = false;
+    }, {passive:true});
+    row.addEventListener("touchmove", e=>{
+      if(!active || canceled) return;
+      const t = e.touches[0]; if(!t) return;
+      dx = t.clientX - sx;
+      if(Math.abs(t.clientY - sy) > 30 || ui._lifting){
+        canceled = true;
+        row.style.transform = "";
+        row.classList.remove("swipe-r","swipe-l");
+        return;
+      }
+      if(Math.abs(dx) > 12){
+        row.style.transform = "translateX("+(dx*.85).toFixed(0)+"px)";
+        row.classList.toggle("swipe-r", dx > 55);
+        row.classList.toggle("swipe-l", dx < -55);
+      }
+    }, {passive:true});
+    const endS = ()=>{
+      if(!active) return;
+      active = false;
+      row.style.transition = "transform .25s cubic-bezier(.25,.8,.3,1)";
+      row.style.transform = "";
+      setTimeout(()=>{ row.style.transition = ""; }, 260);
+      const id = row.dataset.id;
+      if(!canceled && id){
+        if(dx > 75) toggleTask(id, row);
+        else if(dx < -75) deleteTasks([id]);
+      }
+      row.classList.remove("swipe-r","swipe-l");
+      dx = 0;
+    };
+    row.addEventListener("touchend", endS);
+    row.addEventListener("touchcancel", endS);
+  });
+}
+
 /* ---------------- bento dashboard tiles ---------------- */
 function focusTile(){
   const m = focusToday();
+  const goal = (state.prefs && +state.prefs.focusGoal) || FOCUS_GOAL;
   const C = 2*Math.PI*23;
-  const pct = Math.min(1, m/FOCUS_GOAL);
+  const pct = Math.min(1, m/goal);
   return '<div class="stat tile2" style="--sc:var(--accent)">'+
     '<svg class="focus-ring" viewBox="0 0 52 52" aria-hidden="true"><circle class="bgc" cx="26" cy="26" r="23"/><circle class="fgc" cx="26" cy="26" r="23" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+(C*(1-pct)).toFixed(1)+'"/></svg>'+
-    '<div style="flex:1;min-width:0"><div class="num" style="font-size:20px">'+fmtMin(m)+'<span style="font-size:12px;color:var(--faint);font-weight:600"> / '+FOCUS_GOAL+'m goal</span></div>'+
+    '<div style="flex:1;min-width:0"><div class="num" style="font-size:20px">'+fmtMin(m)+'<span style="font-size:12px;color:var(--faint);font-weight:600"> / '+goal+'m goal</span></div>'+
     '<div class="lbl">Focused today</div></div>'+
     '<button class="btn ghost" data-act="focus-task" style="flex-shrink:0">🎯 Focus</button>'+
   '</div>';
@@ -3511,7 +3745,8 @@ function focusToday(){ return Math.round(+((state.focus||{})[todayStr()])||0); }
 
 function startFocus(taskId){
   const t = taskId ? state.tasks.find(x=>x.id===taskId) : null;
-  fsess = { taskId: t?t.id:null, title: t?t.title:"Deep focus", end: Date.now()+FOCUS_LEN, remain:null, total:FOCUS_LEN };
+  const flen = ((state.prefs && +state.prefs.focusLen) || 25) * 60000;
+  fsess = { taskId: t?t.id:null, title: t?t.title:"Deep focus", end: Date.now()+flen, remain:null, total:flen };
   fsSave(); renderFocusPill();
   document.body.classList.add("focus-on");
   hapt();
@@ -3531,11 +3766,14 @@ function logFocus(mins){
 }
 function stopFocus(finished){
   if(!fsess) return;
-  const spent = Math.round((fsess.total - fsRemain())/60000);
+  const total = fsess.total;
+  const spent = Math.round((total - fsRemain())/60000);
   fsess = null; fsSave();
   document.body.classList.remove("focus-on");
+  document.title = "Orbit: Tasks & Notes";
   if(finished){
-    logFocus(Math.round(FOCUS_LEN/60000));
+    logFocus(Math.round(total/60000));
+    playSound("focus");
     confettiBurst(innerWidth/2, innerHeight-110, "#8f7be8");
     mascotHappy();
     showToast("🎯 25 focused minutes done · "+fmtMin(focusToday())+" today");
@@ -3563,12 +3801,13 @@ function renderFocusPill(){
 function updateFocusPill(){
   if(!fsess) return;
   const rem = fsRemain();
+  const sec = Math.ceil(rem/1000);
+  const clock = Math.floor(sec/60)+":"+pad(sec%60);
   const tEl = $("#f-time"), rEl = $("#f-ring");
-  if(tEl){
-    const sec = Math.ceil(rem/1000);
-    tEl.textContent = Math.floor(sec/60)+":"+pad(sec%60);
-  }
+  if(tEl) tEl.textContent = clock;
   if(rEl) rEl.style.strokeDashoffset = (2*Math.PI*13 * (rem/fsess.total)).toFixed(1);
+  /* live countdown in the tab title, like a Live Activity */
+  document.title = "("+clock+") Orbit";
 }
 setInterval(()=>{
   if(!fsess) return;
@@ -3826,6 +4065,7 @@ document.addEventListener("click", e=>{
       else {
         hb.days[day] = true;
         hapt();
+        playSound("pop");
         const r = el.getBoundingClientRect();
         confettiBurst(r.left + r.width/2, r.top + r.height/2, hb.color||"#30a46c");
         if(day===todayStr() && state.habits.every(x=>x.days && x.days[todayStr()])){
@@ -3980,6 +4220,77 @@ document.addEventListener("click", e=>{
       if(mascotOn) mascotSay("I'm back! 🪐");
       break;
     }
+    case "glass-mode": {
+      state.prefs.glass = el.dataset.v;
+      $$(".pick", el.parentElement).forEach(b=>b.classList.toggle("on", b===el));
+      applyLook(); save();
+      break;
+    }
+    case "ftog": {
+      const k = el.dataset.k;
+      const next = !featOn(k);
+      state.prefs.features[k] = next;
+      el.classList.toggle("on", next);
+      el.setAttribute("aria-checked", String(next));
+      save();
+      if(k==="voice" || k==="quotes" || k==="tips" || k==="streaks") render();
+      break;
+    }
+    case "ttog": {
+      const k = el.dataset.k;
+      const next = !tileOn(k);
+      state.prefs.tiles[k] = next;
+      el.classList.toggle("on", next);
+      el.setAttribute("aria-checked", String(next));
+      save(); render();
+      break;
+    }
+    case "den-tog": {
+      state.prefs.density = state.prefs.density==="compact" ? "cozy" : "compact";
+      el.classList.toggle("on", state.prefs.density==="compact");
+      applyLook(); save();
+      break;
+    }
+    case "motion-tog": {
+      state.prefs.reduceMotion = !state.prefs.reduceMotion;
+      el.classList.toggle("on", !!state.prefs.reduceMotion);
+      applyLook(); save();
+      break;
+    }
+    case "priv-tog": {
+      state.prefs.privacyBlur = !state.prefs.privacyBlur;
+      el.classList.toggle("on", !!state.prefs.privacyBlur);
+      save();
+      break;
+    }
+    case "notif-tog": toggleNotif(); break;
+    case "set-start": {
+      state.prefs.startView = el.dataset.v;
+      $$(".pick", el.parentElement).forEach(b=>b.classList.toggle("on", b===el));
+      save();
+      break;
+    }
+    case "set-flen": {
+      state.prefs.focusLen = +el.dataset.v;
+      $$(".pick", el.parentElement).forEach(b=>b.classList.toggle("on", b===el));
+      save();
+      break;
+    }
+    case "set-goal": {
+      state.prefs.focusGoal = +el.dataset.v;
+      $$(".pick", el.parentElement).forEach(b=>b.classList.toggle("on", b===el));
+      save(); if(ui.view==="today") render();
+      break;
+    }
+    case "ics-all": exportICS(); break;
+    case "erase-all": {
+      if(confirm("Erase ALL Orbit data in this browser? Your cloud copy (if signed in) is not touched.") && confirm("Really erase everything here? This cannot be undone locally.")){
+        try{ localStorage.clear(); }catch(e){}
+        location.reload();
+      }
+      break;
+    }
+    case "focus-task-close": { const fid = el.dataset.id; closeModal(); startFocus(fid); break; }
     case "toggle-sb": toggleSidebar(); break;
     case "mascot": if(e.target.closest("#mascot-bubble")) break; mascotClicked(); break;
     case "rename-user": renameUser(); break;
@@ -4059,6 +4370,12 @@ document.addEventListener("submit", e=>{
   }
 });
 
+document.addEventListener("change", e=>{
+  if(e.target && e.target.id==="set-cspace"){
+    state.prefs.captureSpace = e.target.value || null;
+    save();
+  }
+});
 let searchT = null;
 document.addEventListener("input", e=>{
   const t = e.target;
@@ -4132,7 +4449,15 @@ document.addEventListener("keydown", e=>{
 $("#sb-backdrop").addEventListener("click", closeSb);
 setInterval(updateClock, 30000);
 addEventListener("focus", ()=>pullCloud(false));
-document.addEventListener("visibilitychange", ()=>{ if(document.hidden) flushPush(); else pullCloud(false); });
+document.addEventListener("visibilitychange", ()=>{
+  if(document.hidden){
+    flushPush();
+    if(state.prefs && state.prefs.privacyBlur) document.body.classList.add("privacy");
+  } else {
+    document.body.classList.remove("privacy");
+    pullCloud(false);
+  }
+});
 addEventListener("pagehide", flushPush);
 
 /* swipe gestures on phones: swipe in from the left edge to open, swipe left to close */
@@ -4192,13 +4517,14 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "5.4";
+const APP_VERSION = "6.0.1";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
   localStorage.setItem("orbit-ver", APP_VERSION);
 }catch(e){}
 
+applyStartView();
 updateFab();
 render();
 initMascot();
