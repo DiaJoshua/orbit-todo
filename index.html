@@ -811,6 +811,25 @@ html[data-theme="dark"] .af-frames iframe{background:#141416}
 }
 @media(max-width:1099px){#af-pin{display:none}}
 
+/* ============ clickable stats + space fillers ============ */
+.stat.tile-go{cursor:pointer}
+.stat.tile-go:hover{border-color:color-mix(in srgb,var(--sc,var(--accent)) 50%,var(--border));transform:translateY(-2px)}
+.group-head.flash{animation:groupFlash 1s ease}
+@keyframes groupFlash{0%,60%{background:color-mix(in srgb,var(--accent) 14%,transparent);border-radius:9px}100%{background:transparent}}
+.empty-actions,.qlinks{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.empty-actions button,.qlinks button{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;
+  border:1px solid var(--border);background:var(--panel);font-size:12.5px;font-weight:600;color:var(--muted);
+  transition:.14s;box-shadow:var(--card-shadow);
+}
+.empty-actions button:hover,.qlinks button:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));transform:translateY(-1px)}
+.qlinks{margin-top:26px}
+.later-empty{font-size:12px;color:var(--faint);padding:10px 2px 0;text-align:center}
+.later-wrap{max-width:860px}
+/* mic sits flush with the Add button, same height, quiet until hover */
+.quickadd .mic{width:36px;height:36px;border-radius:10px;background:var(--panel2);align-self:center}
+.quickadd .mic:hover{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+
 /* ============ Orbie chat panel ============ */
 #orbie-panel{
   position:fixed;right:18px;bottom:90px;z-index:66;
@@ -2094,7 +2113,7 @@ function renderToday(){
   const doy = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 864e5);
   const quote = QUOTES[doy % QUOTES.length];
   const stk = streakDays();
-  const stat = (n,l,c,ico)=>'<div class="stat" style="--sc:'+c+'"><span class="s-ico">'+ico+'</span><div class="num" data-n="'+n+'">'+n+'</div><div class="lbl">'+l+'</div></div>';
+  const stat = (n,l,c,ico,act)=>'<div class="stat'+(act?" tile-go":"")+'"'+(act?' data-act="stat-go" data-k="'+act+'" role="button" tabindex="0" title="Tap to open"':'')+' style="--sc:'+c+'"><span class="s-ico">'+ico+'</span><div class="num" data-n="'+n+'">'+n+'</div><div class="lbl">'+l+'</div></div>';
   const statRaw = (n,l,c,ico)=>'<div class="stat" style="--sc:'+c+'"><span class="s-ico">'+ico+'</span><div class="num">'+n+'</div><div class="lbl">'+l+'</div></div>';
   let h = '<div class="view-inner">'+
     '<div class="greet"><h1><span class="grad">'+greet+'</span>, <span class="uname" data-act="rename-user" title="Click to change name">'+esc(state.userName)+'</span> ✨'+
@@ -2102,10 +2121,10 @@ function renderToday(){
     '<div class="sub">'+dateLine+' · <span id="now"></span></div>'+
     (featOn("quotes") ? '<div class="quote">"'+quote+'"</div>' : "")+'</div>'+
     '<div class="stats bento">'+
-      stat(dueToday.length,"Due today","var(--amber)","📆")+
-      stat(overdue.length,"Overdue","var(--rose)","⏳")+
-      stat(doneToday,"Done today","var(--green)","✅")+
-      stat(open.length,"Open tasks","var(--cyan)","🗂")+
+      stat(dueToday.length,"Due today","var(--amber)","📆","dt")+
+      stat(overdue.length,"Overdue","var(--rose)","⏳","od")+
+      stat(doneToday,"Done today","var(--green)","✅","done")+
+      stat(open.length,"Open tasks","var(--cyan)","🗂","open")+
       (tileOn("focus") ? focusTile() : "")+
       (tileOn("week") ? weekGlanceTile(open) : "")+
       (tileOn("habits") ? habitsTile() : "")+
@@ -2146,7 +2165,17 @@ function renderToday(){
 
   if(!overdue.length && !dueToday.length && !week.length){
     h += '<div class="empty"><span class="art">🪐</span><h3>'+(ui.search?"No matches":"All clear")+'</h3><p>'+
-      (ui.search?"Nothing due matches your search.":"Nothing due in the next 7 days. Add tasks in any space, or enjoy the calm.")+'</p></div>';
+      (ui.search?"Nothing due matches your search.":"Nothing due in the next 7 days. A clear runway — use it well.")+'</p>'+
+      (ui.search ? '' :
+      '<div class="empty-actions">'+
+        '<button data-act="ea-tomorrow">🌤 Plan tomorrow</button>'+
+        '<button data-act="nav-week">📆 Week planner</button>'+
+        '<button data-act="nav-habits">🌱 Habits</button>'+
+        '<button data-act="focus-task">🎯 Focus 25m</button>'+
+        '<button data-act="ea-paste">🧠 Brain-dump a list</button>'+
+        '<button data-act="ea-orbie">🪐 Ask Orbie</button>'+
+      '</div>')+
+    '</div>';
   } else {
     h += groupSection("today:od","Overdue","var(--rose)",overdue,true,
       '<button class="head-link" data-act="overdue-today">Move all to today</button>');
@@ -2383,6 +2412,14 @@ function renderListView(s){
     h += groupSection(s.id+":nd","No due date","var(--muted)",nodate,false);
     h += groupSection(s.id+":done","Completed","var(--green)",done,false,
       '<button class="clear-done" data-act="clear-done" data-id="'+s.id+'">Clear completed</button>');
+  }
+  if(!ui.search){
+    h += '<div class="qlinks">'+
+      '<button data-act="tab" data-tab="board">▦ Open the Board</button>'+
+      '<button data-act="tab" data-tab="notes">🗒 Notes ('+((s.notes||[]).length)+')</button>'+
+      '<button data-act="new-note">＋ New note</button>'+
+      '<button data-act="ea-tomorrow">🌤 Plan tomorrow</button>'+
+    '</div>';
   }
   h += uiTip("list");
   h += '</div>';
@@ -3896,7 +3933,13 @@ function renderWeek(){
   }
   let h = '<div class="view-inner wide">';
   if(od.length) h += '<div class="ov-banner">⏳ <b>'+od.length+' overdue</b>&nbsp;task'+(od.length>1?"s":"")+' from earlier days<button data-act="overdue-today">Move all to today →</button></div>';
-  h += '<div class="board week">'+cols+'</div>'+uiTip("week")+'</div>';
+  h += '<div class="board week">'+cols+'</div>';
+  const later = open.filter(t=>t.due && dayDiff(t.due)>6 && matches(t)).sort(sortTasks).slice(0,12);
+  h += '<div class="group-head" style="cursor:default"><span class="dot" style="--gc:var(--cyan)"></span>Later — beyond this week <span class="gcnt">'+later.length+'</span>'+
+       '<button class="head-link" data-act="ea-tomorrow">＋ Schedule something</button></div>';
+  if(later.length) h += '<div class="later-wrap">'+later.map((t,i)=>taskRow(t, true, i)).join("")+'</div>';
+  else h += '<div class="later-empty">Nothing scheduled beyond this week — the runway is clear ✈️</div>';
+  h += uiTip("week")+'</div>';
   $("#view").innerHTML = h;
   bindWeekDnD();
 }
@@ -4263,6 +4306,28 @@ function bindSwipes(container){
   });
 }
 
+/* ---------------- clickable stats: jump, report, plan ---------------- */
+function scrollGroup(key){
+  const el = $('.group-head[data-key="'+key+'"]');
+  if(!el){ showToast("Nothing here right now 🎉"); return; }
+  el.scrollIntoView({behavior: isReduced() ? "auto" : "smooth", block: "start"});
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  setTimeout(()=>el.classList.remove("flash"), 1100);
+}
+function openDoneToday(){
+  const done = state.tasks.filter(t=>t.completedAt===todayStr());
+  if(!done.length){ showToast("Nothing completed yet today — go get one ✅"); return; }
+  modalShell(
+    '<h2>Completed today · '+done.length+'</h2>'+
+    done.map(t=>{
+      const sp = spaceOf(t);
+      return '<div class="cl-row" style="cursor:default"><button type="button" class="check on" data-act="toggle" data-id="'+t.id+'" title="Mark not done">✓</button>'+
+        '<span style="flex:1;font-size:13.5px;padding:6px 0">'+esc(t.title)+'</span>'+
+        '<span class="chip space-chip" style="--c:'+sp.color+'">'+esc(sp.icon+" "+sp.name)+'</span></div>';
+    }).join("")+
+    '<div class="m-foot"><span class="grow"></span><button type="button" class="btn primary" data-act="close-modal">Nice ✨</button></div>');
+}
+
 /* ---------------- bento dashboard tiles ---------------- */
 function focusTile(){
   const m = focusToday();
@@ -4408,7 +4473,7 @@ document.addEventListener("click", e=>{
   const act = el.dataset.act;
   if(fromPopover) closePopover();
   /* interaction sounds, centralized: navigation ticks + control clicks */
-  if(act.indexOf("nav-")===0 || act==="tab") playSound("nav");
+  if(act.indexOf("nav-")===0 || act==="tab" || act==="stat-go") playSound("nav");
   else if(["collapse","ftog","ttog","den-tog","motion-tog","glass-mode","app-accent","app-theme","set-start","set-flen","set-goal","set-svol","set-style","app-mascot","seg-pri","pick-space","pick-stage","pick-rep","pick-emoji","swatch","due-quick","cl-toggle","stage-color","space-tpl","app-pin"].indexOf(act) > -1) playSound("switch");
   switch(act){
     case "nav-today": ui.view="today"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
@@ -4667,6 +4732,17 @@ document.addEventListener("click", e=>{
       break;
     }
     case "voice": startVoice(el); break;
+    case "stat-go": {
+      const k = el.dataset.k;
+      if(k==="dt") scrollGroup("today:dt");
+      else if(k==="od") scrollGroup("today:od");
+      else if(k==="done") openDoneToday();
+      else if(k==="open"){ ui.view = "week"; ui.spaceId = null; ui.search = ""; render(); }
+      break;
+    }
+    case "ea-tomorrow": openTaskModal(null, null, null, addDays(1)); break;
+    case "ea-paste": openPasteImport(); break;
+    case "ea-orbie": openOrbiePanel(); break;
     case "orbie-close": closeOrbieChat(); break;
     case "orbie-clear": {
       orbieLog = []; orbiePending = null; orbieSaveLog();
@@ -5150,7 +5226,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "7.0.1";
+const APP_VERSION = "7.1";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
