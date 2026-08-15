@@ -705,6 +705,25 @@ html:not([data-glass="off"]) .fsec{background:var(--glass-panel)}
 .mic.rec{color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent);animation:micPulse 1.1s ease-in-out infinite}
 @keyframes micPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.16)}}
 
+/* ============ apps hub (embedded mini-apps) ============ */
+#appframes{display:none;flex:1;min-height:0;flex-direction:column;background:var(--bg)}
+body.ext-on #view,body.ext-on #tabsrow-slot{display:none}
+body.ext-on #appframes{display:flex}
+.af-bar{display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);background:var(--tb-bg);flex-wrap:wrap}
+.af-bar .ttl{font-weight:700;font-size:13.5px;display:flex;gap:8px;align-items:center;min-width:0}
+.af-bar .hint{font-size:11px;color:var(--faint)}
+.af-bar .sp{flex:1}
+.af-bar .icon-btn.on{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.af-frames{flex:1;position:relative;min-height:0}
+.af-frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:#fff}
+.af-frames iframe.on{display:block}
+html[data-theme="dark"] .af-frames iframe{background:#141416}
+@media(min-width:1100px){
+  body.app-pinned #appframes{display:flex;position:fixed;top:0;right:0;bottom:0;width:min(440px,40vw);z-index:30;border-left:1px solid var(--border);box-shadow:-14px 0 44px rgba(0,0,0,.14);background:var(--bg)}
+  body.app-pinned #main{margin-right:min(440px,40vw)}
+}
+@media(max-width:1099px){#af-pin{display:none}}
+
 /* ============ focus timer pill ============ */
 #focus-pill{
   position:fixed;left:50%;bottom:24px;z-index:70;
@@ -765,6 +784,7 @@ body.focus-on #toast{bottom:92px}
     <header id="topbar"></header>
     <div id="tabsrow-slot"></div>
     <div id="view"></div>
+    <div id="appframes"></div>
   </main>
 </div>
 <div id="modal-root"></div>
@@ -1057,6 +1077,11 @@ function mergeStates(a, b){
     mh.days = mh.days || {};
     Object.keys(oh.days||{}).forEach(k=>{ if(oh.days[k]) mh.days[k] = true; });
   });
+  m.apps = Array.isArray(m.apps) ? m.apps : [];
+  (Array.isArray(older.apps) ? older.apps : []).forEach(oa=>{
+    if(m.apps.some(x=>x.id===oa.id || (x.url||"").toLowerCase()===(oa.url||"").toLowerCase())) return;
+    m.apps.push(JSON.parse(JSON.stringify(oa)));
+  });
   m.prefs = Object.assign({}, older.prefs||{}, m.prefs||{});
   if(!m.focus || typeof m.focus !== "object") m.focus = {};
   const oldF = (older.focus && typeof older.focus === "object") ? older.focus : {};
@@ -1173,7 +1198,7 @@ function syncLabel(){
 })();
 
 /* ---------------- ui state ---------------- */
-let ui = { view:"today", spaceId:null, tab:"tasks", pageId:null, search:"", collapsed:{}, dragTask:null };
+let ui = { view:"today", spaceId:null, tab:"tasks", pageId:null, search:"", collapsed:{}, dragTask:null, appId:null };
 let undoBuf = null;
 let undoTimer = null;
 
@@ -1215,6 +1240,10 @@ function ensureExtras(){
   if(!state.prefs || typeof state.prefs !== "object") state.prefs = {};
   if(!state.focus || typeof state.focus !== "object") state.focus = {};
   if(!Array.isArray(state.habits)) state.habits = [];
+  if(!Array.isArray(state.apps)){
+    /* first-run seed: your companion app, embedded */
+    state.apps = [{id:"app-trip", name:"Sipit · Trip money", icon:"✈️", color:"#2ab1dd", url:"https://uwing-uwi-trip.vercel.app/", createdAt:Date.now()}];
+  }
 }
 ensureExtras();
 if(state.prefs.theme==null) state.prefs.theme = theme;
@@ -1368,6 +1397,10 @@ function renderSidebar(){
         '<span class="ico">🔁</span><span class="nm">Habits</span><span class="cnt">'+(state.habits||[]).filter(x=>!(x.days&&x.days[todayStr()])).length+'</span></button>'+
       '<div class="sb-label"><span>Spaces</span><button data-act="new-space" title="New space">＋</button></div>'+
       spacesHtml+
+      '<div class="sb-label"><span>Apps</span><button data-act="new-app" title="Embed a website as an app">＋</button></div>'+
+      (state.apps||[]).map(a=>'<button class="nav-item '+(ui.view==="ext"&&ui.appId===a.id?"active"+(navMoved?" just-active":""):"")+'" style="--ac:'+esc(a.color||"#2ab1dd")+'" data-act="nav-app" data-id="'+a.id+'">'+
+        '<span class="ico">'+esc(a.icon||"🧩")+'</span><span class="nm">'+esc(a.name)+'</span>'+(pinnedApp===a.id?'<span class="cnt" title="Pinned beside Orbit">◫</span>':'')+
+      '</button>').join("")+
     '</div>'+
     '<div class="sb-foot">'+
       '<button class="mini'+(syncStatus==="on"?" on":"")+'" data-act="sync" id="sync-btn">'+syncLabel()+'</button>'+
@@ -1577,6 +1610,7 @@ function renderTopbar(){
   else if(ui.view==="pad"){ title="Notepad"; emoji="🗒"; }
   else if(ui.view==="week"){ title="Week"; emoji="📆"; }
   else if(ui.view==="habits"){ title="Habits"; emoji="🔁"; }
+  else if(ui.view==="ext"){ const a0 = getApp(ui.appId); title = a0 ? a0.name : "App"; emoji = a0 ? a0.icon : "🧩"; }
   else { const s=getSpace(ui.spaceId); title=s?s.name:"Orbit"; emoji=s?s.icon:""; }
   $("#topbar").innerHTML =
     '<button class="icon-btn" id="menu-btn" data-act="toggle-sb" title="Show or hide the sidebar">'+MENU_SVG+'</button>'+
@@ -2101,6 +2135,7 @@ function renderView(){
   else if(ui.view==="pad"){ renderPad(); }
   else if(ui.view==="week"){ renderWeek(); }
   else if(ui.view==="habits"){ renderHabits(); }
+  else if(ui.view==="ext"){ $("#view").innerHTML = ""; }
   else {
     const s = getSpace(ui.spaceId);
     if(ui.tab==="board"){ renderBoardView(s); bindBoardDnD(); }
@@ -2124,7 +2159,7 @@ function render(){
   if(_renderRaf) return;
   _renderRaf = requestAnimationFrame(()=>{
     _renderRaf = null;
-    renderSidebar(); renderTopbar(); renderTabs(); renderView();
+    renderSidebar(); renderTopbar(); renderTabs(); renderView(); renderAppframes();
   });
 }
 
@@ -2282,6 +2317,9 @@ function cmdActions(){
     acts.push({icon:s.icon, label:"Go to "+s.name, run:nav("space", s.id, "tasks")});
     acts.push({icon:"▦", label:s.name+": Board", run:nav("space", s.id, "board")});
   });
+  (state.apps||[]).forEach(a=>{
+    acts.push({icon:a.icon||"🧩", label:"Open "+a.name+" (app)", run:()=>{ ui.view="ext"; ui.appId=a.id; ui.search=""; closeSb(); render(); }});
+  });
   (state.pages||[]).forEach(p=>{
     acts.push({icon:p.icon||"📝", label:"Page: "+p.title, run:()=>{ ui.view="pad"; ui.pageId=p.id; ui.spaceId=null; ui.search=""; closeSb(); render(); }});
   });
@@ -2290,6 +2328,7 @@ function cmdActions(){
     {icon:"📌", label:"New note (pinned to dashboard)", run:()=>openNoteModal(defaultNotesSpaceId(), null, true)},
     {icon:"🪐", label:"New space", run:()=>openSpaceModal(null)},
     {icon:"🌱", label:"New habit", run:()=>openHabitModal(null)},
+    {icon:"🧩", label:"Add an app (embed a website)", run:()=>openAppModal(null)},
     {icon:theme==="dark"?"☀️":"🌙", label:theme==="dark"?"Switch to light mode":"Switch to dark mode", run:toggleTheme},
     {icon:"🎯", label:"Focus for 25 minutes", run:()=>startFocus(null)},
     {icon:"🎨", label:"Appearance & style", run:openAppearance},
@@ -2534,6 +2573,7 @@ function applyUndo(){
   const b = undoBuf; undoBuf = null;
   if(b.type==="note"){ const sp = getSpace(b.spaceId) || state.spaces[0]; if(sp){ sp.notes = sp.notes || []; sp.notes.push(b.note); ui._justAdded = b.note.id; } }
   else if(b.type==="habit"){ state.habits = state.habits || []; state.habits.push(b.habit); }
+  else if(b.type==="app"){ state.apps = state.apps || []; state.apps.push(b.app); }
   else if(b.type==="space"){ state.spaces.push(b.space); state.tasks.push(...b.tasks); }
   else if(b.tasks){ state.tasks.push(...b.tasks); }
   save(); render(); hideToast();
@@ -3330,6 +3370,87 @@ function openShortcuts(){
     '<div class="m-foot"><span class="grow"></span><button type="button" class="btn primary" data-act="close-modal">Done</button></div>');
 }
 
+/* ================================================================
+   APPS HUB · embed your other web apps (like the Sipit trip
+   calculator) inside Orbit. Frames stay mounted, so the app keeps
+   its state while you flip between views — and on wide screens you
+   can pin it beside Orbit and use both at the same time.
+   ================================================================ */
+const getApp = id=>(state.apps||[]).find(a=>a.id===id);
+let extFrames = {};
+let pinnedApp = null;
+try{ pinnedApp = localStorage.getItem("orbit-app-pin") || null; }catch(e){}
+const currentAppId = ()=> (ui.view==="ext" ? ui.appId : null) || pinnedApp;
+
+function mountApp(app){
+  const wrap = $("#af-frames"); if(!wrap) return;
+  let f = extFrames[app.id];
+  if(!f){
+    f = document.createElement("iframe");
+    f.src = app.url;
+    f.setAttribute("sandbox","allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals");
+    f.setAttribute("allow","clipboard-write; fullscreen; geolocation");
+    f.setAttribute("title", app.name);
+    f.dataset.app = app.id;
+    extFrames[app.id] = f;
+    wrap.appendChild(f);
+  }
+  Object.keys(extFrames).forEach(k=>extFrames[k].classList.toggle("on", k===app.id));
+}
+function renderAppframes(){
+  const host = $("#appframes"); if(!host) return;
+  if(pinnedApp && !getApp(pinnedApp)){ pinnedApp = null; try{ localStorage.removeItem("orbit-app-pin"); }catch(e){} }
+  const pinnedMode = !!pinnedApp;
+  document.body.classList.toggle("app-pinned", pinnedMode);
+  document.body.classList.toggle("ext-on", ui.view==="ext" && !pinnedMode);
+  const app = getApp(currentAppId());
+  if(!app) return;
+  if(!host.dataset.built){
+    host.innerHTML =
+      '<div class="af-bar">'+
+        '<span class="ttl" id="af-ttl"></span><span class="hint" id="af-hint"></span><span class="sp"></span>'+
+        '<button class="icon-btn" data-act="app-edit" title="Edit app">✏️</button>'+
+        '<button class="icon-btn" data-act="app-reload" title="Reload app">↻</button>'+
+        '<button class="icon-btn" id="af-pin" data-act="app-pin" title="Pin beside Orbit (side by side)">◫</button>'+
+        '<button class="icon-btn" data-act="app-open" title="Open in a new tab">↗</button>'+
+        '<button class="icon-btn" data-act="app-close" title="Close">✕</button>'+
+      '</div>'+
+      '<div class="af-frames" id="af-frames"></div>';
+    host.dataset.built = "1";
+  }
+  const t2 = $("#af-ttl"); if(t2) t2.innerHTML = esc(app.icon||"🧩")+" "+esc(app.name);
+  const h2 = $("#af-hint"); if(h2) h2.textContent = pinnedMode ? "pinned · Orbit and the app, side by side" : "runs live inside Orbit · state is kept";
+  const pb = $("#af-pin"); if(pb) pb.classList.toggle("on", pinnedMode);
+  mountApp(app);
+}
+function openAppModal(appId){
+  const a = appId ? getApp(appId) : null;
+  const color = a ? a.color : "#2ab1dd";
+  const icon0 = a ? (a.icon||"🧩") : "🧩";
+  const APP_EMOJIS = "🧩 ✈️ 🧮 🗺 💱 🌤 📈 🎧 📰 🧭 🛫 🏝 🚗 💼 🔧 ⭐ 🎬 🛒".split(" ");
+  modalShell(
+    '<h2>'+(a?"Edit app":"Add an app")+'</h2>'+
+    '<div class="info">Embed any website as an app inside Orbit. It keeps running while you work, and your app list syncs to every device.</div>'+
+    '<form data-form="app" data-id="'+(a?a.id:"")+'">'+
+      '<input class="f-title" name="name" placeholder="App name (e.g. Trip calculator)" value="'+esc(a?a.name:"")+'" required autocomplete="off">'+
+      '<label class="f-field" style="margin-top:12px"><span>Web address (URL)</span><input name="url" placeholder="https://…" value="'+esc(a?a.url:"")+'" required autocomplete="off"></label>'+
+      '<div class="fsec"><div class="fsec-t">😀 Icon</div>'+
+        '<div class="emoji-grid" id="emoji-grid">'+APP_EMOJIS.map(e2=>'<button type="button" data-act="pick-emoji" data-e="'+e2+'" class="'+(e2===icon0?"on":"")+'">'+e2+'</button>').join("")+'</div>'+
+        '<input type="hidden" name="icon" value="'+esc(icon0)+'">'+
+      '</div>'+
+      '<div class="fsec"><div class="fsec-t">🎨 Color</div><div class="swatches">'+
+        SPACE_COLORS.map(c=>'<button type="button" class="swatch'+(c===color?" active":"")+'" style="background:'+c+';--swc:'+c+'" data-act="swatch" data-c="'+c+'"></button>').join("")+
+      '</div><input type="hidden" name="color" value="'+esc(color)+'"></div>'+
+      '<div class="m-foot">'+
+        (a?'<button type="button" class="btn danger" data-act="del-app" data-id="'+a.id+'">Delete</button>':"")+
+        '<span class="grow"></span>'+
+        '<button type="button" class="btn ghost" data-act="close-modal">Cancel</button>'+
+        '<button type="submit" class="btn primary">'+(a?"Save":"Add app")+'</button>'+
+      '</div>'+
+    '</form>');
+  setTimeout(()=>{ const f=$("#modal-root .f-title"); if(f && !f.value) f.focus(); }, 40);
+}
+
 /* ---------------- bento dashboard tiles ---------------- */
 function focusTile(){
   const m = focusToday();
@@ -3726,6 +3847,47 @@ document.addEventListener("click", e=>{
       showToast(n ? "✓ Added "+n+" task"+(n>1?"s":"") : "Nothing to add");
       break;
     }
+    case "nav-app": {
+      if(pinnedApp===el.dataset.id){ pinnedApp = null; try{ localStorage.removeItem("orbit-app-pin"); }catch(e){} }
+      ui.view = "ext"; ui.appId = el.dataset.id; ui.search = "";
+      closeSb(); render();
+      break;
+    }
+    case "new-app": openAppModal(null); break;
+    case "app-edit": openAppModal(currentAppId()); break;
+    case "app-open": { const a = getApp(currentAppId()); if(a) window.open(a.url, "_blank"); break; }
+    case "app-reload": { const f = extFrames[currentAppId()]; if(f){ f.src = f.src; showToast("App reloaded"); } break; }
+    case "app-pin": {
+      if(pinnedApp){
+        ui.appId = pinnedApp; ui.view = "ext";
+        pinnedApp = null;
+        try{ localStorage.removeItem("orbit-app-pin"); }catch(e){}
+      } else {
+        if((innerWidth||0) < 1100){ showToast("Pinning needs a wider window — keeping full view"); break; }
+        pinnedApp = currentAppId();
+        try{ localStorage.setItem("orbit-app-pin", pinnedApp); }catch(e){}
+        if(ui.view==="ext") ui.view = "today";
+        showToast("◫ Pinned — Orbit and the app, side by side");
+      }
+      render();
+      break;
+    }
+    case "app-close": {
+      if(pinnedApp){ pinnedApp = null; try{ localStorage.removeItem("orbit-app-pin"); }catch(e){} }
+      else if(ui.view==="ext"){ ui.view = "today"; }
+      render();
+      break;
+    }
+    case "del-app": {
+      const a = getApp(el.dataset.id); if(!a) break;
+      state.apps = state.apps.filter(x=>x.id!==a.id);
+      if(extFrames[a.id]){ try{ extFrames[a.id].remove(); }catch(e){} delete extFrames[a.id]; }
+      if(pinnedApp===a.id){ pinnedApp = null; try{ localStorage.removeItem("orbit-app-pin"); }catch(e){} }
+      if(ui.view==="ext" && ui.appId===a.id){ ui.view = "today"; ui.appId = null; }
+      undoBuf = {type:"app", app:a};
+      save(); closeModal(); render(); showToast("App removed", true);
+      break;
+    }
     case "pick-space": {
       const form = el.closest("form"); if(!form) break;
       const nsp = getSpace(el.dataset.id); if(!nsp) break;
@@ -3848,6 +4010,29 @@ document.addEventListener("submit", e=>{
     state.tasks.push(nt);
     ui._justAdded = nt.id;
     save(); ui._focusQA = true; render();
+  }
+  else if(kind==="app"){
+    const name = f.elements["name"].value.trim();
+    let url = f.elements["url"].value.trim();
+    if(!name || !url) return;
+    if(!/^https?:\/\//i.test(url)) url = "https://"+url;
+    try{ new URL(url); }catch(err){ showToast("That URL doesn't look right"); return; }
+    const id = f.dataset.id;
+    const icon = f.elements["icon"].value || "🧩";
+    const color = f.elements["color"].value;
+    if(id){
+      const a = getApp(id);
+      if(a){
+        const changed = a.url !== url;
+        Object.assign(a, {name:name, url:url, icon:icon, color:color});
+        if(changed && extFrames[id]) extFrames[id].src = url;
+      }
+    } else {
+      const a = {id:uid(), name:name, url:url, icon:icon, color:color, createdAt:Date.now()};
+      state.apps.push(a);
+      ui.view = "ext"; ui.appId = a.id;
+    }
+    save(); closeModal(); render();
   }
   else if(kind==="habit"){
     const name = f.elements["name"].value.trim(); if(!name) return;
@@ -4007,7 +4192,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "5.3";
+const APP_VERSION = "5.4";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
@@ -4040,6 +4225,11 @@ function handleDeepLinks(q){
     const out = orbieAddTask(shared.slice(0,160));
     if(out){ showToast("✓ Saved from share: "+out.p.title); mascotHappy(); }
     used = true;
+  }
+  const ap = q.get("app");
+  if(ap){
+    const a = (state.apps||[]).find(x=>x.id===ap || (x.name||"").toLowerCase().indexOf(ap.toLowerCase()) > -1);
+    if(a){ ui.view = "ext"; ui.appId = a.id; render(); used = true; }
   }
   const vw = q.get("view");
   if(vw && ["today","week","habits","pad"].indexOf(vw) > -1){ ui.view = vw; ui.spaceId = null; render(); used = true; }
