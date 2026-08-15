@@ -1,7 +1,7 @@
 /* Orbit service worker — offline shell + fast repeat loads.
    Network-first for the app itself (updates land on next open),
    cache fallback when offline. */
-const CACHE = "orbit-v6.0.1";
+const CACHE = "orbit-v6.2.2";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon.svg", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {

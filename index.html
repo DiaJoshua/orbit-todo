@@ -30,8 +30,8 @@
   --chip-bg:rgba(28,28,32,.055);
   --track:rgba(28,28,32,.08);
   --col-bg:rgba(255,255,255,.6);
-  --sb-bg:rgba(250,250,248,.82);
-  --tb-bg:rgba(247,247,245,.8);
+  --sb-bg:rgba(250,250,248,.72);
+  --tb-bg:rgba(247,247,245,.66);
   --modal-bg:#ffffff;
   --toast-bg:#ffffff;
   --overlay-bg:rgba(28,28,34,.3);
@@ -57,8 +57,8 @@ html[data-theme="dark"]{
   --chip-bg:rgba(255,255,255,.07);
   --track:rgba(255,255,255,.08);
   --col-bg:rgba(255,255,255,.025);
-  --sb-bg:rgba(23,23,26,.85);
-  --tb-bg:rgba(21,21,23,.7);
+  --sb-bg:rgba(23,23,26,.7);
+  --tb-bg:rgba(21,21,23,.58);
   --modal-bg:#202023;
   --toast-bg:#232326;
   --overlay-bg:rgba(0,0,0,.55);
@@ -75,8 +75,10 @@ html[data-theme="dark"]{
 /* ============ glass materials (Apple-style translucency) ============ */
 :root{--glass-bg:rgba(253,253,252,.72);--glass-panel:rgba(255,255,255,.55)}
 html[data-theme="dark"]{--glass-bg:rgba(28,28,32,.74);--glass-panel:rgba(255,255,255,.05)}
-:root{--panel-g:rgba(255,255,255,.6);--bg2-g:rgba(255,255,255,.52);--edge:rgba(255,255,255,.55)}
-html[data-theme="dark"]{--panel-g:rgba(255,255,255,.055);--bg2-g:rgba(255,255,255,.045);--edge:rgba(255,255,255,.08)}
+:root{--panel-g:rgba(255,255,255,.55);--bg2-g:rgba(255,255,255,.42);--edge:rgba(255,255,255,.6)}
+html[data-theme="dark"]{--panel-g:rgba(20,20,24,.55);--bg2-g:rgba(26,26,31,.5);--edge:rgba(255,255,255,.08)}
+html[data-glass="max"]{--panel-g:rgba(255,255,255,.38);--bg2-g:rgba(255,255,255,.3);--glass-bg:rgba(253,253,252,.55)}
+html[data-theme="dark"][data-glass="max"]{--panel-g:rgba(16,16,20,.45);--bg2-g:rgba(20,20,25,.4);--glass-bg:rgba(24,24,28,.55)}
 /* Liquid Glass: every surface goes translucent over the ambient glow.
    Cheap by design — per-card blur only in Max mode below. */
 html:not([data-glass="off"]) .task,
@@ -97,7 +99,6 @@ html:not([data-glass="off"]) .sb-foot .mini{
 html:not([data-glass="off"]) .card{background:var(--bg2-g)}
 html:not([data-glass="off"]) .task:hover{background:var(--bg2-g)}
 html:not([data-glass="off"]) #scratch-pad{background:var(--panel-g);box-shadow:inset 0 1px 0 var(--edge), var(--card-shadow)}
-html[data-glass="max"] #bg-glow::before,html[data-glass="max"] #bg-glow::after{opacity:calc(var(--glow-op)*1.9)}
 @supports ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){
   html[data-glass="max"] .task,
   html[data-glass="max"] .card,
@@ -107,8 +108,8 @@ html[data-glass="max"] #bg-glow::before,html[data-glass="max"] #bg-glow::after{o
   html[data-glass="max"] .quickadd,
   html[data-glass="max"] .col,
   html[data-glass="max"] .tabs{
-    backdrop-filter:blur(14px) saturate(1.5);
-    -webkit-backdrop-filter:blur(14px) saturate(1.5);
+    backdrop-filter:blur(18px) saturate(1.6);
+    -webkit-backdrop-filter:blur(18px) saturate(1.6);
   }
 }
 
@@ -128,8 +129,7 @@ html[data-motion="reduce"] *,html[data-motion="reduce"] *::before,html[data-moti
 .task.swipe-r{background:color-mix(in srgb,var(--green) 16%,var(--panel)) !important;border-color:color-mix(in srgb,var(--green) 45%,var(--border)) !important}
 .task.swipe-l{background:color-mix(in srgb,var(--rose) 16%,var(--panel)) !important;border-color:color-mix(in srgb,var(--rose) 45%,var(--border)) !important}
 
-/* privacy blur (blurs Orbit the moment you switch away) */
-body.privacy #app{filter:blur(22px)}
+
 .set-sel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:13px;outline:none;max-width:190px;color:var(--text)}
 .set-sel:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
 
@@ -181,16 +181,24 @@ html.vt-theme::view-transition-new(root){animation:none;mix-blend-mode:normal}
 html.vt-theme::view-transition-old(root){z-index:1}
 html.vt-theme::view-transition-new(root){z-index:2}
 
-/* ============ ambient glow ============ */
+/* ============ ambient atmosphere — the light source behind the glass ============ */
 #bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-#bg-glow::before,#bg-glow::after{
+#bg-glow::before,#bg-glow::after,#bg-glow i{
   content:"";position:absolute;width:52vw;height:52vw;border-radius:50%;
-  filter:blur(150px);opacity:var(--glow-op);
+  filter:blur(110px);opacity:var(--glow-op);display:block;
   animation:drift 45s ease-in-out infinite alternate;
 }
-#bg-glow::before{background:#6e56cf;top:-24vw;left:-16vw}
-#bg-glow::after{background:#2f7fe0;bottom:-28vw;right:-16vw;animation-delay:-22s}
-@keyframes drift{from{transform:translate(0,0)}to{transform:translate(3vw,3vh) scale(1.06)}}
+#bg-glow::before{background:#8b5cf6;top:-22vw;left:-14vw}
+#bg-glow::after{background:#3b82f6;bottom:-26vw;right:-14vw;animation-delay:-22s}
+#bg-glow .g3{background:color-mix(in srgb,var(--accent) 85%,#ffffff);top:26%;left:56%;width:42vw;height:42vw;animation-delay:-11s;animation-duration:56s}
+#bg-glow .g4{background:#f59e0b;bottom:-16vw;left:20%;width:38vw;height:38vw;animation-delay:-33s;animation-duration:62s;opacity:calc(var(--glow-op)*.65)}
+@keyframes drift{from{transform:translate(0,0)}to{transform:translate(3vw,3vh) scale(1.07)}}
+/* the atmosphere turns up with each glass level — this is what makes
+   Off, Frosted and Max unmistakably different */
+html[data-glass="on"]{--glow-op:.42}
+html[data-theme="dark"][data-glass="on"]{--glow-op:.2}
+html[data-glass="max"]{--glow-op:.62}
+html[data-theme="dark"][data-glass="max"]{--glow-op:.3}
 
 /* ============ layout ============ */
 #app{position:relative;z-index:1;display:flex;height:100vh}
@@ -606,9 +614,11 @@ html:not([data-glass="off"]) .fsec{background:var(--glass-panel)}
 .stage-row .sg-dot:hover i{transform:scale(1.3)}
 
 /* ============ appearance panel ============ */
-.ap-row{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--border)}
+.ap-row{display:flex;align-items:center;gap:10px 14px;padding:12px 2px;border-bottom:1px solid var(--border);flex-wrap:wrap}
 .ap-row.last{border-bottom:none}
-.ap-row .ap-l{flex:1;min-width:0}
+.ap-row .ap-l{flex:1 1 175px;min-width:150px}
+.ap-row .pick-row{margin-left:auto;justify-content:flex-end}
+.ap-row .switch,.ap-row .set-sel,.ap-row .btn{margin-left:auto}
 .ap-row .ap-t{font-weight:600;font-size:13.5px}
 .ap-row .ap-s{font-size:11.5px;color:var(--faint);margin-top:1px}
 .switch{position:relative;width:42px;height:26px;border-radius:999px;background:var(--track);border:1px solid var(--border);transition:background .2s,border-color .2s;flex-shrink:0;cursor:pointer}
@@ -830,7 +840,7 @@ body.focus-on #toast{bottom:92px}
   .searchwrap{order:10;flex:1 0 100%;width:auto;max-width:none}
   .btn.primary{padding:8px 12px;flex-shrink:0}
   .btn.primary .bt-txt{display:none}
-  #menu-btn,#theme-btn{flex-shrink:0}
+  #menu-btn,#theme-btn,#sound-btn{flex-shrink:0}
   .kbd-hint{display:none}
   .f-grid{grid-template-columns:1fr}
 }
@@ -842,7 +852,7 @@ body.focus-on #toast{bottom:92px}
 </style>
 </head>
 <body>
-<div id="bg-glow"></div>
+<div id="bg-glow"><i class="g3"></i><i class="g4"></i></div>
 <div id="app">
   <aside id="sidebar"></aside>
   <div id="sb-backdrop"></div>
@@ -1289,6 +1299,8 @@ function currentAccent(){
 const MARK_SVG = '<svg width="17" height="17" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="104" fill="#fff" opacity=".97"/><ellipse cx="256" cy="256" rx="196" ry="72" fill="none" stroke="#fff" stroke-width="32" opacity=".9" transform="rotate(-18 256 256)"/></svg>';
 const SEARCH_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const MENU_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+const SND_ON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6.5 8.5H3v7h3.5L11 19V5z" fill="currentColor" stroke="none"/><path d="M15.5 8.8a4.4 4.4 0 0 1 0 6.4M18.4 6a8.4 8.4 0 0 1 0 12"/></svg>';
+const SND_OFF_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6.5 8.5H3v7h3.5L11 19V5z" fill="currentColor" stroke="none"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></svg>';
 const SUN_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
 const MOON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.6 14.3A8.7 8.7 0 0 1 9.7 3.4a8.8 8.8 0 1 0 10.9 10.9z"/></svg>';
 
@@ -1317,7 +1329,8 @@ function ensureExtras(){
   }
   if(!state.prefs.features || typeof state.prefs.features !== "object") state.prefs.features = {};
   if(!state.prefs.tiles || typeof state.prefs.tiles !== "object") state.prefs.tiles = {};
-  if(state.prefs.lockHash) state.prefs.lockHash = null; /* app lock removed in 6.0.1 */
+  if(state.prefs.lockHash) state.prefs.lockHash = null; /* app lock removed */
+  if(state.prefs.privacyBlur!=null) delete state.prefs.privacyBlur; /* removed — it never had a visible effect */
 }
 ensureExtras();
 if(state.prefs.theme==null) state.prefs.theme = theme;
@@ -1325,7 +1338,7 @@ if(state.prefs.mascot==null){ let m0 = true; try{ m0 = localStorage.getItem("orb
 if(state.prefs.glass==null) state.prefs.glass = "on";
 
 /* every feature is toggleable — defaults are all on except nothing */
-const FEAT_DEFAULTS = {confetti:true, sounds:true, haptics:true, voice:true, tips:true, quotes:true, streaks:true, swipes:true};
+const FEAT_DEFAULTS = {confetti:true, sounds:true, haptics:true, voice:true, tips:true, quotes:true, streaks:true, swipes:true, hover:true};
 function featOn(k){
   const f = (state.prefs && state.prefs.features) || {};
   return f[k]==null ? (FEAT_DEFAULTS[k]!==false) : !!f[k];
@@ -1337,27 +1350,86 @@ function tileOn(k){
 function isReduced(){
   return REDUCE_MOTION || !!(state.prefs && state.prefs.reduceMotion);
 }
-/* tiny synthesized sounds — no audio files, fully offline */
+/* ================================================================
+   SOUND DESIGN · every action speaks. All synthesized in WebAudio,
+   zero files, fully offline. Chrome starts AudioContext suspended —
+   resume() inside the user gesture is what makes sounds actually play.
+   ================================================================ */
 let _ac = null;
+function ac(){
+  _ac = _ac || new (window.AudioContext || window.webkitAudioContext)();
+  if(_ac.state === "suspended"){ try{ _ac.resume(); }catch(e){} }
+  return _ac;
+}
+function toggleSound(){
+  const next = !featOn("sounds");
+  state.prefs.features.sounds = next;
+  save(); renderTopbar();
+  if(next) playSound("done");
+  showToast(next ? "Sounds on 🔊" : "Sounds off 🔇");
+}
 function playSound(kind){
   if(!featOn("sounds")) return;
   try{
-    _ac = _ac || new (window.AudioContext || window.webkitAudioContext)();
-    const t0 = _ac.currentTime;
-    const tone = (f, st, dur, type, gain)=>{
-      const o = _ac.createOscillator(), g = _ac.createGain();
-      o.type = type || "sine"; o.frequency.value = f;
+    const c = ac(), t0 = c.currentTime;
+    const vol = (state.prefs && +state.prefs.soundVol) || 1;
+    const tone = (f0, st, dur, o2)=>{
+      o2 = o2 || {};
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = o2.type || "sine";
+      o.frequency.setValueAtTime(f0, t0+st);
+      if(o2.to) o.frequency.exponentialRampToValueAtTime(o2.to, t0+st+dur);
       g.gain.setValueAtTime(0, t0+st);
-      g.gain.linearRampToValueAtTime(gain || .11, t0+st+.01);
+      g.gain.linearRampToValueAtTime((o2.gain || .1) * vol, t0+st+.008);
       g.gain.exponentialRampToValueAtTime(.0001, t0+st+dur);
-      o.connect(g); g.connect(_ac.destination);
+      o.connect(g); g.connect(c.destination);
       o.start(t0+st); o.stop(t0+st+dur+.05);
     };
-    if(kind==="done"){ tone(660,0,.12); tone(880,.08,.2); }
-    else if(kind==="focus"){ tone(523,0,.2); tone(659,.15,.2); tone(784,.3,.4); }
-    else if(kind==="pop"){ tone(440,0,.08,"triangle",.08); }
+    const S = {
+      tap:      ()=>tone(700,0,.05,{type:"triangle",gain:.05}),
+      hover:    ()=>tone(1900,0,.028,{gain:.015}),
+      close:    ()=>tone(470,0,.06,{type:"triangle",gain:.045}),
+      nav:      ()=>tone(880,0,.03,{gain:.03}),
+      "switch": ()=>tone(1250,0,.035,{type:"triangle",gain:.05}),
+      add:      ()=>{ tone(520,0,.07,{gain:.07}); tone(780,.05,.09,{gain:.07}); },
+      done:     ()=>{ tone(660,0,.1,{gain:.09}); tone(990,.07,.16,{gain:.09}); },
+      undone:   ()=>tone(500,0,.09,{to:360,gain:.06}),
+      pop:      ()=>tone(440,0,.07,{type:"triangle",gain:.07}),
+      "delete": ()=>tone(230,0,.12,{to:120,type:"square",gain:.05}),
+      undo:     ()=>tone(380,0,.1,{to:590,gain:.06}),
+      move:     ()=>{ tone(1400,0,.02,{type:"square",gain:.04}); tone(300,.015,.08,{gain:.08}); },
+      swish:    ()=>tone(950,0,.11,{to:280,gain:.05}),
+      error:    ()=>{ tone(175,0,.11,{type:"square",gain:.06}); tone(150,.1,.13,{type:"square",gain:.05}); },
+      sparkle:  ()=>{ tone(920,0,.06,{gain:.05}); tone(1320,.05,.06,{gain:.05}); tone(1760,.1,.1,{gain:.05}); },
+      allhabits:()=>{ tone(523,0,.09,{gain:.08}); tone(659,.08,.09,{gain:.08}); tone(784,.16,.16,{gain:.08}); },
+      "focus-start": ()=>tone(420,0,.16,{to:640,gain:.07}),
+      pause:    ()=>tone(560,0,.07,{to:470,gain:.05}),
+      resume:   ()=>tone(470,0,.07,{to:620,gain:.05}),
+      focus:    ()=>{ tone(523,0,.16,{gain:.09}); tone(659,.12,.16,{gain:.09}); tone(784,.24,.32,{gain:.09}); }
+    };
+    (S[kind] || S.tap)();
   }catch(e){}
 }
+/* prime the audio context on the first real press, so hover ticks can play
+   (browsers refuse to start audio from a hover alone) */
+document.addEventListener("pointerdown", ()=>{ if(featOn("sounds")){ try{ ac(); }catch(e){} } }, {passive:true});
+/* hover ticks: desktop pointers only, one per element, throttled, whisper-quiet */
+let _hovLast = null, _hovAt = 0;
+document.addEventListener("mouseover", e=>{
+  if(!featOn("sounds") || !featOn("hover")) return;
+  if(!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches)) return;
+  if(!_ac || _ac.state !== "running") return;
+  const el = e.target.closest && e.target.closest("button, .task, .card, .note, .note-row, .habit-row");
+  if(!el || el === _hovLast) return;
+  _hovLast = el;
+  const now = performance.now();
+  if(now - _hovAt < 70) return;
+  _hovAt = now;
+  playSound("hover");
+}, {passive:true});
+document.addEventListener("mouseout", e=>{
+  if(_hovLast && (e.target === _hovLast || _hovLast.contains(e.target)) && !_hovLast.contains(e.relatedTarget)) _hovLast = null;
+}, {passive:true});
 function applyStartView(){
   try{
     const sv = state.prefs && state.prefs.startView;
@@ -1430,6 +1502,7 @@ applyLook();
    crossfade, and to an instant switch when reduced motion is preferred. */
 function toggleTheme(x, y){
   hapt(6);
+  playSound("sparkle");
   const next = theme==="dark" ? "light" : "dark";
   const reduce = isReduced();
   if(!document.startViewTransition || reduce){
@@ -1624,7 +1697,7 @@ function commitTaskOrderFromDom(container){
       counter++;
     }
   });
-  if(changed){ save(); showToast("Reordered"); }
+  if(changed){ playSound("move"); save(); showToast("Reordered"); }
   render();
 }
 function commitNoteOrderFromDom(gridEl){
@@ -1636,7 +1709,7 @@ function commitNoteOrderFromDom(gridEl){
     }
     i++;
   });
-  if(changed){ save(); showToast("Reordered"); }
+  if(changed){ playSound("move"); save(); showToast("Reordered"); }
   render();
 }
 
@@ -1645,7 +1718,7 @@ function commitSpaceOrder(){
   const ids = $$("#sidebar .nav-item[data-id]").map(b=>b.dataset.id);
   const before = state.spaces.map(s=>s.id).join(",");
   state.spaces.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
-  if(state.spaces.map(s=>s.id).join(",") !== before){ save(); showToast("Spaces reordered"); }
+  if(state.spaces.map(s=>s.id).join(",") !== before){ playSound("move"); save(); showToast("Spaces reordered"); }
   render();
 }
 
@@ -1739,6 +1812,7 @@ function renderTopbar(){
     '<div class="tb-title"><span class="emoji">'+esc(emoji)+'</span><span class="tb-name">'+esc(title)+'</span></div>'+
     '<div class="tb-spacer"></div>'+
     '<button class="kbd-hint" data-act="cmdk" title="Command palette: jump anywhere, create anything">'+(IS_APPLE?"⌘ K":"Ctrl K")+'</button>'+
+    '<button class="icon-btn" id="sound-btn" data-act="toggle-sound" title="'+(featOn("sounds")?"Sounds on · click or press M to mute":"Sounds off · click or press M to unmute")+'" aria-pressed="'+featOn("sounds")+'">'+(featOn("sounds")?SND_ON_SVG:SND_OFF_SVG)+'</button>'+
     '<button class="icon-btn" id="theme-btn" data-act="toggle-theme" title="'+(theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(theme==="dark"?SUN_SVG:MOON_SVG)+'</button>'+
     '<div class="searchwrap">'+SEARCH_SVG+'<input id="search" placeholder="'+(isMobile()?"Search…":"Search…  ( / )")+'" value="'+esc(ui.search)+'" autocomplete="off"></div>'+
     '<button class="btn primary" data-act="new-task">＋<span class="bt-txt"> New task</span></button>';
@@ -2215,7 +2289,7 @@ function bindBoardDnD(){
       e.preventDefault(); b.classList.remove("drop-hint");
       let id = ui.dragTask; try{ id = id || e.dataTransfer.getData("text/plain"); }catch(_){}
       const t = state.tasks.find(x=>x.id===id);
-      if(t && t.stage!==b.dataset.stage){ t.stage = b.dataset.stage; ui._justMoved = t.id; save(); render(); }
+      if(t && t.stage!==b.dataset.stage){ t.stage = b.dataset.stage; ui._justMoved = t.id; playSound("move"); save(); render(); }
     });
   });
 }
@@ -2324,11 +2398,13 @@ function parseQuick(text){
 function modalShell(inner, wide){
   clearTimeout(closeModal._t);
   $("#modal-root").innerHTML = '<div class="overlay"><div class="modal'+(wide?" wide":"")+'">'+inner+'</div></div>';
+  playSound("tap");
 }
 function closeModal(){
   const root = $("#modal-root");
   const ov = root.firstElementChild;
   if(!ov) return;
+  playSound("close");
   if(isReduced()){ root.innerHTML = ""; return; }
   if(ov.classList.contains("closing")) return;
   ov.classList.add("closing");
@@ -2426,13 +2502,15 @@ function openAppearance(){
       ACCENT_PRESETS.map(c=>'<button type="button" class="swatch'+(acc===c?" active":"")+'" style="background:'+c+';--swc:'+c+'" data-act="app-accent" data-c="'+c+'" title="'+c+'"></button>').join("")+
       '<button type="button" class="swatch custom'+(acc && !isPreset?" active":"")+'" title="Custom color" style="--swc:'+(acc||"#6e56cf")+'"><input type="color" id="acc-custom" value="'+(isPreset||!acc?"#6e56cf":acc)+'"></button>'+
     '</div>'+
-    row("Liquid glass","Off · Frosted · Max (real blur on every card — needs a decent GPU)",
+    row("Liquid glass","Off = solid · Frosted = the color atmosphere shows through · Max = more transparent, real blur on every card",
       pickset("glass-mode", [["off","Off"],["on","Frosted"],["max","Max"]], p.glass==="off"?"off":(p.glass==="max"?"max":"on")))+
     row("Compact density","Tighter rows and panels, more on screen", sw(p.density==="compact","den-tog",null,"Compact density"))+
     row("Reduce motion","Turns off animations everywhere", sw(!!p.reduceMotion,"motion-tog",null,"Reduce motion"), true)+
     '<h2 style="margin-top:20px">Features</h2>'+
     frow("confetti","Confetti","Celebrate completed tasks")+
-    frow("sounds","Completion sounds","Tiny synthesized chimes — no files, fully offline")+
+    frow("sounds","Sounds & effects","Every action speaks — ticks, chimes, thocks and swishes, all synthesized offline")+
+    row("Sound volume","", pickset("set-svol", [["0.6","Quiet"],["1","Normal"],["1.5","Loud"]], String((state.prefs && state.prefs.soundVol) || 1)))+
+    frow("hover","Hover sounds","Whisper-quiet ticks as you glide over things — desktop only, arms after your first click")+
     frow("haptics","Haptics","Vibration feedback on phones")+
     frow("voice","Voice capture 🎤","Mic button on quick-add (where the browser supports it)")+
     frow("tips","Daily tips","The 💡 hint line under each view")+
@@ -2456,8 +2534,6 @@ function openAppearance(){
       pickset("set-goal", [[30,"30m"],[60,"1h"],[90,"1.5h"],[120,"2h"]], p.focusGoal||60))+
     row("Daily reminders","One notification a day about what’s due",
       '<button type="button" class="btn ghost" data-act="notif-tog">'+notifLbl+'</button>', true)+
-    '<h2 style="margin-top:20px">Privacy</h2>'+
-    row("Privacy blur","Blur Orbit the moment you switch away", sw(!!p.privacyBlur,"priv-tog",null,"Privacy blur"), true)+
     '<h2 style="margin-top:20px">Data</h2>'+
     row("Cloud sync", esc(syncLabel()), '<button type="button" class="btn ghost" data-act="sync">Manage</button>')+
     '<div class="ap-row last" style="flex-wrap:wrap;gap:8px">'+
@@ -2502,6 +2578,7 @@ function cmdActions(){
     {icon:theme==="dark"?"☀️":"🌙", label:theme==="dark"?"Switch to light mode":"Switch to dark mode", run:toggleTheme},
     {icon:"🎯", label:"Focus for 25 minutes", run:()=>startFocus(null)},
     {icon:"⚙️", label:"Settings — appearance, features, privacy", run:openAppearance},
+    {icon:featOn("sounds")?"🔊":"🔇", label:featOn("sounds")?"Mute sounds":"Unmute sounds", run:toggleSound},
     {icon:"⌨️", label:"Keyboard shortcuts", run:openShortcuts},
     {icon:"📋", label:"Paste to add many tasks", run:openPasteImport},
     {icon:"✉️", label:"Email my day", run:emailMyDay},
@@ -2549,6 +2626,7 @@ function renderCmdList(q){
 }
 function openCmd(){
   clearTimeout(closeModal._t);
+  playSound("tap");
   $("#modal-root").innerHTML = '<div class="overlay top"><div class="cmd">'+
     '<input id="cmd-in" placeholder="Jump to a space, create, switch theme…" autocomplete="off">'+
     '<div id="cmd-list"></div></div></div>';
@@ -2731,6 +2809,7 @@ function toggleTask(id, el){
   }
   t.done = !t.done;
   t.completedAt = t.done ? todayStr() : null;
+  if(!t.done) playSound("undone");
   save();
   if(t.done && el){
     hapt();
@@ -2750,6 +2829,7 @@ function deleteTasks(ids, msg){
   if(!removed.length) return;
   state.tasks = state.tasks.filter(t=>!ids.includes(t.id));
   undoBuf = {tasks:removed};
+  playSound("delete");
   save(); render();
   showToast(msg || (removed.length===1 ? "Task deleted" : removed.length+" tasks deleted"), true);
 }
@@ -2757,6 +2837,7 @@ function deleteTasks(ids, msg){
 function applyUndo(){
   if(!undoBuf) return;
   const b = undoBuf; undoBuf = null;
+  playSound("undo");
   if(b.type==="note"){ const sp = getSpace(b.spaceId) || state.spaces[0]; if(sp){ sp.notes = sp.notes || []; sp.notes.push(b.note); ui._justAdded = b.note.id; } }
   else if(b.type==="habit"){ state.habits = state.habits || []; state.habits.push(b.habit); }
   else if(b.type==="app"){ state.apps = state.apps || []; state.apps.push(b.app); }
@@ -2799,6 +2880,7 @@ function submitTask(f){
     const nt = Object.assign({id:uid(), done:false, createdAt:Date.now(), completedAt:null}, vals);
     state.tasks.push(nt);
     ui._justAdded = nt.id;
+    playSound("add");
   }
   save(); closeModal(); render();
 }
@@ -2852,6 +2934,7 @@ function padDownload(){
     a.download = "orbit-"+(pg.title||"page").toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+todayStr()+".txt";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+    playSound("swish");
     showToast("Notepad downloaded 📄");
   }catch(e){ showToast("Download failed"); }
 }
@@ -2881,6 +2964,7 @@ function doExport(){
   a.download = "orbit-backup-"+todayStr()+".json";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  playSound("swish");
   showToast("Backup downloaded 📦");
 }
 
@@ -2894,7 +2978,7 @@ $("#import-file").addEventListener("change", e=>{
       state = d; ensureExtras(); save();
       ui = {view:"today", spaceId:null, tab:"tasks", search:"", collapsed:{}, dragTask:null};
       render(); showToast("Data imported ✓");
-    }catch(err){ showToast("Import failed. Not a valid Orbit backup."); }
+    }catch(err){ playSound("error"); showToast("Import failed. Not a valid Orbit backup."); }
   };
   rd.readAsText(file);
   e.target.value = "";
@@ -3148,6 +3232,7 @@ function bumpDoneCount(){
   try{ n = (+localStorage.getItem(DONE_KEY)||0) + 1; localStorage.setItem(DONE_KEY, String(n)); }catch(e){}
   if([10,25,50,100,250,500].indexOf(n) > -1){
     mascotHappy();
+    playSound("sparkle");
     mascotSay(n+" tasks completed all time! 🏆", 3400);
     const m = $("#mascot");
     if(m){ const r = m.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+10, "#e0a83c"); }
@@ -3158,7 +3243,7 @@ function bumpDoneCount(){
 function maybeCelebrateClear(wasDueToday){
   if(!wasDueToday) return;
   const stillDue = state.tasks.some(x=>!x.done && x.due && dayDiff(x.due) <= 0);
-  if(!stillDue){ mascotHappy(); mascotSay("Everything due today is DONE 🏆", 3200); }
+  if(!stillDue){ mascotHappy(); playSound("sparkle"); mascotSay("Everything due today is DONE 🏆", 3200); }
 }
 
 /* Orbie falls asleep when you are away, wakes on activity */
@@ -3352,6 +3437,7 @@ function bindWeekDnD(){
       if(t && (t.due||null) !== day){
         t.due = day;
         ui._justMoved = t.id;
+        playSound("move");
         save(); render();
         showToast(day ? "Scheduled for "+fmtDue(day) : "Moved to No date");
       }
@@ -3467,7 +3553,7 @@ function startVoice(btn){
     inp.dispatchEvent(new Event("input",{bubbles:true}));
   };
   r.onend = ()=>{ btn.classList.remove("rec"); activeRec = null; inp.focus(); };
-  r.onerror = ()=>{ btn.classList.remove("rec"); activeRec = null; showToast("Voice input is not available here"); };
+  r.onerror = ()=>{ btn.classList.remove("rec"); activeRec = null; playSound("error"); showToast("Voice input is not available here"); };
   try{ r.start(); }catch(e){ btn.classList.remove("rec"); activeRec = null; }
 }
 
@@ -3506,7 +3592,7 @@ function emailMyDay(){
 }
 function copyMyDay(){
   const txt = dayPlanText(true);
-  try{ navigator.clipboard.writeText(txt).then(()=>showToast("Copied your day as Markdown ✓")); }
+  try{ navigator.clipboard.writeText(txt).then(()=>{ playSound("swish"); showToast("Copied your day as Markdown ✓"); }); }
   catch(e){ shareText(txt); }
 }
 function exportICS(){
@@ -3526,6 +3612,7 @@ function exportICS(){
     a.download = "orbit-calendar-"+todayStr()+".ics";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+    playSound("swish");
     showToast(ts.length+" events exported — import into any calendar 🗓");
   }catch(e){ showToast("Could not create the calendar file"); }
 }
@@ -3551,6 +3638,7 @@ function openShortcuts(){
       row("H","Habits")+
       row("P","Notepad")+
       row("F","Start a focus session")+
+      row("M","Mute / unmute sounds")+
       row(IS_APPLE?"⌘ ↵":"Ctrl ↵","Save open sheet")+
       row("Esc","Close anything")+
     '</div>'+
@@ -3750,6 +3838,7 @@ function startFocus(taskId){
   fsSave(); renderFocusPill();
   document.body.classList.add("focus-on");
   hapt();
+  playSound("focus-start");
   mascotSay("Focus time. I'll keep quiet 🤫", 2200);
 }
 function pauseFocus(){
@@ -3757,6 +3846,7 @@ function pauseFocus(){
   if(fsess.remain!=null){ fsess.end = Date.now()+fsess.remain; fsess.remain = null; }
   else fsess.remain = Math.max(0, fsess.end - Date.now());
   fsSave(); renderFocusPill();
+  playSound(fsess.remain!=null ? "pause" : "resume");
 }
 function logFocus(mins){
   if(mins<1) return;
@@ -3779,6 +3869,7 @@ function stopFocus(finished){
     showToast("🎯 25 focused minutes done · "+fmtMin(focusToday())+" today");
     render();
   } else if(spent>=1){
+    playSound("close");
     logFocus(spent);
     showToast("Focus ended · "+spent+" min counted");
     render();
@@ -3825,6 +3916,9 @@ document.addEventListener("click", e=>{
   const fromPopover = !!el.closest("#popover");
   const act = el.dataset.act;
   if(fromPopover) closePopover();
+  /* interaction sounds, centralized: navigation ticks + control clicks */
+  if(act.indexOf("nav-")===0 || act==="tab") playSound("nav");
+  else if(["collapse","ftog","ttog","den-tog","motion-tog","glass-mode","app-accent","app-theme","set-start","set-flen","set-goal","set-svol","app-mascot","seg-pri","pick-space","pick-stage","pick-rep","pick-emoji","swatch","due-quick","cl-toggle","stage-color","space-tpl","app-pin"].indexOf(act) > -1) playSound("switch");
   switch(act){
     case "nav-today": ui.view="today"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
     case "nav-pad": ui.view="pad"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
@@ -3847,6 +3941,7 @@ document.addEventListener("click", e=>{
         state.tasks = state.tasks.filter(t=>t.spaceId!==s.id);
         if(ui.spaceId===s.id){ ui.view="today"; ui.spaceId=null; }
         undoBuf = {type:"space", space:s, tasks:removedTasks};
+        playSound("delete");
         save(); closeModal(); render(); showToast("Space deleted", true);
       }
       break;
@@ -3859,6 +3954,7 @@ document.addEventListener("click", e=>{
       const note = sp && sp.notes ? sp.notes.find(n=>n.id===el.dataset.id) : null;
       if(sp && sp.notes) sp.notes = sp.notes.filter(n=>n.id!==el.dataset.id);
       if(note) undoBuf = {type:"note", spaceId:sp.id, note:note};
+      playSound("delete");
       save(); closeModal(); render(); showToast("Note deleted", !!note);
       break;
     }
@@ -3960,6 +4056,7 @@ document.addEventListener("click", e=>{
       if(idx > -1 && idx < sp.stages.length-1){
         t.stage = sp.stages[idx+1].id;
         ui._justMoved = t.id;
+        playSound("move");
         save(); render(); showToast("Moved to "+sp.stages[idx+1].name);
       }
       break;
@@ -4041,6 +4138,7 @@ document.addEventListener("click", e=>{
     case "import": $("#import-file").click(); break;
     case "undo": applyUndo(); break;
     case "sync": handleSyncClick(); break;
+    case "toggle-sound": toggleSound(); break;
     case "toggle-theme": { const tb = el.getBoundingClientRect(); toggleTheme(tb.left + tb.width/2, tb.top + tb.height/2); break; }
     case "focus-task": startFocus(el.dataset.id); break;
     case "focus-pause": pauseFocus(); break;
@@ -4054,6 +4152,7 @@ document.addEventListener("click", e=>{
       const hb = (state.habits||[]).find(x=>x.id===el.dataset.id); if(!hb) break;
       state.habits = state.habits.filter(x=>x.id!==hb.id);
       undoBuf = {type:"habit", habit:hb};
+      playSound("delete");
       save(); closeModal(); render(); showToast("Habit deleted", true);
       break;
     }
@@ -4061,7 +4160,7 @@ document.addEventListener("click", e=>{
       const hb = (state.habits||[]).find(x=>x.id===el.dataset.id); if(!hb) break;
       const day = el.dataset.day;
       if(!hb.days) hb.days = {};
-      if(hb.days[day]){ delete hb.days[day]; }
+      if(hb.days[day]){ delete hb.days[day]; playSound("undone"); }
       else {
         hb.days[day] = true;
         hapt();
@@ -4069,6 +4168,7 @@ document.addEventListener("click", e=>{
         const r = el.getBoundingClientRect();
         confettiBurst(r.left + r.width/2, r.top + r.height/2, hb.color||"#30a46c");
         if(day===todayStr() && state.habits.every(x=>x.days && x.days[todayStr()])){
+          playSound("allhabits");
           mascotHappy(); mascotSay("All habits done today! 🌟", 3000);
         }
       }
@@ -4083,6 +4183,7 @@ document.addEventListener("click", e=>{
       const lines = box.value.split("\n").map(x=>x.replace(/^[\s\-•*·]+/,"").replace(/^\[[ xX]?\]\s*/,"").trim()).filter(Boolean).slice(0,100);
       let n = 0;
       lines.forEach(l=>{ if(orbieAddTask(l)) n++; });
+      playSound(n ? "add" : "error");
       closeModal();
       showToast(n ? "✓ Added "+n+" task"+(n>1?"s":"") : "Nothing to add");
       break;
@@ -4125,6 +4226,7 @@ document.addEventListener("click", e=>{
       if(pinnedApp===a.id){ pinnedApp = null; try{ localStorage.removeItem("orbit-app-pin"); }catch(e){} }
       if(ui.view==="ext" && ui.appId===a.id){ ui.view = "today"; ui.appId = null; }
       undoBuf = {type:"app", app:a};
+      playSound("delete");
       save(); closeModal(); render(); showToast("App removed", true);
       break;
     }
@@ -4257,12 +4359,6 @@ document.addEventListener("click", e=>{
       applyLook(); save();
       break;
     }
-    case "priv-tog": {
-      state.prefs.privacyBlur = !state.prefs.privacyBlur;
-      el.classList.toggle("on", !!state.prefs.privacyBlur);
-      save();
-      break;
-    }
     case "notif-tog": toggleNotif(); break;
     case "set-start": {
       state.prefs.startView = el.dataset.v;
@@ -4280,6 +4376,13 @@ document.addEventListener("click", e=>{
       state.prefs.focusGoal = +el.dataset.v;
       $$(".pick", el.parentElement).forEach(b=>b.classList.toggle("on", b===el));
       save(); if(ui.view==="today") render();
+      break;
+    }
+    case "set-svol": {
+      state.prefs.soundVol = +el.dataset.v;
+      $$(".pick", el.parentElement).forEach(b=>b.classList.toggle("on", b===el));
+      save();
+      playSound("done"); /* instant preview at the new volume */
       break;
     }
     case "ics-all": exportICS(); break;
@@ -4308,6 +4411,7 @@ document.addEventListener("submit", e=>{
     const out = orbieAddTask(v);
     if(out){
       hapt();
+      playSound("add");
       showToast("✓ Added to "+out.sp.icon+" "+out.sp.name);
     }
     return;
@@ -4320,6 +4424,7 @@ document.addEventListener("submit", e=>{
       repeat:p.repeat, stage:sp.stages[0].id, done:false, createdAt:Date.now(), completedAt:null};
     state.tasks.push(nt);
     ui._justAdded = nt.id;
+    playSound("add");
     save(); ui._focusQA = true; render();
   }
   else if(kind==="app"){
@@ -4327,7 +4432,7 @@ document.addEventListener("submit", e=>{
     let url = f.elements["url"].value.trim();
     if(!name || !url) return;
     if(!/^https?:\/\//i.test(url)) url = "https://"+url;
-    try{ new URL(url); }catch(err){ showToast("That URL doesn't look right"); return; }
+    try{ new URL(url); }catch(err){ playSound("error"); showToast("That URL doesn't look right"); return; }
     const id = f.dataset.id;
     const icon = f.elements["icon"].value || "🧩";
     const color = f.elements["color"].value;
@@ -4442,6 +4547,7 @@ document.addEventListener("keydown", e=>{
     else if(k==="h"){ e.preventDefault(); ui.view="habits"; ui.spaceId=null; render(); }
     else if(k==="p"){ e.preventDefault(); ui.view="pad"; ui.spaceId=null; render(); }
     else if(k==="f"){ e.preventDefault(); if(!fsess) startFocus(null); }
+    else if(k==="m"){ e.preventDefault(); toggleSound(); }
   }
 });
 
@@ -4449,15 +4555,7 @@ document.addEventListener("keydown", e=>{
 $("#sb-backdrop").addEventListener("click", closeSb);
 setInterval(updateClock, 30000);
 addEventListener("focus", ()=>pullCloud(false));
-document.addEventListener("visibilitychange", ()=>{
-  if(document.hidden){
-    flushPush();
-    if(state.prefs && state.prefs.privacyBlur) document.body.classList.add("privacy");
-  } else {
-    document.body.classList.remove("privacy");
-    pullCloud(false);
-  }
-});
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden) flushPush(); else pullCloud(false); });
 addEventListener("pagehide", flushPush);
 
 /* swipe gestures on phones: swipe in from the left edge to open, swipe left to close */
@@ -4493,7 +4591,7 @@ document.addEventListener("drop", e=>{
   if(!txt || !txt.trim()) return;
   e.preventDefault();
   const out = orbieAddTask(txt.trim().split("\n")[0].slice(0,140));
-  if(out){ mascotHappy(); showToast("✓ Dropped in: "+out.p.title); }
+  if(out){ mascotHappy(); playSound("add"); showToast("✓ Dropped in: "+out.p.title); }
 });
 
 /* flush unsaved notepad text if the tab closes mid-typing */
@@ -4517,7 +4615,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "6.0.1";
+const APP_VERSION = "6.2.2";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
