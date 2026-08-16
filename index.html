@@ -811,6 +811,52 @@ html[data-theme="dark"] .af-frames iframe{background:#141416}
 }
 @media(max-width:1099px){#af-pin{display:none}}
 
+/* ============ daily briefing ============ */
+#brief{position:fixed;inset:0;z-index:115;display:none;place-items:center;background:var(--overlay-bg);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);padding:18px}
+body.brief-open #brief{display:grid;animation:fadeIn .25s ease}
+.brief-card{width:min(470px,94vw);max-height:86vh;overflow-y:auto;background:var(--glass-bg);border:1px solid var(--border2);border-radius:24px;padding:26px 26px 22px;box-shadow:var(--pop-shadow);animation:zoomIn .3s cubic-bezier(.2,.9,.3,1.1)}
+html[data-glass="off"] .brief-card,html:not([data-style="glass"]) .brief-card{background:var(--modal-bg)}
+.bf-kicker{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint)}
+.bf-title{font-size:24px;font-weight:800;letter-spacing:-.5px;margin:4px 0 14px}
+.bf-row{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--border);font-size:13.5px;color:var(--muted);line-height:1.5}
+.bf-row b{color:var(--text)}
+.bf-i{font-size:15px;flex-shrink:0}
+.bf-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+/* links inside tasks & notes */
+.xlink{color:var(--cyan);text-decoration:underline;text-underline-offset:2px;word-break:break-all}
+.xlink:hover{opacity:.8}
+
+/* ============ YOUR GALAXY — every finished task is a star ============ */
+#galaxy{position:fixed;inset:0;z-index:120;display:none;flex-direction:column;background:radial-gradient(1200px 800px at 68% 18%, #1c1543 0%, #0c0a22 45%, #050510 100%);color:#eef;overflow:hidden}
+body.galaxy-open #galaxy{display:flex;animation:fadeIn .35s ease}
+#gx-canvas{position:absolute;inset:0;width:100%;height:100%}
+.gx-head{position:relative;z-index:2;display:flex;align-items:flex-start;gap:12px;padding:18px 22px}
+.gx-title{font-size:20px;font-weight:800;letter-spacing:-.3px;color:#fff}
+.gx-sub{font-size:12px;color:#9a94c2;margin-top:2px}
+.gx-close{margin-left:auto;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:15px;flex-shrink:0}
+.gx-close:hover{background:rgba(255,255,255,.16)}
+.gx-foot{position:relative;z-index:2;margin-top:auto;display:flex;gap:9px;flex-wrap:wrap;align-items:center;padding:16px 22px 20px}
+.gx-stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 14px;font-size:12px;color:#cfc9f2}
+.gx-stat b{color:#fff;font-size:14px}
+.gx-share{margin-left:auto;background:linear-gradient(135deg,#8b5cf6,#4f8ef7);color:#fff;font-weight:700;font-size:12.5px;border-radius:999px;padding:9px 16px;transition:.15s}
+.gx-share:hover{filter:brightness(1.12);transform:translateY(-1px)}
+#gx-tip{position:absolute;z-index:3;background:rgba(15,12,35,.94);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:7px 11px;font-size:12px;color:#fff;pointer-events:none;opacity:0;transition:opacity .15s;max-width:250px}
+#gx-tip.on{opacity:1}
+#gx-tip .d{color:#9a94c2;font-size:10.5px;margin-top:1px}
+.gx-yearlab{position:relative;z-index:2;padding:10px 22px 4px;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:#9a94c2;font-weight:700}
+#gx-year{position:relative;z-index:2;display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,9px);gap:3px;padding:0 22px 6px;overflow-x:auto}
+#gx-year i{width:9px;height:9px;border-radius:3px;background:rgba(160,150,255,.12);flex-shrink:0}
+#gx-year i.l1{background:rgba(150,135,255,.32)}
+#gx-year i.l2{background:rgba(150,135,255,.55)}
+#gx-year i.l3{background:rgba(160,145,255,.78)}
+#gx-year i.l4{background:#a78bfa;box-shadow:0 0 6px rgba(167,139,250,.8)}
+.gx-chip{display:inline-flex;align-items:center;gap:5px;margin-left:12px;font-size:12.5px;font-weight:700;color:#8f7be8;background:color-mix(in srgb,#8f7be8 12%,transparent);padding:3px 12px;border-radius:999px;vertical-align:middle;cursor:pointer;transition:.15s;user-select:none}
+.gx-chip:hover{transform:translateY(-1px);background:color-mix(in srgb,#8f7be8 22%,transparent)}
+/* the atmosphere breathes with the real time of day */
+html[data-daypart="dawn"] #bg-glow .g4{opacity:calc(var(--glow-op)*1.05)}
+html[data-daypart="dusk"] #bg-glow .g4{opacity:calc(var(--glow-op)*1.2)}
+html[data-daypart="night"] #bg-glow::before,html[data-daypart="night"] #bg-glow::after,html[data-daypart="night"] #bg-glow i{opacity:calc(var(--glow-op)*.55)}
+
 /* ============ clickable stats + space fillers ============ */
 .stat.tile-go{cursor:pointer}
 .stat.tile-go:hover{border-color:color-mix(in srgb,var(--sc,var(--accent)) 50%,var(--border));transform:translateY(-2px)}
@@ -825,6 +871,10 @@ html[data-theme="dark"] .af-frames iframe{background:#141416}
 .empty-actions button:hover,.qlinks button:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));transform:translateY(-1px)}
 .qlinks{margin-top:26px}
 .later-empty{font-size:12px;color:var(--faint);padding:10px 2px 0;text-align:center}
+.work-cta{width:100%;margin-top:24px;text-align:left;display:block}
+.work-tools{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:2px 0 14px}
+.work-tools .wk-hours{font-size:11.5px;color:var(--muted);margin-left:auto}
+.work-tools .wk-hours b{color:var(--text)}
 .later-wrap{max-width:860px}
 /* mic sits flush with the Add button, same height, quiet until hover */
 .quickadd .mic{width:36px;height:36px;border-radius:10px;background:var(--panel2);align-self:center}
@@ -1009,6 +1059,17 @@ html[data-style="paper"] .greet h1 .grad{background:none;color:var(--text)}
 <div id="popover"></div>
 <div id="toast"></div>
 <div id="focus-pill"></div>
+<div id="galaxy" role="dialog" aria-label="Your galaxy">
+  <canvas id="gx-canvas"></canvas>
+  <div class="gx-head">
+    <div><div class="gx-title">✨ Your galaxy</div><div class="gx-sub" id="gx-sub"></div></div>
+    <button class="gx-close" data-act="galaxy-close" title="Close (Esc)">✕</button>
+  </div>
+  <div id="gx-tip"></div>
+  <div class="gx-yearlab">Last 6 months — every day you finished something</div>
+  <div id="gx-year"></div>
+  <div class="gx-foot" id="gx-foot"></div>
+</div>
 <button id="fab" data-act="toggle-sb" aria-label="Open menu">☰</button>
 <div id="mascot" data-act="mascot" title="Orbie" role="button" aria-label="Orbie the mascot">
   <div id="mascot-bubble"></div>
@@ -1046,6 +1107,7 @@ const $  = (s, el=document)=>el.querySelector(s);
 const $$ = (s, el=document)=>Array.from(el.querySelectorAll(s));
 const uid = ()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
 const esc = s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const linkify = escaped=>String(escaped).replace(/(https?:\/\/[^\s<]+)/g, m=>'<a href="'+m+'" target="_blank" rel="noopener" class="xlink">'+m.replace(/^https?:\/\//,"").slice(0,36)+(m.length>44?"…":"")+'</a>');
 const dly = i=>Math.min((i||0)*25,200)+"ms";
 const pad = n=>String(n).padStart(2,"0");
 const dstr = d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
@@ -1142,7 +1204,8 @@ function buildWorkHQ(){
     showToast("🏢 Work HQ is ready — pipeline, rituals, notes and pages");
     mascotSay("Corporate mode: engaged 🏢", 2600);
   }
-  ui.view = "space"; ui.spaceId = sp.id; ui.tab = "tasks"; ui.search = "";
+  state.prefs.workSpace = sp.id;
+  ui.view = "work"; ui.spaceId = null; ui.search = "";
   save(); closeSb(); render();
 }
 const HABIT_EMOJIS = "💧 🏃 📖 🧘 🌙 🥗 💪 🦷 ✍️ 🚶 🧠 💊 🎸 🗣 🚭 💤 🌅 📵 🙏 🧹 ☀️ 🎹 🧊 🍎".split(" ");
@@ -1248,7 +1311,12 @@ function save(){
   try{
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
     localStorage.setItem("orbit-dirty","1");
-  }catch(e){}
+  }catch(e){
+    if(!save._warned){
+      save._warned = true;
+      try{ showToast("⚠ Local storage is full — export a backup in Settings → Data"); }catch(_e){}
+    }
+  }
   pushCloud();
   updateBadge();
 }
@@ -1326,8 +1394,13 @@ function mergeStates(a, b){
     if(!ms){ m.spaces.push(JSON.parse(JSON.stringify(os))); map[os.id] = os.id; return; }
     map[os.id] = ms.id;
     ms.notes = Array.isArray(ms.notes) ? ms.notes : [];
+    const haveIds = new Set(ms.notes.map(x=>x.id));
     const have = new Set(ms.notes.map(nSig));
-    (os.notes||[]).forEach(n=>{ if(!have.has(nSig(n))){ ms.notes.push(n); have.add(nSig(n)); } });
+    (os.notes||[]).forEach(n=>{
+      if(haveIds.has(n.id)) return;   /* same note, older edit — the newer copy already won */
+      if(have.has(nSig(n))) return;   /* identical content under a different id */
+      ms.notes.push(n); haveIds.add(n.id); have.add(nSig(n));
+    });
   });
   const sigIn = (t, spaces)=>{
     const sp = (spaces||[]).find(s=>s.id===t.spaceId);
@@ -1348,8 +1421,13 @@ function mergeStates(a, b){
     haveT.add(sigIn(c, m.spaces));
   });
   const pSig = p=>((p.title||"")+"|"+(p.body||"")).trim().toLowerCase();
+  const havePIds = new Set(m.pages.map(x=>x.id));
   const haveP = new Set(m.pages.map(pSig));
-  (older.pages||[]).forEach(p=>{ if(!haveP.has(pSig(p))){ m.pages.push(p); haveP.add(pSig(p)); } });
+  (older.pages||[]).forEach(p=>{
+    if(havePIds.has(p.id)) return;
+    if(haveP.has(pSig(p))) return;
+    m.pages.push(p); havePIds.add(p.id); haveP.add(pSig(p));
+  });
   m.habits = Array.isArray(m.habits) ? m.habits : [];
   (Array.isArray(older.habits) ? older.habits : []).forEach(oh=>{
     const mh = m.habits.find(x=>x.id===oh.id);
@@ -1362,6 +1440,11 @@ function mergeStates(a, b){
     if(m.apps.some(x=>x.id===oa.id || (x.url||"").toLowerCase()===(oa.url||"").toLowerCase())) return;
     m.apps.push(JSON.parse(JSON.stringify(oa)));
   });
+  m.work = (m.work && typeof m.work === "object") ? m.work : {log:{}, inAt:null};
+  m.work.log = m.work.log || {};
+  const oWk = (older.work && older.work.log) || {};
+  Object.keys(oWk).forEach(k=>{ m.work.log[k] = Math.max(+m.work.log[k]||0, +oWk[k]||0); });
+  if(m.work.inAt==null && older.work && older.work.inAt) m.work.inAt = older.work.inAt;
   m.prefs = Object.assign({}, older.prefs||{}, m.prefs||{});
   if(!m.focus || typeof m.focus !== "object") m.focus = {};
   const oldF = (older.focus && typeof older.focus === "object") ? older.focus : {};
@@ -1387,6 +1470,7 @@ function applyRemote(remote, first){
     syncThemeFromState(true);
     syncMascotFromState();
     applyLook();
+    if(_lastDedupe){ state.updatedAt = Date.now(); try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} pushCloud(true); }
     pushCloud(true);
     render();
     updateBadge();
@@ -1399,6 +1483,7 @@ function applyRemote(remote, first){
     syncThemeFromState(true);
     syncMascotFromState();
     applyLook();
+    if(_lastDedupe){ state.updatedAt = Date.now(); try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} pushCloud(true); }
     const ae = document.activeElement;
     if(ae && (ae.id==="scratch-pad" || ae.tagName==="TEXTAREA" || ae.tagName==="INPUT")) ui._pendingRender = true;
     else render();
@@ -1522,6 +1607,43 @@ function applyTheme(){
 }
 applyTheme();
 
+/* self-healing dedupe: repairs duplicates created by the old merge.
+   Same id → keep the copy with the longer body (the fuller edit).
+   Identical title+body under different ids → collapse to one. */
+let _lastDedupe = 0;
+function dedupeData(){
+  let fixed = 0;
+  const sigOf = o=>((o.title||"")+"|"+(o.body||"")).trim().toLowerCase();
+  const cleanList = list=>{
+    const byId = {}, out = [];
+    (list||[]).forEach(o=>{
+      if(!o || !o.id) return;
+      const prev = byId[o.id];
+      if(prev){
+        fixed++;
+        if(String(o.body||"").length > String(prev.body||"").length){
+          out[out.indexOf(prev)] = o; byId[o.id] = o;
+        }
+        return;
+      }
+      byId[o.id] = o; out.push(o);
+    });
+    const seen = new Set(), out2 = [];
+    out.forEach(o=>{
+      const sig = sigOf(o);
+      if(sig !== "|" && seen.has(sig)){ fixed++; return; }
+      seen.add(sig); out2.push(o);
+    });
+    return out2;
+  };
+  state.spaces.forEach(sp=>{ if(Array.isArray(sp.notes)) sp.notes = cleanList(sp.notes); });
+  if(Array.isArray(state.pages)) state.pages = cleanList(state.pages);
+  const tIds = new Set(), tOut = [];
+  (state.tasks||[]).forEach(t=>{ if(!t || !t.id) return; if(tIds.has(t.id)){ fixed++; return; } tIds.add(t.id); tOut.push(t); });
+  state.tasks = tOut;
+  return fixed;
+}
+
 /* cloud-synced extras: prefs (theme, mascot) and daily focus minutes */
 function ensureExtras(){
   if(!state.prefs || typeof state.prefs !== "object") state.prefs = {};
@@ -1536,6 +1658,13 @@ function ensureExtras(){
   if(state.prefs.lockHash) state.prefs.lockHash = null; /* app lock removed */
   if(state.prefs.privacyBlur!=null) delete state.prefs.privacyBlur; /* removed — it never had a visible effect */
   if(state.prefs.look!=null) delete state.prefs.look; /* design presets removed — accent color covers it */
+  if(!state.work || typeof state.work !== "object") state.work = {log:{}, inAt:null};
+  if(!state.work.log || typeof state.work.log !== "object") state.work.log = {};
+  if(!state.prefs.workSpace || !state.spaces.some(s2=>s2.id===state.prefs.workSpace)){
+    const wsGuess = state.spaces.find(s2=>s2.name==="Work HQ") || state.spaces.find(s2=>/^work\b/i.test(s2.name||""));
+    state.prefs.workSpace = wsGuess ? wsGuess.id : null;
+  }
+  _lastDedupe = dedupeData();
 }
 ensureExtras();
 if(state.prefs.theme==null) state.prefs.theme = theme;
@@ -1543,7 +1672,7 @@ if(state.prefs.mascot==null){ let m0 = true; try{ m0 = localStorage.getItem("orb
 if(state.prefs.glass==null) state.prefs.glass = "on";
 
 /* every feature is toggleable — defaults are all on except nothing */
-const FEAT_DEFAULTS = {confetti:true, sounds:true, haptics:true, voice:true, tips:true, quotes:true, streaks:true, swipes:true, hover:true};
+const FEAT_DEFAULTS = {confetti:true, sounds:true, haptics:true, voice:true, tips:true, quotes:true, streaks:true, swipes:true, hover:true, briefing:true};
 function featOn(k){
   const f = (state.prefs && state.prefs.features) || {};
   return f[k]==null ? (FEAT_DEFAULTS[k]!==false) : !!f[k];
@@ -1640,9 +1769,9 @@ function applyStartView(){
     const sv = state.prefs && state.prefs.startView;
     if(sv==="last"){
       const lv = localStorage.getItem("orbit-last");
-      if(["today","week","habits","pad"].indexOf(lv) > -1) ui.view = lv;
+      if(["today","work","week","habits","pad"].indexOf(lv) > -1) ui.view = lv;
     }
-    else if(["week","habits","pad"].indexOf(sv) > -1) ui.view = sv;
+    else if(["work","week","habits","pad"].indexOf(sv) > -1) ui.view = sv;
   }catch(e){}
 }
 
@@ -1700,6 +1829,10 @@ function applyLook(){
 }
 syncThemeFromState(false);
 applyLook();
+if(_lastDedupe > 0){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  setTimeout(()=>showToast("🧹 Cleaned "+_lastDedupe+" duplicate item"+(_lastDedupe>1?"s":"")+" — fix synced everywhere"), 900);
+}
 
 /* Theme switch design: the new theme reveals as a circle growing out of
    the toggle button (View Transitions API). The old theme is snapshotted
@@ -2010,6 +2143,7 @@ function renderTopbar(){
   else if(ui.view==="pad"){ title="Notepad"; emoji="🗒"; }
   else if(ui.view==="week"){ title="Week"; emoji="📆"; }
   else if(ui.view==="habits"){ title="Habits"; emoji="🔁"; }
+  else if(ui.view==="work"){ const ws3 = getSpace(state.prefs && state.prefs.workSpace); title = ws3 ? "Work · "+ws3.name : "Work"; emoji = "🏢"; }
   else if(ui.view==="ext"){ const a0 = getApp(ui.appId); title = a0 ? a0.name : "App"; emoji = a0 ? a0.icon : "🧩"; }
   else { const s=getSpace(ui.spaceId); title=s?s.name:"Orbit"; emoji=s?s.icon:""; }
   $("#topbar").innerHTML =
@@ -2066,7 +2200,7 @@ function taskRow(t, withSpace, idx){
     '<button class="check" data-act="toggle" data-id="'+t.id+'" title="'+(t.repeat?"Done for today":"Mark done")+'">'+(t.done?"✓":"")+'</button>'+
     '<div class="t-main">'+
       '<div class="t-title">'+esc(t.title)+'</div>'+
-      (t.desc?'<div class="t-desc">'+esc(t.desc)+'</div>':'')+
+      (t.desc?'<div class="t-desc">'+linkify(esc(t.desc))+'</div>':'')+
       '<div class="t-chips">'+chipsHtml(t, withSpace)+'</div>'+
     '</div>'+
     '<button class="icon-btn del" data-act="task-menu" data-id="'+t.id+'" title="More actions">⋯</button>'+
@@ -2117,7 +2251,8 @@ function renderToday(){
   const statRaw = (n,l,c,ico)=>'<div class="stat" style="--sc:'+c+'"><span class="s-ico">'+ico+'</span><div class="num">'+n+'</div><div class="lbl">'+l+'</div></div>';
   let h = '<div class="view-inner">'+
     '<div class="greet"><h1><span class="grad">'+greet+'</span>, <span class="uname" data-act="rename-user" title="Click to change name">'+esc(state.userName)+'</span> ✨'+
-      (featOn("streaks") && stk>0?'<span class="streak" title="Days in a row with at least one task completed">🔥 '+stk+' day streak</span>':'')+'</h1>'+
+      (featOn("streaks") && stk>0?'<span class="streak" title="Days in a row with at least one task completed">🔥 '+stk+' day streak</span>':'')+
+      '<span class="gx-chip" data-act="galaxy-open" title="Every finished task becomes a star">✨ Galaxy</span>'+'</h1>'+
     '<div class="sub">'+dateLine+' · <span id="now"></span></div>'+
     (featOn("quotes") ? '<div class="quote">"'+quote+'"</div>' : "")+'</div>'+
     '<div class="stats bento">'+
@@ -2157,7 +2292,7 @@ function renderToday(){
       pinned.map((p,i)=>'<div class="note'+(p.n.id===ui._justAdded?" just-in":"")+'" style="--nc:'+esc(p.n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+p.n.id+'" data-space="'+p.s.id+'">'+
         '<span class="pin">📌</span>'+
         '<div class="n-title">'+esc(p.n.title||"Untitled")+'</div>'+
-        '<div class="n-body">'+esc(p.n.body||"")+'</div>'+
+        '<div class="n-body">'+linkify(esc(p.n.body||""))+'</div>'+
         '<div class="n-date">'+esc(p.s.icon+" "+p.s.name)+'</div>'+
       '</div>').join("")+
     '</div></div></div>';
@@ -2181,6 +2316,17 @@ function renderToday(){
       '<button class="head-link" data-act="overdue-today">Move all to today</button>');
     h += groupSection("today:dt","Due today","var(--amber)",dueToday,true);
     h += groupSection("today:wk","Next 7 days","var(--cyan)",week,true);
+  }
+  if(!ui.search){
+    const ws4 = getSpace(state.prefs && state.prefs.workSpace);
+    const wOpen = ws4 ? state.tasks.filter(t=>t.spaceId===ws4.id && !t.done) : [];
+    const wDue = wOpen.filter(t=>t.due && dayDiff(t.due)<=0).length;
+    const clocked = state.work && state.work.inAt;
+    h += '<button type="button" class="stat tile-go work-cta" data-act="nav-work" style="--sc:#3e8ef7">'+
+      '<span class="s-ico">🏢</span>'+
+      '<div class="num" style="font-size:16.5px">'+(ws4 ? "Work · "+esc(ws4.name) : "Work · set up HQ")+(clocked ? ' <span style="font-size:11px;color:var(--green);font-weight:700">● clocked in</span>' : '')+'</div>'+
+      '<div class="lbl">'+(ws4 ? (wDue ? wDue+" need attention · standup, clock and tools inside" : "clock in, standup, meeting notes, timesheet — tap to open") : "pipeline, rituals, clock and standup tools — one tap")+'</div>'+
+    '</button>';
   }
   h += uiTip("today");
   h += '</div>';
@@ -2223,6 +2369,11 @@ function uiTip(ctx){
       "Click a note to open the big editor.",
       "Use colors as meaning: amber for urgent, green for ideas."
     ],
+    work: [
+      "Waiting on someone? Park the card in the Waiting on group.",
+      "The links at the bottom jump straight to your Work log and Brag doc.",
+      "Quick-add here files straight into your work space."
+    ],
     week: [
       "Drag a card onto a day to schedule it, or onto No date to park it.",
       "The Next 7 days tile on your dashboard jumps straight here.",
@@ -2263,6 +2414,8 @@ function animateNums(){
 function updateClock(){
   const el = $("#now");
   if(el) el.textContent = new Date().toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
+  const wl = $("#wk-live");
+  if(wl && state.work && state.work.inAt) wl.textContent = fmtHM(Date.now()-state.work.inAt);
 }
 
 /* ---------------- notepad view (pages, Notion style) ---------------- */
@@ -2307,7 +2460,7 @@ function renderPad(){
     h += all.map((p,i)=>'<div class="note-row" style="--nc:'+esc(p.n.color||"#8b7cff")+';animation-delay:'+dly(i)+'" data-act="open-note" data-id="'+p.n.id+'" data-space="'+p.s.id+'">'+
       '<div class="nr-head">'+(p.n.pinned?'<span>📌</span>':'')+'<span class="nr-title">'+esc(p.n.title||"Untitled")+'</span>'+
       '<span class="chip space-chip" style="--c:'+p.s.color+'">'+esc(p.s.icon+" "+p.s.name)+'</span></div>'+
-      (p.n.body?'<div class="nr-body">'+esc(p.n.body)+'</div>':'')+
+      (p.n.body?'<div class="nr-body">'+linkify(esc(p.n.body))+'</div>':'')+
     '</div>').join("");
     h += uiTip("pad");
   }
@@ -2526,7 +2679,7 @@ function renderNotesView(s){
     notes.map((n,i)=>'<div class="note'+(n.id===ui._justAdded?" just-in":"")+'" style="--nc:'+esc(n.color||"#8b7cff")+';animation-delay:'+dly(i+1)+'" data-act="open-note" data-id="'+n.id+'" data-space="'+s.id+'">'+
       (n.pinned?'<span class="pin">📌</span>':'')+
       '<div class="n-title">'+esc(n.title||"Untitled")+'</div>'+
-      '<div class="n-body">'+esc(n.body||"")+'</div>'+
+      '<div class="n-body">'+linkify(esc(n.body||""))+'</div>'+
       '<div class="n-date">'+new Date(n.createdAt).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+'</div>'+
     '</div>').join("")+
   '</div>';
@@ -2557,6 +2710,7 @@ function renderView(){
   else if(ui.view==="pad"){ renderPad(); }
   else if(ui.view==="week"){ renderWeek(); }
   else if(ui.view==="habits"){ renderHabits(); }
+  else if(ui.view==="work"){ renderWork(); }
   else if(ui.view==="ext"){ $("#view").innerHTML = ""; }
   else {
     const s = getSpace(ui.spaceId);
@@ -2574,7 +2728,7 @@ function renderView(){
     viewEl.style.scrollBehavior = "";
   }
   ui._justAdded = ui._justToggled = ui._justMoved = null;
-  try{ if(["today","week","habits","pad"].indexOf(ui.view) > -1) localStorage.setItem("orbit-last", ui.view); }catch(e){}
+  try{ if(["today","work","week","habits","pad"].indexOf(ui.view) > -1) localStorage.setItem("orbit-last", ui.view); }catch(e){}
   bindSwipes(viewEl);
 }
 /* renders coalesce into one animation frame: many state changes, one paint */
@@ -2736,6 +2890,7 @@ function openAppearance(){
     frow("sounds","Sounds & effects","Every action speaks — ticks, chimes, thocks and swishes, all synthesized offline")+
     row("Sound volume","", pickset("set-svol", [["0.6","Quiet"],["1","Normal"],["1.5","Loud"]], String((state.prefs && state.prefs.soundVol) || 1)))+
     frow("hover","Hover sounds","Whisper-quiet ticks as you glide over things — desktop only, arms after your first click")+
+    frow("briefing","Daily briefing","A good-morning card with your plan, once a day")+
     frow("haptics","Haptics","Vibration feedback on phones")+
     frow("voice","Voice capture 🎤","Mic button on quick-add (where the browser supports it)")+
     frow("tips","Daily tips","The 💡 hint line under each view")+
@@ -2750,7 +2905,7 @@ function openAppearance(){
     row("Pinned notes","", sw(tileOn("notes"),"ttog","notes","Pinned notes"), true)+
     '<h2 style="margin-top:20px">Behavior</h2>'+
     row("Start view","Where Orbit opens",
-      pickset("set-start", [["today","Today"],["week","Week"],["habits","Habits"],["pad","Notepad"],["last","Last used"]], p.startView||"today"))+
+      pickset("set-start", [["today","Today"],["work","Work"],["week","Week"],["habits","Habits"],["pad","Notepad"],["last","Last used"]], p.startView||"today"))+
     row("Quick-capture space","Where Orbie and shared links file new tasks",
       '<select class="set-sel" id="set-cspace"><option value="">Auto (Reminders)</option>'+state.spaces.map(s2=>'<option value="'+s2.id+'"'+((p.captureSpace||"")===s2.id?" selected":"")+'>'+esc(s2.icon+" "+s2.name)+'</option>').join("")+'</select>')+
     row("Focus session length","Minutes per 🎯 session",
@@ -2780,6 +2935,7 @@ function cmdActions(){
   const nav = (view, spaceId, tab)=>()=>{ ui.view=view; ui.spaceId=spaceId||null; if(tab) ui.tab=tab; ui.search=""; closeSb(); render(); };
   const acts = [
     {icon:"☀️", label:"Go to Today", run:nav("today")},
+    {icon:"🏢", label:"Go to Work", run:nav("work")},
     {icon:"📆", label:"Open Week planner", run:nav("week")},
     {icon:"🔁", label:"Open Habits", run:nav("habits")},
     {icon:"🗒", label:"Open Notepad", run:nav("pad")}
@@ -2804,6 +2960,7 @@ function cmdActions(){
     {icon:theme==="dark"?"☀️":"🌙", label:theme==="dark"?"Switch to light mode":"Switch to dark mode", run:toggleTheme},
     {icon:"🎯", label:"Focus for 25 minutes", run:()=>startFocus(null)},
     {icon:"🪐", label:"Chat with Orbie (O)", run:()=>openOrbiePanel()},
+    {icon:"✨", label:"Open your galaxy", run:openGalaxy},
     {icon:"⚙️", label:"Settings — appearance, features, privacy", run:openAppearance},
     {icon:featOn("sounds")?"🔊":"🔇", label:featOn("sounds")?"Mute sounds":"Unmute sounds", run:toggleSound},
     {icon:"⌨️", label:"Keyboard shortcuts", run:openShortcuts},
@@ -3021,6 +3178,7 @@ function toggleTask(id, el){
     const wasDue = t.due && dayDiff(t.due) <= 0;
     t.completedAt = todayStr();
     t.due = nextOccurrence(t.repeat);
+    if(t.checklist && t.checklist.length) t.checklist.forEach(c=>{ c.done = false; }); /* fresh checklist each cycle */
     save();
     if(el){
       const r = el.getBoundingClientRect();
@@ -3395,6 +3553,7 @@ function orbieCommand(raw){
     const q = m[1];
     if(/notepad|pad|notes page/.test(q)){ ui.view="pad"; ui.spaceId=null; render(); return 'Notepad open 🗒'; }
     if(/today|home|dash/.test(q)){ ui.view="today"; ui.spaceId=null; render(); return 'Home sweet dashboard 🪐'; }
+    if(/^work( hq)?( page)?$/.test(q.trim())){ ui.view="work"; ui.spaceId=null; render(); return 'Work mode 🏢'; }
     const sp = state.spaces.find(s=>s.name.toLowerCase().includes(q.trim()));
     if(sp){ ui.view="space"; ui.spaceId=sp.id; ui.tab="tasks"; render(); return 'Opened '+esc(sp.icon+" "+sp.name); }
     return 'I do not know "'+esc(q)+'" yet. Try a space name, notepad, or today.';
@@ -3652,7 +3811,7 @@ function orbieSmalltalk(raw){
   const P2 = a=>pick(a);
   if(/^(hi+|hii+|hello+|hey+|heyo|yo|sup|hiya|hola|good\s*(morning|afternoon|evening))\b/.test(low) || low==="hi")
     return P2(["Hey "+esc(state.userName)+"! 👋 ","Hi hi! 🪐 ","Hello hello! "]) + orbieStatusLine() + ".";
-  if(/how are (you|u)|how r u|how.s it going|hows it going|how is it going|whats up|what.s up/.test(low))
+  if(/^(how are (you|u)|how r u|how.s it going|hows it going|how is it going|what.s up|whats up|sup)\??$/.test(low))
     return P2(["Orbiting happily 🪐 how about you?","Running at full glass power 💎 You?","Zero gravity, zero stress. How are you doing?"]);
   if(/^(i.m |im |i am ).*(good|great|fine|okay|ok|tired|sad|stressed)/.test(low)){
     if(/tired|sad|stressed|exhausted|overwhelmed/.test(low)) return "That is allowed 💜 Pick one tiny thing and I will cheer — or type <b>focus</b> and we do 25 quiet minutes together.";
@@ -3660,26 +3819,30 @@ function orbieSmalltalk(raw){
   }
   if(/^(thanks|thank you|thx|ty|tysm)\b/.test(low))
     return P2(["Anytime! 💜","You got it.","That is what moons are for 🌙"]);
-  if(/who are you|your name|what are you/.test(low))
+  if(/^(who are you|what.s your name|whats your name|what are you)\??$/.test(low))
     return "I am <b>Orbie</b> — your pocket planet. I add tasks in plain words, check things off, keep your streaks honest, and chat when you need a moment 🪐";
-  if(/joke|make me laugh|funny/.test(low))
+  if(/^(tell me a |another )?joke\b|^make me laugh\b/.test(low))
     return P2(["Why did the task cross the board? To get to the <b>Done</b> side 🥁","My to-do list and I are in a committed relationship. It keeps growing on me.","I asked the calendar for a day off. It said my days are numbered 📆"]);
-  if(/motivat|inspire me|encourage/.test(low))
+  if(/^(motivate|inspire|encourage)( me)?\b/.test(low))
     return P2(["Small steps every day — that is the entire trick. Pick one and go, I am watching 👀✨","Done beats perfect. Future-you is already grateful.","One task. Twenty-five minutes. Type <b>focus</b> and I will keep quiet 🤫"]);
-  if(/what time is it|the time/.test(low))
+  if(/^what time( is it)?\??$/.test(low))
     return "It is "+new Date().toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})+" ⏰";
-  if(/what (day|date)|todays date|today.s date/.test(low))
+  if(/^what (day|date)( is it( today)?)?\??$|^today.?s date\??$/.test(low))
     return "Today is "+new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"})+" 📆";
-  if(/how am i doing|my status|status|summary|my day|whats due|what.s due|what is due/.test(low))
+  if(/^(how am i doing|how.s my day|my status|status|summary|my day|what.s due( today)?|whats due( today)?|what is due( today)?)\??$/.test(low))
     return "Here is the orbit report: "+orbieStatusLine()+".";
   if(/^(bye|goodbye|good\s*night|gn|see (ya|you))\b/.test(low))
     return P2(["Rest well! I will keep the lights dim 🌙","Bye "+esc(state.userName)+"! I will hold the fort 🪐"]);
   if(/love (you|u)|good bot|you.re (great|awesome|amazing)|great job|well done/.test(low))
     return P2(["🥹 Saving that in my core memory.","Right back at you 💜","I am blushing in ultraviolet."]);
-  if(/^(start )?focus\b/.test(low)){ if(!fsess) startFocus(null); return "Focus started — quiet mode engaged 🎯"; }
-  if(/dark mode/.test(low)){ if(theme!=="dark") toggleTheme(); return "Lights off 🌙"; }
-  if(/light mode/.test(low)){ if(theme!=="light") toggleTheme(); return "Lights on ☀️"; }
-  if(/open settings|settings please/.test(low)){ openAppearance(); return "Settings open ⚙"; }
+  if(/^(start |begin )?focus( now| session)?\??$/.test(low)){
+    if(fsess){ const sec = Math.ceil(fsRemain()/1000); return "Already focusing — "+Math.floor(sec/60)+":"+pad(sec%60)+" to go 🎯"; }
+    startFocus(null); return "Focus started — quiet mode engaged 🎯";
+  }
+  if(/^(switch to |go |turn on )?dark mode\??$/.test(low)){ if(theme!=="dark") toggleTheme(); return "Lights off 🌙"; }
+  if(/^(switch to |go |turn on )?light mode\??$/.test(low)){ if(theme!=="light") toggleTheme(); return "Lights on ☀️"; }
+  if(/^(open )?settings( please)?\??$/.test(low)){ openAppearance(); return "Settings open ⚙"; }
+  if(/^(my |open |show )?galaxy\??$/.test(low)){ openGalaxy(); return "Opening your galaxy ✨ Every star up there is something you finished."; }
   return null;
 }
 function taskish(raw){
@@ -3716,7 +3879,7 @@ function orbieAsk(raw){
 }
 function renderOrbieThread(){
   const th = $("#orbie-thread"); if(!th) return;
-  th.innerHTML = orbieLog.slice(-12).map(m=>'<div class="ob '+(m.r==="u"?"me":"bot")+'">'+(m.typing?'<span class="ob-typing"><i></i><i></i><i></i></span>':m.t)+'</div>').join("");
+  th.innerHTML = orbieLog.slice(-12).map(m=>'<div class="ob '+(m.r==="u"?"me":"bot")+'">'+(m.typing?'<span class="ob-typing"><i></i><i></i><i></i></span>':linkify(m.t))+'</div>').join("");
   th.scrollTop = th.scrollHeight;
 }
 function mascotChat(line){ openOrbiePanel(line); }
@@ -3760,7 +3923,7 @@ function bumpDoneCount(){
   if([10,25,50,100,250,500].indexOf(n) > -1){
     mascotHappy();
     playSound("sparkle");
-    mascotSay(n+" tasks completed all time! 🏆", 3400);
+    mascotSay(n+" stars in your galaxy now ✨ (say \"galaxy\" to see it)", 3600);
     const m = $("#mascot");
     if(m){ const r = m.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+10, "#e0a83c"); }
   }
@@ -4035,6 +4198,168 @@ function renderHabits(){
 function statRawG(n,l,c,ico){
   return '<div class="stat" style="--sc:'+c+'"><span class="s-ico">'+ico+'</span><div class="num">'+n+'</div><div class="lbl">'+l+'</div></div>';
 }
+/* ================================================================
+   WORK · a permanent page pinned next to Today. Wraps whichever
+   space runs your job (synced via prefs.workSpace on every device).
+   ================================================================ */
+function renderWork(){
+  const ws = getSpace(state.prefs && state.prefs.workSpace);
+  let h = '<div class="view-inner">';
+  if(!ws){
+    h += '<div class="empty"><span class="art">🏢</span><h3>Your work command center</h3>'+
+      '<p>One tap builds Work HQ: an Inbox → Waiting on → Done pipeline, recurring rituals with checklists, 1:1 and meeting notes, a Brag doc — all synced to your devices.</p>'+
+      '<div class="empty-actions">'+
+        '<button data-act="work-setup">🏢 Set up Work HQ</button>'+
+        '<button data-act="work-pick">📌 Use an existing space</button>'+
+      '</div></div></div>';
+    $("#view").innerHTML = h;
+    return;
+  }
+  const ts = state.tasks.filter(t=>t.spaceId===ws.id && matches(t));
+  const open = ts.filter(t=>!t.done);
+  const od = open.filter(t=>t.due && dayDiff(t.due)<0).sort(sortTasks);
+  const dt = open.filter(t=>t.due && dayDiff(t.due)===0).sort(sortTasks);
+  const wStage = ws.stages.find(st=>/wait/i.test(st.name));
+  const urgent = new Set(od.concat(dt).map(t=>t.id));
+  const waitingAll = wStage ? open.filter(t=>t.stage===wStage.id) : [];
+  const waiting = waitingAll.filter(t=>!urgent.has(t.id)).sort(sortTasks);
+  const wIds = new Set(waitingAll.map(t=>t.id));
+  const upcoming = open.filter(t=>t.due && dayDiff(t.due)>0 && !wIds.has(t.id)).sort(sortTasks);
+  const nodate = open.filter(t=>!t.due && !wIds.has(t.id)).sort(sortTasks);
+  h += '<div class="stats bento">'+
+    statRawG(dt.length,"Due today","var(--amber)","📆")+
+    statRawG(od.length,"Overdue","var(--rose)","⏳")+
+    statRawG(waitingAll.length,"Waiting on","var(--cyan)","⏸")+
+    statRawG(open.length,"Open","var(--accent)","🗂")+
+  '</div>';
+  h += '<div class="work-tools">'+
+    '<button type="button" class="pick'+(state.work.inAt?" on":"")+'" data-act="wk-clock">'+(state.work.inAt ? '⏸ Clock out · <b id="wk-live">'+fmtHM(Date.now()-state.work.inAt)+'</b>' : '▶ Clock in')+'</button>'+
+    '<button type="button" class="pick" data-act="wk-standup">🗣 Copy standup</button>'+
+    '<button type="button" class="pick" data-act="wk-meet">📝 Meeting note</button>'+
+    '<button type="button" class="pick" data-act="wk-eod">🌇 Copy wrap-up</button>'+
+    '<span class="wk-hours">this week <b>'+fmtHM(workWeekMins()*60000)+'</b></span>'+
+    '<button type="button" class="pick" data-act="wk-sheet">⏱ Timesheet</button>'+
+  '</div>';
+  h += '<form class="quickadd" data-form="quickadd" data-space="'+ws.id+'">'+
+    '<span class="plus">＋</span>'+
+    '<input name="qa" placeholder=\'Add work…  "'+pick(QA_HINTS)+'"\' autocomplete="off">'+
+    micHtml()+
+    '<button type="submit">Add</button>'+
+  '</form>'+
+  '<div class="qa-prev" id="qa-prev" style="display:none"></div>';
+  if(!ts.length){
+    h += '<div class="empty"><span class="art">'+esc(ws.icon)+'</span><h3>Nothing here yet</h3><p>Add your first work task above — it lands in '+esc(ws.name)+'.</p></div>';
+  } else {
+    h += groupSection("work:od","Overdue","var(--rose)",od,false,
+      '<button class="head-link" data-act="overdue-today" data-id="'+ws.id+'">Move all to today</button>');
+    h += groupSection("work:dt","Today","var(--amber)",dt,false);
+    h += groupSection("work:wait","Waiting on","var(--cyan)",waiting,false);
+    h += groupSection("work:up","Upcoming","var(--cyan)",upcoming,false);
+    h += groupSection("work:nd","No due date","var(--muted)",nodate,false);
+  }
+  const notes = (ws.notes||[]).slice().sort(noteSort).slice(0,4);
+  if(notes.length){
+    h += '<div class="group-head" style="cursor:default"><span class="dot" style="--gc:'+ws.color+'"></span>Work notes <span class="gcnt">'+(ws.notes||[]).length+'</span>'+
+      '<button class="head-link" data-act="work-notes">All notes →</button></div>'+
+      '<div class="notes-grid dash">'+notes.map((n,i)=>'<div class="note" style="--nc:'+esc(n.color||"#8b7cff")+';animation-delay:'+dly(i)+'" data-act="open-note" data-id="'+n.id+'" data-space="'+ws.id+'">'+
+        (n.pinned?'<span class="pin">📌</span>':'')+
+        '<div class="n-title">'+esc(n.title||"Untitled")+'</div>'+
+        '<div class="n-body">'+linkify(esc(n.body||""))+'</div>'+
+      '</div>').join("")+'</div>';
+  }
+  const wp = (state.pages||[]).filter(p=>/work log|meeting notes|brag doc/i.test(p.title||""));
+  h += '<div class="qlinks">'+
+    wp.map(p=>'<button data-act="open-page-go" data-id="'+p.id+'">'+esc((p.icon||"📝")+" "+p.title)+'</button>').join("")+
+    '<button data-act="work-board">▦ Board</button>'+
+    '<button data-act="work-space">'+esc(ws.icon)+' Open full space</button>'+
+    '<button data-act="work-pick">⚙ Change space</button>'+
+  '</div>';
+  h += uiTip("work");
+  h += '</div>';
+  $("#view").innerHTML = h;
+  bindQuickAdd();
+  const qa = $("#view .quickadd input");
+  if(qa && ui._focusQA){ qa.focus(); ui._focusQA = false; }
+}
+function fmtHM(ms){
+  const m = Math.max(0, Math.round(ms/60000));
+  const h = Math.floor(m/60);
+  return h ? h+"h "+(m%60)+"m" : m+"m";
+}
+function workWeekMins(){
+  const dow = (new Date().getDay()+6)%7; /* Monday-start */
+  let total = 0;
+  for(let i=0;i<=dow;i++) total += +((state.work && state.work.log && state.work.log[dAgo(dow-i)])||0);
+  if(state.work && state.work.inAt) total += Math.round((Date.now()-state.work.inAt)/60000);
+  return total;
+}
+function workClockToggle(){
+  if(state.work.inAt){
+    const mins = Math.max(1, Math.round((Date.now()-state.work.inAt)/60000));
+    state.work.log[todayStr()] = (+state.work.log[todayStr()]||0) + mins;
+    state.work.inAt = null;
+    playSound("done");
+    showToast("⏸ Clocked out — "+fmtHM(mins*60000)+" added · today "+fmtHM((+state.work.log[todayStr()]||0)*60000));
+  } else {
+    state.work.inAt = Date.now();
+    playSound("focus-start");
+    showToast("▶ Clocked in — timer runs even across devices");
+  }
+  save(); render();
+}
+function copyOut(txt, okMsg){
+  try{
+    navigator.clipboard.writeText(txt).then(()=>{ playSound("swish"); showToast(okMsg); }).catch(()=>shareText(txt));
+  }catch(e){ shareText(txt); }
+}
+function standupText(ws){
+  const y = dAgo(1);
+  const doneY = state.tasks.filter(t=>t.spaceId===ws.id && t.completedAt===y).slice(0,8);
+  const today = state.tasks.filter(t=>!t.done && t.spaceId===ws.id && ((t.due && dayDiff(t.due)<=0) || t.priority===3)).sort(sortTasks).slice(0,8);
+  const wStage = ws.stages.find(st=>/wait/i.test(st.name));
+  const block = wStage ? state.tasks.filter(t=>!t.done && t.spaceId===ws.id && t.stage===wStage.id).slice(0,6) : [];
+  const L = ["Standup — "+new Date().toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}), "", "Yesterday:"];
+  L.push(...(doneY.length ? doneY.map(t=>"• "+t.title) : ["• (nothing logged)"]));
+  L.push("", "Today:");
+  L.push(...(today.length ? today.map(t=>"• "+t.title) : ["• planning + inbox"]));
+  L.push("", "Blockers:");
+  L.push(...(block.length ? block.map(t=>"• "+t.title) : ["• none 🎉"]));
+  return L.join("\n");
+}
+function eodText(ws){
+  const doneT = state.tasks.filter(t=>t.spaceId===ws.id && t.completedAt===todayStr()).slice(0,10);
+  const tmr = state.tasks.filter(t=>!t.done && t.spaceId===ws.id && t.due===addDays(1)).sort(sortTasks).slice(0,8);
+  const mins = (+state.work.log[todayStr()]||0) + (state.work.inAt ? Math.round((Date.now()-state.work.inAt)/60000) : 0);
+  const L = ["EOD — "+new Date().toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}), "", "Done today ("+doneT.length+"):"];
+  L.push(...(doneT.length ? doneT.map(t=>"• "+t.title) : ["• (light day)"]));
+  if(mins) L.push("", "Hours: "+fmtHM(mins*60000));
+  L.push("", "Tomorrow:");
+  L.push(...(tmr.length ? tmr.map(t=>"• "+t.title) : ["• top 3 in the morning"]));
+  return L.join("\n");
+}
+function timesheetText(){
+  const dow = (new Date().getDay()+6)%7;
+  const L = ["Timesheet — week of "+parseDay(dAgo(dow)).toLocaleDateString(undefined,{month:"short",day:"numeric"})];
+  let total = 0;
+  for(let i=0;i<=dow;i++){
+    const day = dAgo(dow-i);
+    let mins = +((state.work.log||{})[day])||0;
+    if(day===todayStr() && state.work.inAt) mins += Math.round((Date.now()-state.work.inAt)/60000);
+    total += mins;
+    L.push(parseDay(day).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})+" — "+(mins ? fmtHM(mins*60000) : "—"));
+  }
+  L.push("Total — "+fmtHM(total*60000));
+  return L.join("\n");
+}
+function openWorkPick(){
+  modalShell(
+    '<h2>Choose your work space</h2>'+
+    '<div class="info">The Work page pins whichever space runs your job. The choice syncs to all your devices.</div>'+
+    '<div class="pick-row" style="margin-top:14px">'+
+      state.spaces.map(s2=>'<button type="button" class="pick'+((state.prefs.workSpace===s2.id)?" on":"")+'" data-act="work-pick-go" data-id="'+s2.id+'">'+esc(s2.icon+" "+s2.name)+'</button>').join("")+
+    '</div>'+
+    '<div class="m-foot"><button type="button" class="btn ghost" data-act="work-setup">🏢 Build Work HQ instead</button><span class="grow"></span><button type="button" class="btn primary" data-act="close-modal">Done</button></div>');
+}
 function openHabitModal(habitId){
   const h = habitId ? (state.habits||[]).find(x=>x.id===habitId) : null;
   const color = h ? h.color : SPACE_COLORS[(state.habits||[]).length % SPACE_COLORS.length];
@@ -4306,6 +4631,218 @@ function bindSwipes(container){
   });
 }
 
+/* ================================================================
+   YOUR GALAXY · every task you have ever finished becomes a star,
+   placed on a golden-angle spiral that grows from the center as your
+   history grows. Colored by its space, sized by its priority,
+   clickable to remember what it was. Zero servers, pure you.
+   ================================================================ */
+let gxRaf = null, gxStars = [], gxRot = 0, gxPar = {x:0, y:0}, gxSel = -1;
+function gxHash(str){ let h = 2166136261; for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h>>>0)/4294967295; }
+function buildGxStars(){
+  const done = state.tasks.filter(t=>t.completedAt).sort((a,b)=>String(a.completedAt).localeCompare(String(b.completedAt)) || a.createdAt-b.createdAt);
+  gxStars = done.map((t,i)=>{
+    const sp = spaceOf(t);
+    const jr = gxHash(t.id), ja = gxHash(t.id+"x");
+    const th = i * 2.399963 + ja*.55;
+    const r = 12 + 13*Math.sqrt(i) + jr*9;
+    return { x:Math.cos(th)*r, y:Math.sin(th)*r*.62, s:(t.priority>=3?2.7:t.priority===2?2.1:1.6)+jr*.9,
+             c:(sp && sp.color)||"#8f7be8", ph:ja*6.283, title:t.title, when:t.completedAt };
+  });
+}
+function galaxyWeek(){
+  const since = dAgo(6);
+  const doneW = state.tasks.filter(t=>t.completedAt && t.completedAt >= since).length;
+  let focusW = 0, habitW = 0, workW = 0;
+  for(let i=0;i<7;i++){
+    const day = dAgo(i);
+    focusW += +((state.focus||{})[day])||0;
+    workW  += +(((state.work||{}).log||{})[day])||0;
+    (state.habits||[]).forEach(hb=>{ if(hb.days && hb.days[day]) habitW++; });
+  }
+  return {done:doneW, focus:focusW, habit:habitW, work:workW};
+}
+function galaxyShareText(){
+  const wkk = galaxyWeek();
+  const total = Math.max(gxStars.length, (function(){ try{ return +localStorage.getItem(DONE_KEY)||0; }catch(e){ return 0; } })());
+  return "🪐 My Orbit galaxy: "+total+" stars (every one a finished task)\n"+
+    "This week: "+wkk.done+" done · "+fmtMin(wkk.focus)+" focused · "+wkk.habit+" habit checks"+(wkk.work?" · "+fmtHM(wkk.work*60000)+" worked":"")+"\n"+
+    "Small steps every day ✨";
+}
+function openGalaxy(){
+  buildGxStars();
+  document.body.classList.add("galaxy-open");
+  playSound("sparkle");
+  gxSel = -1; gxRot = 0;
+  const total = Math.max(gxStars.length, (function(){ try{ return +localStorage.getItem(DONE_KEY)||0; }catch(e){ return 0; } })());
+  const sub = $("#gx-sub");
+  if(sub) sub.textContent = gxStars.length
+    ? total+" stars — every single one is something you finished. Click one to remember."
+    : "Empty space, endless potential — finish your first task and a star is born.";
+  const wkk = galaxyWeek();
+  const foot = $("#gx-foot");
+  if(foot) foot.innerHTML =
+    '<span class="gx-stat">This week <b>'+wkk.done+'</b> done</span>'+
+    '<span class="gx-stat">🎯 <b>'+fmtMin(wkk.focus)+'</b> focused</span>'+
+    '<span class="gx-stat">🌱 <b>'+wkk.habit+'</b> habit checks</span>'+
+    (wkk.work ? '<span class="gx-stat">🏢 <b>'+fmtHM(wkk.work*60000)+'</b> worked</span>' : '')+
+    '<button class="gx-share" data-act="galaxy-share">✨ Copy my week</button>';
+  const tip = $("#gx-tip"); if(tip) tip.classList.remove("on");
+  const yr = $("#gx-year");
+  if(yr){
+    const counts = {};
+    state.tasks.forEach(t=>{ if(t.completedAt) counts[t.completedAt] = (counts[t.completedAt]||0) + 1; });
+    (state.habits||[]).forEach(hb=>Object.keys(hb.days||{}).forEach(dk=>{ if(hb.days[dk]) counts[dk] = (counts[dk]||0) + .5; }));
+    const days = 182;
+    let cells = "";
+    const startPad = (parseDay(dAgo(days-1)).getDay()+6)%7;
+    for(let p2=0;p2<startPad;p2++) cells += '<i style="visibility:hidden"></i>';
+    for(let i=days-1;i>=0;i--){
+      const day = dAgo(i);
+      const v = counts[day]||0;
+      const lv = v>=7?4 : v>=4?3 : v>=2?2 : v>=1?1 : 0;
+      cells += '<i class="'+(lv?("l"+lv):"")+'" title="'+parseDay(day).toLocaleDateString(undefined,{month:"short",day:"numeric"})+' · '+Math.round(v)+'"></i>';
+    }
+    yr.innerHTML = cells;
+  }
+  gxLoop();
+}
+function closeGalaxy(){
+  document.body.classList.remove("galaxy-open");
+  if(gxRaf){ cancelAnimationFrame(gxRaf); gxRaf = null; }
+}
+function gxLoop(){
+  const cvs2 = document.getElementById("gx-canvas");
+  if(!cvs2 || !document.body.classList.contains("galaxy-open")) return;
+  const ctx2 = cvs2.getContext ? cvs2.getContext("2d") : null;
+  if(!ctx2) return; /* headless / very old browsers: header + stats still work */
+  const draw = (now)=>{
+    if(!document.body.classList.contains("galaxy-open")){ gxRaf = null; return; }
+    const W = cvs2.clientWidth || innerWidth, H = cvs2.clientHeight || innerHeight;
+    if(cvs2.width !== W) cvs2.width = W;
+    if(cvs2.height !== H) cvs2.height = H;
+    ctx2.clearRect(0, 0, W, H);
+    for(let i=0;i<130;i++){
+      const bx = gxHash("bg"+i)*W, by = gxHash("gb"+i)*H;
+      const tw2 = isReduced() ? .5 : .3 + .45*Math.abs(Math.sin(now/900 + i));
+      ctx2.globalAlpha = tw2*.5;
+      ctx2.fillStyle = "#cfd2ff";
+      ctx2.fillRect(bx, by, 1.2, 1.2);
+    }
+    const cx = W/2 + gxPar.x, cy = H/2 + 26 + gxPar.y;
+    if(!isReduced()) gxRot += .00045;
+    const cos = Math.cos(gxRot), sin = Math.sin(gxRot);
+    const maxR = Math.max(40, 13*Math.sqrt(Math.max(1, gxStars.length))+30);
+    const scale = Math.min(1, (Math.min(W, H*1.5)/2 - 60)/maxR);
+    gxStars.forEach((st2, i)=>{
+      const rx = (st2.x*cos - st2.y*sin)*scale + cx;
+      const ry = (st2.x*sin + st2.y*cos)*scale*.9 + cy;
+      st2._sx = rx; st2._sy = ry;
+      const tw = isReduced() ? .85 : .55 + .45*Math.sin(now/650 + st2.ph);
+      ctx2.globalAlpha = Math.min(1, tw + (i===gxSel ? .4 : 0));
+      ctx2.fillStyle = st2.c;
+      ctx2.shadowColor = st2.c;
+      ctx2.shadowBlur = i===gxSel ? 18 : 7;
+      ctx2.beginPath();
+      ctx2.arc(rx, ry, st2.s*(i===gxSel?1.7:1), 0, 6.283);
+      ctx2.fill();
+    });
+    ctx2.shadowBlur = 0;
+    ctx2.globalAlpha = 1;
+    gxRaf = isReduced() ? null : requestAnimationFrame(draw);
+  };
+  gxRaf = requestAnimationFrame(draw);
+}
+document.addEventListener("mousemove", e=>{
+  if(!document.body.classList.contains("galaxy-open")) return;
+  gxPar.x = (e.clientX/innerWidth - .5)*16;
+  gxPar.y = (e.clientY/innerHeight - .5)*10;
+}, {passive:true});
+document.addEventListener("click", e=>{
+  if(!document.body.classList.contains("galaxy-open")) return;
+  if(e.target && e.target.id !== "gx-canvas") return;
+  let best = -1, bd = 16;
+  gxStars.forEach((st2, i)=>{
+    const dx = (st2._sx||0) - e.clientX, dy = (st2._sy||0) - e.clientY;
+    const dd = Math.hypot(dx, dy);
+    if(dd < bd){ bd = dd; best = i; }
+  });
+  const tip = $("#gx-tip");
+  if(best > -1 && tip){
+    gxSel = best;
+    const st2 = gxStars[best];
+    tip.innerHTML = "★ "+esc(st2.title)+'<div class="d">finished '+esc(fmtDue(st2.when))+"</div>";
+    tip.style.left = Math.min(innerWidth-260, Math.max(8, e.clientX+14))+"px";
+    tip.style.top = Math.max(8, e.clientY-14)+"px";
+    tip.classList.add("on");
+    playSound("pop");
+    if(isReduced()) gxLoop();
+  } else if(tip){ tip.classList.remove("on"); gxSel = -1; }
+});
+/* ================================================================
+   DAILY BRIEFING · once a day, Orbit meets you at the door with a
+   glass card: your plan, your streaks, one-tap ways to start.
+   ================================================================ */
+function buildBriefing(){
+  if(document.getElementById("brief")) return;
+  const b2 = document.createElement("div");
+  b2.id = "brief";
+  b2.setAttribute("role","dialog");
+  b2.setAttribute("aria-label","Daily briefing");
+  b2.innerHTML = '<div class="brief-card" id="brief-card"></div>';
+  document.body.appendChild(b2);
+}
+function showBriefing(){
+  buildBriefing();
+  const open = state.tasks.filter(t=>!t.done);
+  const dt = open.filter(t=>t.due && dayDiff(t.due)===0).sort(sortTasks);
+  const od = open.filter(t=>t.due && dayDiff(t.due)<0).length;
+  const hs = state.habits || [];
+  const hLeft = hs.filter(x=>!(x.days && x.days[todayStr()])).length;
+  const yD = state.tasks.filter(t=>t.completedAt===dAgo(1)).length;
+  const ws = getSpace(state.prefs && state.prefs.workSpace);
+  const wDue = ws ? open.filter(t=>t.spaceId===ws.id && t.due && dayDiff(t.due)<=0).length : 0;
+  const hr = new Date().getHours();
+  const greet = hr<12 ? "Good morning" : hr<18 ? "Good afternoon" : "Good evening";
+  const row2 = (i2,txt)=>'<div class="bf-row"><span class="bf-i">'+i2+'</span><span>'+txt+'</span></div>';
+  let inner = '<div class="bf-kicker">'+new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"})+'</div>'+
+    '<div class="bf-title">'+greet+', '+esc(state.userName)+' ☀️</div>';
+  inner += dt.length
+    ? row2("📆","<b>"+dt.length+" due today</b> — "+esc(dt.slice(0,3).map(t=>t.title).join(", "))+(dt.length>3?"…":""))
+    : row2("📆","Nothing due today — a free orbit");
+  if(od) inner += row2("⏳","<b>"+od+" overdue</b> waiting for a rescue");
+  if(hs.length) inner += row2("🌱", hLeft ? "<b>"+hLeft+" habit"+(hLeft>1?"s":"")+"</b> to keep alive today" : "All habits already done ✨");
+  if(ws && wDue) inner += row2("🏢","<b>"+wDue+"</b> need attention at work");
+  if(yD) inner += row2("⭐","Yesterday you finished <b>"+yD+"</b> — "+(yD>2?"strong":"steady")+" pace");
+  inner += '<div class="bf-actions">'+
+    '<button type="button" class="btn primary" data-act="brief-close">Start the day</button>'+
+    '<button type="button" class="btn ghost" data-act="brief-first">🧭 What first?</button>'+
+    '<button type="button" class="btn ghost" data-act="brief-focus">🎯 Focus</button>'+
+  '</div>';
+  const card = document.getElementById("brief-card");
+  if(card) card.innerHTML = inner;
+  document.body.classList.add("brief-open");
+  try{ localStorage.setItem("orbit-brief", todayStr()); }catch(e){}
+  playSound("sparkle");
+}
+function closeBriefing(){ document.body.classList.remove("brief-open"); }
+function maybeBriefing(){
+  try{
+    if(!featOn("briefing")) return;
+    if(localStorage.getItem("orbit-brief")===todayStr()) return;
+    setTimeout(()=>{
+      if(document.querySelector("#modal-root .overlay") || document.body.classList.contains("orbie-open") || document.body.classList.contains("galaxy-open")) return;
+      showBriefing();
+    }, 800);
+  }catch(e){}
+}
+
+/* the ambient light follows the real sky */
+function applyDaypart(){
+  const h2 = new Date().getHours();
+  document.documentElement.dataset.daypart = h2 < 6 ? "night" : h2 < 9 ? "dawn" : h2 < 17 ? "day" : h2 < 20 ? "dusk" : "night";
+}
+
 /* ---------------- clickable stats: jump, report, plan ---------------- */
 function scrollGroup(key){
   const el = $('.group-head[data-key="'+key+'"]');
@@ -4464,6 +5001,8 @@ setInterval(()=>{
 
 /* ---------------- event delegation ---------------- */
 document.addEventListener("click", e=>{
+  if(e.target && e.target.closest && e.target.closest("a[href]")) return; /* links just open */
+  if(e.target && e.target.id==="brief"){ closeBriefing(); return; }
   if(orbieChatOpen && !e.target.closest("#mascot") && !e.target.closest("#orbie-panel")) closeOrbieChat();
   if(!e.target.closest("#popover") && !e.target.closest('[data-act="task-menu"]')) closePopover();
   if(e.target.classList && e.target.classList.contains("overlay")){ closeModal(); return; }
@@ -4474,7 +5013,7 @@ document.addEventListener("click", e=>{
   if(fromPopover) closePopover();
   /* interaction sounds, centralized: navigation ticks + control clicks */
   if(act.indexOf("nav-")===0 || act==="tab" || act==="stat-go") playSound("nav");
-  else if(["collapse","ftog","ttog","den-tog","motion-tog","glass-mode","app-accent","app-theme","set-start","set-flen","set-goal","set-svol","set-style","app-mascot","seg-pri","pick-space","pick-stage","pick-rep","pick-emoji","swatch","due-quick","cl-toggle","stage-color","space-tpl","app-pin"].indexOf(act) > -1) playSound("switch");
+  else if(["collapse","ftog","ttog","den-tog","motion-tog","glass-mode","app-accent","app-theme","set-start","set-flen","set-goal","set-svol","set-style","app-mascot","seg-pri","pick-space","pick-stage","pick-rep","pick-emoji","swatch","due-quick","cl-toggle","stage-color","space-tpl","app-pin","work-setup","work-pick","work-pick-go","open-page-go","work-notes","work-board","work-space"].indexOf(act) > -1) playSound("switch");
   switch(act){
     case "nav-today": ui.view="today"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
     case "nav-pad": ui.view="pad"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
@@ -4743,6 +5282,42 @@ document.addEventListener("click", e=>{
     case "ea-tomorrow": openTaskModal(null, null, null, addDays(1)); break;
     case "ea-paste": openPasteImport(); break;
     case "ea-orbie": openOrbiePanel(); break;
+    case "galaxy-open": openGalaxy(); break;
+    case "galaxy-close": closeGalaxy(); break;
+    case "galaxy-share": copyOut(galaxyShareText(), "✨ Your week, copied — go show off"); break;
+    case "brief-close": closeBriefing(); playSound("close"); break;
+    case "brief-first": closeBriefing(); openOrbiePanel(); orbieProcess("what should I do first"); break;
+    case "brief-focus": closeBriefing(); if(!fsess) startFocus(null); break;
+    case "nav-work": ui.view="work"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
+    case "work-setup": closeModal(); buildWorkHQ(); break;
+    case "work-pick": openWorkPick(); break;
+    case "work-pick-go": {
+      state.prefs.workSpace = el.dataset.id;
+      save(); closeModal();
+      ui.view = "work"; ui.spaceId = null; render();
+      showToast("🏢 Work page now points at "+esc((getSpace(el.dataset.id)||{}).name||"that space"));
+      break;
+    }
+    case "open-page-go": ui.view="pad"; ui.pageId=el.dataset.id; ui.spaceId=null; render(); break;
+    case "work-notes": { const w5 = getSpace(state.prefs.workSpace); if(w5){ ui.view="space"; ui.spaceId=w5.id; ui.tab="notes"; render(); } break; }
+    case "work-board": { const w6 = getSpace(state.prefs.workSpace); if(w6){ ui.view="space"; ui.spaceId=w6.id; ui.tab="board"; render(); } break; }
+    case "work-space": { const w7 = getSpace(state.prefs.workSpace); if(w7){ ui.view="space"; ui.spaceId=w7.id; ui.tab="tasks"; render(); } break; }
+    case "wk-clock": workClockToggle(); break;
+    case "wk-standup": { const w8 = getSpace(state.prefs.workSpace); if(w8) copyOut(standupText(w8), "🗣 Standup copied — paste into chat"); break; }
+    case "wk-eod": { const w9 = getSpace(state.prefs.workSpace); if(w9) copyOut(eodText(w9), "🌇 Wrap-up copied"); break; }
+    case "wk-sheet": copyOut(timesheetText(), "⏱ Week copied for your timesheet"); break;
+    case "wk-meet": {
+      const wA = getSpace(state.prefs.workSpace); if(!wA) break;
+      wA.notes = wA.notes || [];
+      const nn = {id:uid(), title:"Meeting — "+new Date().toLocaleDateString(undefined,{month:"short",day:"numeric"})+" "+new Date().toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}),
+        body:"With:\nAgenda:\n• \nDecisions:\n• \nAction items:\n[ ] who — what — by when\n", color:"#3e8ef7", pinned:false, createdAt:Date.now()};
+      wA.notes.push(nn);
+      ui._justAdded = nn.id;
+      playSound("add");
+      save(); render();
+      openNoteModal(wA.id, nn.id);
+      break;
+    }
     case "orbie-close": closeOrbieChat(); break;
     case "orbie-clear": {
       orbieLog = []; orbiePending = null; orbieSaveLog();
@@ -5134,7 +5709,10 @@ document.addEventListener("input", e=>{
 
 document.addEventListener("keydown", e=>{
   if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); openCmd(); return; }
-  if(e.key==="Escape"){ closeModal(); closeOrbieChat(); closePopover(); return; }
+  if(e.key==="Escape"){ closeModal(); closeOrbieChat(); closePopover(); closeGalaxy(); closeBriefing(); return; }
+  if((e.key==="Enter" || e.key===" ") && e.target && e.target.getAttribute && e.target.getAttribute("role")==="button" && e.target.dataset && e.target.dataset.act){
+    e.preventDefault(); e.target.click(); return;
+  }
   if(e.key==="Enter" && (e.metaKey||e.ctrlKey)){
     const mf = $("#modal-root form");
     if(mf){ e.preventDefault(); if(mf.requestSubmit) mf.requestSubmit(); return; }
@@ -5147,6 +5725,8 @@ document.addEventListener("keydown", e=>{
   }
   const tag = (e.target.tagName||"").toLowerCase();
   if(tag==="input" || tag==="textarea" || tag==="select" || e.target.isContentEditable) return;
+  if(document.querySelector("#modal-root .overlay")) return;
+  if(document.body.classList.contains("orbie-open") && e.key.toLowerCase()!=="o") return;
   if(e.key==="?"){ e.preventDefault(); openShortcuts(); return; }
   if(e.key==="/"){ e.preventDefault(); const s=$("#search"); if(s) s.focus(); }
   else if(!e.ctrlKey && !e.metaKey && !e.altKey){
@@ -5226,13 +5806,15 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "7.1";
+const APP_VERSION = "8.0";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
   localStorage.setItem("orbit-ver", APP_VERSION);
 }catch(e){}
 
+applyDaypart();
+setInterval(applyDaypart, 15*60000);
 applyStartView();
 updateFab();
 render();
@@ -5242,6 +5824,15 @@ if(fsess){ document.body.classList.add("focus-on"); renderFocusPill(); }
 maybeNotify();
 updateBadge();
 maybeOnboard();
+maybeBriefing();
+
+/* last line of defense: never die silently */
+let _errToasted = false;
+addEventListener("error", ()=>{
+  if(_errToasted) return;
+  _errToasted = true;
+  try{ showToast("⚠ Something hiccuped — your data is safe. Reload if anything looks off."); }catch(e){}
+});
 
 /* deep links & share target — works with iPhone Shortcuts, Siri, PWA app
    shortcuts and the Web Share sheet:
@@ -5267,7 +5858,7 @@ function handleDeepLinks(q){
     if(a){ ui.view = "ext"; ui.appId = a.id; render(); used = true; }
   }
   const vw = q.get("view");
-  if(vw && ["today","week","habits","pad"].indexOf(vw) > -1){ ui.view = vw; ui.spaceId = null; render(); used = true; }
+  if(vw && ["today","work","week","habits","pad"].indexOf(vw) > -1){ ui.view = vw; ui.spaceId = null; render(); used = true; }
   if(q.get("quick")==="1"){ openTaskModal(null); used = true; }
   if(q.get("focus")==="1"){ if(!fsess) startFocus(null); used = true; }
   return used;

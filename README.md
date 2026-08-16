@@ -1,4 +1,4 @@
-# 🪐 Orbit 6.0 — Tasks & Notes
+# 🪐 Orbit 8.0 — Tasks & Notes
 
 **Liquid Glass edition** — a design-system overhaul tuned to how the best product companies build: layered elevation shadows, a refined type scale, gradient primary buttons with inner highlights, accent-tinted navigation, pill search, and Apple-style translucency on every surface.
 
@@ -32,6 +32,11 @@ A personal command center for everything: job applications, work, reminders, hou
 - **Keyboard-first** — `T` `W` `H` `P` navigate, `F` starts focus, `N` new task, `/` search, `?` shows the full cheat sheet
 - **Auto theme** — Light, Dark, or ✨ Auto that follows your system live, synced across devices
 - **Orbie is a real assistant** — press `O` (or tap the mascot) for a full glass chat panel with suggestion chips, a mic button and a typing indicator. Creating tasks is effortless: tap ➕ Add task and say it naturally, or just type "call mom fri !high" — anything without a date gets Today/Tomorrow/Weekend chips right in the reply. It recommends what to do first (with 🎯 Focus / ✓ Done buttons), understands "I finished the report", "move X to tomorrow", "add habit read", "log water", jokes, moods and status reports — all instant and offline. Signed in to sync? Unmatched chat goes to free AI (puter.ai), which can even return actions Orbie executes (add / complete / reschedule / focus). Conversation survives the session; 🧹 clears it.
+- **☀️ Daily briefing** — once a day, Orbit meets you at the door: a glass card with your plan (due, overdue, habits, work), yesterday's pace, and one-tap starts — including "What first?", which hands you straight to Orbie's recommendation. Toggleable like everything else.
+- **🔗 Clickable links** — paste a URL into any task description, note, or Orbie chat and it becomes a safe link (new tab, noopener) that never accidentally opens the editor.
+- **🛡 Long-haul safety** — a global error net that keeps the app alive with a calm toast, a storage-full warning that points to backup, plus the self-healing duplicate repair on every load.
+- **✨ Your Galaxy** — Orbit's signature: every task you have ever finished becomes a star in a full-screen night sky, laid out on a golden-angle spiral that grows from the center as your history grows. Stars are colored by their space and sized by priority; click one to remember what it was and when you did it. The footer is your week, wrapped — done count, focus time, habit checks, work hours — with one tap to copy and share. Open it from the ✨ chip by your greeting, ⌘K, or just tell Orbie "galaxy". The ambient atmosphere also follows the real sky now: dawn gold, dusk warmth, quiet night.
+- **Work page + real work tools** — the 🏢 tile at the bottom of Today opens a dedicated Work page: clock in/out with a live shift timer and synced hours, a weekly total with one-tap timesheet copy, a standup generator (Yesterday/Today/Blockers built from your actual tasks), instant timestamped meeting notes, and an end-of-day wrap-up — plus work-only stats, a Waiting-on group, and links to your Work log and Brag doc.
 - **Work HQ starter kit** — ⌘K → "Set up Work HQ": a corporate space with an Inbox→Waiting on→Done pipeline, recurring rituals with checklists (top-3 planning, timesheet, weekly review, brag doc), duplicate-me kickoff and meeting-prep checklist cards, 1:1/decisions/handover note templates, and Work log + Brag doc notepad pages.
 - **Extras** — search (`/`), confetti on completing tasks, JSON export/import backups
 
