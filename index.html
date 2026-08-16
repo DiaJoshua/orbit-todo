@@ -811,6 +811,31 @@ html[data-theme="dark"] .af-frames iframe{background:#141416}
 }
 @media(max-width:1099px){#af-pin{display:none}}
 
+/* ============ the Orbit guide (slide-up sheet) ============ */
+#guide{position:fixed;inset:0;z-index:118;display:none}
+body.guide-open #guide{display:block}
+#guide .gd-back{position:absolute;inset:0;background:var(--overlay-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:fadeIn .25s ease}
+.gd-sheet{position:absolute;left:50%;bottom:0;transform:translate(-50%,0);width:min(680px,100vw);height:min(86vh,880px);background:var(--glass-bg);border:1px solid var(--border2);border-bottom:none;border-radius:26px 26px 0 0;box-shadow:var(--pop-shadow);display:flex;flex-direction:column;overflow:hidden;animation:gdUp .55s cubic-bezier(.22,1.12,.3,1)}
+html[data-glass="off"] .gd-sheet,html:not([data-style="glass"]) .gd-sheet{background:var(--modal-bg)}
+@keyframes gdUp{from{transform:translate(-50%,105%)}}
+#guide.closing .gd-sheet{animation:gdDown .28s ease forwards}
+#guide.closing .gd-back{animation:fadeOut .28s ease forwards}
+@keyframes gdDown{to{transform:translate(-50%,105%)}}
+.gd-grab{width:40px;height:5px;border-radius:3px;background:var(--border2);margin:10px auto 2px;flex-shrink:0}
+.gd-head{display:flex;align-items:center;gap:10px;padding:8px 22px 12px;flex-shrink:0}
+.gd-title{font-size:19px;font-weight:800;letter-spacing:-.3px;background:linear-gradient(90deg,var(--accent),#2f7fe0);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:220% 100%;animation:gradShift 1.6s cubic-bezier(.25,.75,.25,1)}
+.gd-close{margin-left:auto}
+.gd-body{flex:1;overflow-y:auto;padding:4px 22px 30px;overscroll-behavior:contain}
+.gd-sec{display:flex;gap:13px;padding:15px 14px;border:1px solid var(--border);border-radius:16px;background:var(--panel2);margin-bottom:10px;animation:fadeUp .45s cubic-bezier(.2,.8,.3,1) both;transition:transform .15s,border-color .15s}
+.gd-sec:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 35%,var(--border))}
+.gd-ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:color-mix(in srgb,var(--accent) 12%,transparent);flex-shrink:0;transition:transform .3s cubic-bezier(.3,1.4,.4,1)}
+.gd-sec:hover .gd-ico{transform:scale(1.12) rotate(-6deg)}
+.gd-sec h3{font-size:14px;font-weight:750;margin-bottom:3px}
+.gd-sec p{font-size:12.8px;color:var(--muted);line-height:1.65}
+.gd-sec p b{color:var(--text)}
+.gd-sec .kbd{margin:0 2px;font-size:10px;padding:1px 6px}
+.gd-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:color-mix(in srgb,var(--accent) 70%,var(--tint-mix));background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+
 /* ============ daily briefing ============ */
 #brief{position:fixed;inset:0;z-index:115;display:none;place-items:center;background:var(--overlay-bg);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);padding:18px}
 body.brief-open #brief{display:grid;animation:fadeIn .25s ease}
@@ -2871,6 +2896,8 @@ function openAppearance(){
   const kb = ((JSON.stringify(state).length)/1024).toFixed(1);
   modalShell(
     '<h2>Settings · Appearance</h2>'+
+    row("📖 The full guide","Everything Orbit can do, in one scroll — slides up from below",
+      '<button type="button" class="btn ghost" data-act="guide-open">Open ›</button>')+
     row("Theme","Circular reveal on switch · Auto follows your system",
       pickset("app-theme", [["light","☀️ Light"],["dark","🌙 Dark"],["auto","✨ Auto"]], mode))+
     row("Style","Five design languages — pick how Orbit is built, not just its colors",
@@ -2961,6 +2988,7 @@ function cmdActions(){
     {icon:"🎯", label:"Focus for 25 minutes", run:()=>startFocus(null)},
     {icon:"🪐", label:"Chat with Orbie (O)", run:()=>openOrbiePanel()},
     {icon:"✨", label:"Open your galaxy", run:openGalaxy},
+    {icon:"📖", label:"Open the Orbit guide", run:openGuide},
     {icon:"⚙️", label:"Settings — appearance, features, privacy", run:openAppearance},
     {icon:featOn("sounds")?"🔊":"🔇", label:featOn("sounds")?"Mute sounds":"Unmute sounds", run:toggleSound},
     {icon:"⌨️", label:"Keyboard shortcuts", run:openShortcuts},
@@ -4780,6 +4808,52 @@ document.addEventListener("click", e=>{
   } else if(tip){ tip.classList.remove("on"); gxSel = -1; }
 });
 /* ================================================================
+   THE ORBIT GUIDE · the full manual, sliding up from below with
+   staggered sections. Opened from Settings, ⌘K, or Orbie.
+   ================================================================ */
+function openGuide(){
+  let g = document.getElementById("guide");
+  if(!g){ g = document.createElement("div"); g.id = "guide"; document.body.appendChild(g); }
+  const K = k=>'<span class="kbd">'+k+'</span>';
+  const secs = [
+    ["🚀","Start here","Everything lives in <b>Spaces</b> (sidebar) — each has ☑ Tasks, a ▦ Board pipeline and 🗒 Notes. Type tasks in plain words and Orbit understands: <b>call mom fri !high in Personal</b> sets Friday, high priority, and the space. Magic words: <b>today, tomorrow, fri, aug 25, in 3 days, next week, daily, weekdays, weekly, !high !med !low</b>."],
+    ["☀️","Today","Your mission control. The four stat tiles are <b>buttons</b> — tap Due today or Overdue to jump to that section, Done today for your completed report, Open tasks for the Week planner. Pinned notes 📌 live here, the 🏢 Work tile sits at the bottom, and ✨ Galaxy waits beside your greeting.","tap everything"],
+    ["🏢","Work","A real workday toolkit: <b>Clock in/out</b> banks hours into a synced log, <b>⏱ Timesheet</b> copies your Mon–Sun week, <b>🗣 Standup</b> writes Yesterday/Today/Blockers from your actual tasks, <b>📝 Meeting note</b> opens a timestamped template, <b>🌇 Wrap-up</b> summarizes your day. Park stuck tasks in the <b>Waiting on</b> column."],
+    ["📆","Week planner","Seven days plus a <b>No date</b> parking column. Drag any card onto a day to schedule it, drag it back to unschedule. Overdue tasks wait in the rescue banner; things beyond the week live in <b>Later</b> underneath."],
+    ["🔁","Habits","Tap today's big dot to log a habit — tap yesterday's if you forgot. Streaks survive <b>one missed day</b> (the ❄ freeze). Quick-log from the dashboard chips, or just tell Orbie <b>log water</b>."],
+    ["🗒","Notepad","Pages for anything long-form. Type <b>/</b> on a new line for headings, checklists, date stamps and templates (meeting notes, daily plan). Highlight any line and hit <b>＋ Task from selection</b> to turn words into a task."],
+    ["🪐","Orbie","Press "+K("O")+" or tap the little planet. Say <b>hi</b>, ask <b>what first?</b> for a smart pick with Focus/Done buttons, hand it tasks in plain words, or say <b>galaxy</b>, <b>focus</b>, <b>status</b>. Signed in to sync? Anything else goes to <b>free AI</b> that can even add and reschedule for you.","talks back"],
+    ["🎯","Focus","Press "+K("F")+", tap 🎯 on any task, or ask Orbie. A glass pill counts down (the browser tab does too), the dashboard ring fills toward your daily goal, and finished minutes sync everywhere. Length and goal live in Settings → Behavior."],
+    ["✨","Your galaxy","Every task you have ever finished is a star on a real golden-angle spiral — oldest at the center, colored by space, sized by priority. <b>Click a star</b> to remember it. Below: your last 6 months as a heatmap, and your week wrapped with one-tap copy.","the soul"],
+    ["🎨","Make it yours","Settings holds five <b>design languages</b> (Liquid Glass, Zen, Pro, Pop, Journal), three glass intensities, an accent that recolors the whole atmosphere, Auto theme that follows your system, compact density, 19 synthesized sounds with volume + hover ticks (🔊 in the topbar mutes all, "+K("M")+") — and every single feature has a switch."],
+    ["☁️","Sync & data","One tap in the sidebar signs into <b>Puter</b> — free, private, no card. Everything follows you: tasks, notes, habits, hours, preferences, even your theme. Merges are duplicate-proof and self-healing. Settings → Data has Export/Import backups and a full calendar .ics."],
+    ["📱","Install & integrations","Install as a real app (Add to Home Screen / Install). Share any link or text <b>to</b> Orbit and it becomes a task. Siri/Shortcuts: <b>?add=Buy milk tomorrow</b>, <b>?view=work</b>, <b>?focus=1</b>. Right-click a task for Google/Outlook/Apple calendar. Paste a whole list via ⌘K, drag text in from anywhere, and embed your own apps (like Sipit) in the Apps hub."],
+    ["⌨️","Keyboard","Fly without the mouse: "+K("⌘K")+" palette · "+K("N")+" new task · "+K("/")+" search · "+K("T")+" Today · "+K("W")+" Week · "+K("H")+" Habits · "+K("P")+" Notepad · "+K("F")+" focus · "+K("M")+" mute · "+K("O")+" Orbie · "+K("?")+" shortcuts · "+K("Esc")+" closes anything · "+K("⌘↵")+" saves any sheet."]
+  ];
+  g.innerHTML =
+    '<div class="gd-back" data-act="guide-close"></div>'+
+    '<div class="gd-sheet">'+
+      '<div class="gd-grab"></div>'+
+      '<div class="gd-head"><span class="gd-title">📖 The Orbit guide</span><button class="icon-btn gd-close" data-act="guide-close" title="Close (Esc)">✕</button></div>'+
+      '<div class="gd-body">'+
+        secs.map((x,i)=>'<div class="gd-sec" style="animation-delay:'+(i*45)+'ms"><span class="gd-ico">'+x[0]+'</span><div><h3>'+x[1]+(x[3]?'<span class="gd-tag">'+x[3]+'</span>':'')+'</h3><p>'+x[2]+'</p></div></div>').join("")+
+        '<div style="text-align:center;padding:14px 0 4px;font-size:11px;color:var(--faint)">Orbit '+APP_VERSION+' · free forever · your data stays yours 🪐</div>'+
+      '</div>'+
+    '</div>';
+  g.classList.remove("closing");
+  document.body.classList.add("guide-open");
+  playSound("tap");
+}
+function closeGuide(){
+  const g = document.getElementById("guide");
+  if(!g || !document.body.classList.contains("guide-open")) return;
+  if(isReduced()){ document.body.classList.remove("guide-open"); return; }
+  g.classList.add("closing");
+  playSound("close");
+  setTimeout(()=>{ document.body.classList.remove("guide-open"); g.classList.remove("closing"); }, 270);
+}
+
+/* ================================================================
    DAILY BRIEFING · once a day, Orbit meets you at the door with a
    glass card: your plan, your streaks, one-tap ways to start.
    ================================================================ */
@@ -5288,6 +5362,8 @@ document.addEventListener("click", e=>{
     case "brief-close": closeBriefing(); playSound("close"); break;
     case "brief-first": closeBriefing(); openOrbiePanel(); orbieProcess("what should I do first"); break;
     case "brief-focus": closeBriefing(); if(!fsess) startFocus(null); break;
+    case "guide-open": openGuide(); break;
+    case "guide-close": closeGuide(); break;
     case "nav-work": ui.view="work"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
     case "work-setup": closeModal(); buildWorkHQ(); break;
     case "work-pick": openWorkPick(); break;
@@ -5709,7 +5785,7 @@ document.addEventListener("input", e=>{
 
 document.addEventListener("keydown", e=>{
   if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); openCmd(); return; }
-  if(e.key==="Escape"){ closeModal(); closeOrbieChat(); closePopover(); closeGalaxy(); closeBriefing(); return; }
+  if(e.key==="Escape"){ closeModal(); closeOrbieChat(); closePopover(); closeGalaxy(); closeBriefing(); closeGuide(); return; }
   if((e.key==="Enter" || e.key===" ") && e.target && e.target.getAttribute && e.target.getAttribute("role")==="button" && e.target.dataset && e.target.dataset.act){
     e.preventDefault(); e.target.click(); return;
   }
@@ -5806,7 +5882,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "8.0";
+const APP_VERSION = "8.1";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
