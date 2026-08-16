@@ -834,6 +834,48 @@ html[data-theme="dark"] .af-frames iframe{background:#141416}
 }
 @media(max-width:1099px){#af-pin{display:none}}
 
+/* ============ app lock (privacy screen) ============ */
+#lock-scr{position:fixed;inset:0;z-index:300;display:none;place-items:center;background:color-mix(in srgb,var(--bg) 45%,transparent);backdrop-filter:blur(38px) saturate(1.25);-webkit-backdrop-filter:blur(38px) saturate(1.25)}
+body.locked #lock-scr{display:grid}
+body.locked #app,body.locked #mascot,body.locked #fab,body.locked #toast,body.locked #focus-pill,body.locked #orbie-panel,body.locked #galaxy,body.locked #guide,body.locked #brief,body.locked #lpad{filter:blur(16px);pointer-events:none;user-select:none}
+#lock-card{display:flex;flex-direction:column;align-items:center;gap:14px;padding:34px 42px;border-radius:22px;background:var(--glass-bg);border:1px solid var(--border2);box-shadow:var(--pop-shadow);animation:zoomIn .3s cubic-bezier(.2,.9,.3,1.1)}
+html:not([data-style="glass"]) #lock-card,html[data-glass="off"] #lock-card{background:var(--modal-bg)}
+#lock-card .logo-tile{width:52px;height:52px;border-radius:15px;cursor:default}
+#lock-card .lt{font-weight:800;font-size:16px}
+#lock-in{width:180px;text-align:center;font-size:22px;letter-spacing:8px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px;outline:none;color:var(--text)}
+#lock-in:focus{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+#lock-card.shake{animation:shake .4s}
+.lock-rem{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+.lock-rem input{accent-color:var(--accent);width:14px;height:14px}
+@keyframes shake{20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+body.locked{overflow:hidden}
+/* app zoom */
+.af-zoom{min-width:46px;height:30px;font-size:11px;font-weight:700;color:var(--muted);border-radius:9px;padding:0 6px}
+.af-zoom:hover{background:var(--panel2);color:var(--text)}
+.af-frames iframe{transform-origin:0 0}
+/* launchpad drag */
+.lp-tile.dragging{opacity:.4}
+
+/* ============ apps: site icons + Launchpad ============ */
+.favi{width:16px;height:16px;border-radius:4px;vertical-align:-3px}
+#lpad{position:fixed;inset:0;z-index:117;display:none}
+body.lpad-open #lpad{display:block}
+#lpad .lp-back{position:absolute;inset:0;background:var(--overlay-bg);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);animation:fadeIn .25s ease}
+.lp-wrap{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:30px;pointer-events:none}
+.lp-title{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--faint)}
+.lp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,110px));gap:18px;justify-content:center;max-width:640px;width:100%;pointer-events:auto}
+.lp-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:9px;padding:14px 6px;border-radius:18px;transition:.16s;animation:popIn .4s cubic-bezier(.3,1.4,.4,1) both}
+.lp-tile:hover{background:var(--panel2);transform:translateY(-3px)}
+.lp-tile:active{transform:scale(.94)}
+.lp-ico{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-size:26px;background:color-mix(in srgb,var(--lc,#2ab1dd) 16%,var(--panel));border:1px solid color-mix(in srgb,var(--lc,#2ab1dd) 30%,transparent);box-shadow:var(--card-shadow)}
+.lp-ico .favi{width:30px;height:30px;border-radius:8px}
+.lp-name{font-size:12px;font-weight:600;color:var(--text);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lp-tile .lp-edit{position:absolute;top:6px;right:8px;font-size:11px;color:var(--faint);opacity:0;transition:.15s;padding:3px 6px;border-radius:7px;cursor:pointer}
+.lp-tile:hover .lp-edit{opacity:.8}
+.lp-tile .lp-edit:hover{opacity:1;background:var(--panel2);color:var(--text)}
+.lp-tile.add .lp-ico{background:var(--panel2);border-style:dashed;color:var(--faint);font-size:22px}
+#app-favprev .favi{width:22px;height:22px;border-radius:6px;vertical-align:middle}
+
 /* ============ the Orbit guide (slide-up sheet) ============ */
 #guide{position:fixed;inset:0;z-index:118;display:none}
 body.guide-open #guide{display:block}
@@ -1161,7 +1203,7 @@ body.booting #sidebar .sb-foot{animation:fadeUp .45s 240ms both}
   .searchwrap{order:10;flex:1 0 100%;width:auto;max-width:none}
   .btn.primary{padding:8px 12px;flex-shrink:0}
   .btn.primary .bt-txt{display:none}
-  #menu-btn,#theme-btn,#sound-btn{flex-shrink:0}
+  #menu-btn,#theme-btn,#sound-btn,#lpad-btn{flex-shrink:0}
   .kbd-hint{display:none}
   .f-grid{grid-template-columns:1fr}
 }
@@ -1188,6 +1230,13 @@ body.booting #sidebar .sb-foot{animation:fadeUp .45s 240ms both}
 <div id="popover"></div>
 <div id="toast"></div>
 <div id="focus-pill"></div>
+<div id="lock-scr" role="dialog" aria-label="Orbit is locked"><div id="lock-card">
+  <span class="logo-tile"><svg width="26" height="26" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="104" fill="#fff" opacity=".97"/><ellipse cx="256" cy="256" rx="196" ry="72" fill="none" stroke="#fff" stroke-width="32" opacity=".9" transform="rotate(-18 256 256)"/></svg></span>
+  <div class="lt">Orbit is locked</div>
+  <input id="lock-in" type="password" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="off" aria-label="Enter PIN">
+  <label class="lock-rem"><input type="checkbox" id="lock-rem" checked> Remember this device</label>
+  <button class="btn primary" data-act="unlock" style="width:100%">Unlock</button>
+</div></div>
 <div id="galaxy" role="dialog" aria-label="Your galaxy">
   <canvas id="gx-canvas"></canvas>
   <div class="gx-head">
@@ -1339,6 +1388,7 @@ function buildWorkHQ(){
 }
 const HABIT_EMOJIS = "💧 🏃 📖 🧘 🌙 🥗 💪 🦷 ✍️ 🚶 🧠 💊 🎸 🗣 🚭 💤 🌅 📵 🙏 🧹 ☀️ 🎹 🧊 🍎".split(" ");
 const MIC_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.2"/></svg>';
+const GRID_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="5" r="2.1"/><circle cx="12" cy="5" r="2.1"/><circle cx="19" cy="5" r="2.1"/><circle cx="5" cy="12" r="2.1"/><circle cx="12" cy="12" r="2.1"/><circle cx="19" cy="12" r="2.1"/><circle cx="5" cy="19" r="2.1"/><circle cx="12" cy="19" r="2.1"/><circle cx="19" cy="19" r="2.1"/></svg>';
 const SR_OK = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 function micHtml(){ return (SR_OK && featOn("voice")) ? '<button type="button" class="mic" data-act="voice" title="Speak your task">'+MIC_SVG+'</button>' : ""; }
 const NOTE_COLORS  = ["#d6a327","#7c66dc","#3e8ef7","#30a46c","#e5484d","#8b8d98"];
@@ -1726,6 +1776,7 @@ const noteMatches = n=>{ if(!ui.search) return true; const q=ui.search.toLowerCa
 
 function currentAccent(){
   if(ui.view==="space"){ const s=getSpace(ui.spaceId); if(s) return s.color; }
+  if(ui.view==="ext" && state.apps){ const a=(state.apps||[]).find(x=>x.id===ui.appId); if(a && a.color) return a.color; }
   return "";
 }
 
@@ -1800,7 +1851,6 @@ function ensureExtras(){
   }
   if(!state.prefs.features || typeof state.prefs.features !== "object") state.prefs.features = {};
   if(!state.prefs.tiles || typeof state.prefs.tiles !== "object") state.prefs.tiles = {};
-  if(state.prefs.lockHash) state.prefs.lockHash = null; /* app lock removed */
   if(state.prefs.privacyBlur!=null) delete state.prefs.privacyBlur; /* removed — it never had a visible effect */
   if(state.prefs.look!=null) delete state.prefs.look; /* design presets removed — accent color covers it */
   if(!state.work || typeof state.work !== "object") state.work = {log:{}, inAt:null};
@@ -1912,6 +1962,49 @@ document.addEventListener("mouseover", e=>{
 document.addEventListener("mouseout", e=>{
   if(_hovLast && (e.target === _hovLast || _hovLast.contains(e.target)) && !_hovLast.contains(e.relatedTarget)) _hovLast = null;
 }, {passive:true});
+/* app lock: a hashed PIN, synced via prefs. Honest scope — it is a
+   privacy screen that locks the Orbit interface on your devices;
+   the underlying data is not additionally encrypted. */
+async function hashPin(p){
+  const src = "orbit·v2·"+p;
+  try{
+    const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(src));
+    return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");
+  }catch(e){
+    let h = 5381;
+    for(let i=0;i<src.length;i++) h = ((h<<5)+h+src.charCodeAt(i))>>>0;
+    return "x"+h.toString(16);
+  }
+}
+function lockNow(){
+  if(!(state.prefs && state.prefs.lockHash)) return;
+  closeModal(); closePopover(); closeOrbieChat(); closeGalaxy(); closeGuide(); closeBriefing(); closeLaunchpad();
+  document.body.classList.add("locked");
+  setTimeout(()=>{ const i = document.getElementById("lock-in"); if(i){ i.value = ""; i.focus(); } }, 80);
+}
+function deviceTrusted(){
+  try{ return localStorage.getItem("orbit-trusted") === state.prefs.lockHash; }catch(e){ return false; }
+}
+function unlockTry(){
+  const i = document.getElementById("lock-in"); if(!i) return;
+  hashPin(i.value).then(h=>{
+    if(h === state.prefs.lockHash){
+      document.body.classList.remove("locked");
+      try{
+        const rem = document.getElementById("lock-rem");
+        if(rem && rem.checked) localStorage.setItem("orbit-trusted", state.prefs.lockHash);
+        else localStorage.removeItem("orbit-trusted");
+      }catch(e){}
+      playSound("done");
+    } else {
+      const c = document.getElementById("lock-card");
+      if(c){ c.classList.remove("shake"); void c.offsetWidth; c.classList.add("shake"); }
+      i.value = "";
+      hapt(30);
+      playSound("error");
+    }
+  });
+}
 function applyStartView(){
   try{
     const sv = state.prefs && state.prefs.startView;
@@ -2079,9 +2172,9 @@ function renderSidebar(){
         '<span class="ico">🔁</span><span class="nm">Habits</span><span class="cnt">'+(state.habits||[]).filter(x=>!(x.days&&x.days[todayStr()])).length+'</span></button>'+
       '<div class="sb-label"><span>Spaces</span><button data-act="new-space" title="New space">＋</button></div>'+
       spacesHtml+
-      '<div class="sb-label"><span>Apps</span><button data-act="new-app" title="Embed a website as an app">＋</button></div>'+
+      '<div class="sb-label"><span data-act="lpad" style="cursor:pointer" title="Open Launchpad (A)">Apps 🚀</span><button data-act="new-app" title="Embed a website as an app">＋</button></div>'+
       (state.apps||[]).map(a=>'<button class="nav-item '+(ui.view==="ext"&&ui.appId===a.id?"active"+(navMoved?" just-active":""):"")+'" style="--ac:'+esc(a.color||"#2ab1dd")+'" data-act="nav-app" data-id="'+a.id+'">'+
-        '<span class="ico">'+esc(a.icon||"🧩")+'</span><span class="nm">'+esc(a.name)+'</span>'+(pinnedApp===a.id?'<span class="cnt" title="Pinned beside Orbit">◫</span>':'')+
+        '<span class="ico">'+appIconHtml(a)+'</span><span class="nm">'+esc(a.name)+'</span>'+(pinnedApp===a.id?'<span class="cnt" title="Pinned beside Orbit">◫</span>':'')+
       '</button>').join("")+
     '</div>'+
     '<div class="sb-foot">'+
@@ -2202,9 +2295,10 @@ function commitNoteOrderFromDom(gridEl){
 /* ---------------- drag to reorder spaces (mouse + touch) ---------------- */
 function commitSpaceOrder(){
   const ids = $$("#sidebar .nav-item[data-id]").map(b=>b.dataset.id);
-  const before = state.spaces.map(s=>s.id).join(",");
+  const before = state.spaces.map(s=>s.id).join(",") + "|" + (state.apps||[]).map(a=>a.id).join(",");
   state.spaces.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
-  if(state.spaces.map(s=>s.id).join(",") !== before){ playSound("move"); save(); showToast("Spaces reordered"); }
+  state.apps = (state.apps||[]).slice().sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+  if(state.spaces.map(s=>s.id).join(",") + "|" + state.apps.map(a=>a.id).join(",") !== before){ playSound("move"); save(); showToast("Reordered"); }
   render();
 }
 
@@ -2292,13 +2386,14 @@ function renderTopbar(){
   else if(ui.view==="week"){ title="Week"; emoji="📆"; }
   else if(ui.view==="habits"){ title="Habits"; emoji="🔁"; }
   else if(ui.view==="work"){ const ws3 = getSpace(state.prefs && state.prefs.workSpace); title = ws3 ? "Work · "+ws3.name : "Work"; emoji = "🏢"; }
-  else if(ui.view==="ext"){ const a0 = getApp(ui.appId); title = a0 ? a0.name : "App"; emoji = a0 ? a0.icon : "🧩"; }
+  else if(ui.view==="ext"){ const a0 = getApp(ui.appId); title = a0 ? a0.name : "App"; emoji = a0 ? appIconHtml(a0) : "🧩"; }
   else { const s=getSpace(ui.spaceId); title=s?s.name:"Orbit"; emoji=s?s.icon:""; }
   $("#topbar").innerHTML =
     '<button class="icon-btn" id="menu-btn" data-act="toggle-sb" title="Show or hide the sidebar">'+MENU_SVG+'</button>'+
-    '<div class="tb-title"><span class="emoji">'+esc(emoji)+'</span><span class="tb-name">'+esc(title)+'</span></div>'+
+    '<div class="tb-title"><span class="emoji">'+(String(emoji).indexOf("<img")===0 ? emoji : esc(emoji))+'</span><span class="tb-name">'+esc(title)+'</span></div>'+
     '<div class="tb-spacer"></div>'+
     '<button class="kbd-hint" data-act="cmdk" title="Command palette: jump anywhere, create anything">'+(IS_APPLE?"⌘ K":"Ctrl K")+'</button>'+
+    '<button class="icon-btn" id="lpad-btn" data-act="lpad" title="Launchpad — your apps (A)">'+GRID_SVG+'</button>'+
     '<button class="icon-btn" id="sound-btn" data-act="toggle-sound" title="'+(featOn("sounds")?"Sounds on · click or press M to mute":"Sounds off · click or press M to unmute")+'" aria-pressed="'+featOn("sounds")+'">'+(featOn("sounds")?SND_ON_SVG:SND_OFF_SVG)+'</button>'+
     '<button class="icon-btn" id="theme-btn" data-act="toggle-theme" title="'+(theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(theme==="dark"?SUN_SVG:MOON_SVG)+'</button>'+
     '<div class="searchwrap">'+SEARCH_SVG+'<input id="search" placeholder="Search" value="'+esc(ui.search)+'" autocomplete="off"></div>'+
@@ -3061,6 +3156,11 @@ function openAppearance(){
       pickset("set-goal", [[30,"30m"],[60,"1h"],[90,"1.5h"],[120,"2h"]], p.focusGoal||60))+
     row("Daily reminders","One notification a day about what’s due",
       '<button type="button" class="btn ghost" data-act="notif-tog">'+notifLbl+'</button>', true)+
+    '<h2 style="margin-top:20px">Keyboard shortcuts</h2>'+
+    '<div class="sc-grid" style="margin:2px 0 4px">'+shortcutRows()+'</div>'+
+    '<h2 style="margin-top:20px">Privacy</h2>'+
+    row("App lock","Guards your public URL — new devices need the PIN once, remembered devices skip it · L locks on demand · a privacy screen, not encryption", sw(!!p.lockHash,"lock-tog",null,"App lock"), !p.lockHash)+
+    (p.lockHash ? row("Change PIN","Update your unlock code any time",'<button type="button" class="btn ghost" data-act="pin-change-open">Change ›</button>', true) : "")+
     '<h2 style="margin-top:20px">Data</h2>'+
     row("Cloud sync", esc(syncLabel()), '<button type="button" class="btn ghost" data-act="sync">Manage</button>')+
     row("Usage diet","Polls a tiny beacon instead of the full data, writes only when something really changed, and sleeps while the tab is hidden — daily use stays around 1–3% of the free monthly credits","")+
@@ -3093,7 +3193,7 @@ function cmdActions(){
     acts.push({icon:"▦", label:s.name+": Board", run:nav("space", s.id, "board")});
   });
   (state.apps||[]).forEach(a=>{
-    acts.push({icon:a.icon||"🧩", label:"Open "+a.name+" (app)", run:()=>{ ui.view="ext"; ui.appId=a.id; ui.search=""; closeSb(); render(); }});
+    acts.push({icon:appIconHtml(a), label:"Open "+a.name+" (app)", run:()=>{ ui.view="ext"; ui.appId=a.id; ui.search=""; closeSb(); render(); }});
   });
   (state.pages||[]).forEach(p=>{
     acts.push({icon:p.icon||"📝", label:"Page: "+p.title, run:()=>{ ui.view="pad"; ui.pageId=p.id; ui.spaceId=null; ui.search=""; closeSb(); render(); }});
@@ -3104,6 +3204,7 @@ function cmdActions(){
     {icon:"🪐", label:"New space", run:()=>openSpaceModal(null)},
     {icon:"🏢", label:"Set up Work HQ (corporate starter kit)", run:buildWorkHQ},
     {icon:"🌱", label:"New habit", run:()=>openHabitModal(null)},
+    {icon:"🚀", label:"Open Launchpad (A)", run:openLaunchpad},
     {icon:"🧩", label:"Add an app (embed a website)", run:()=>openAppModal(null)},
     {icon:theme==="dark"?"☀️":"🌙", label:theme==="dark"?"Switch to light mode":"Switch to dark mode", run:toggleTheme},
     {icon:"🎯", label:"Focus for 25 minutes", run:()=>startFocus(null)},
@@ -3111,6 +3212,7 @@ function cmdActions(){
     {icon:"✨", label:"Open your galaxy", run:openGalaxy},
     {icon:"📖", label:"Open the Orbit guide", run:openGuide},
     {icon:"⚙️", label:"Settings — appearance, features, privacy", run:openAppearance},
+    {icon:"🔒", label: (state.prefs && state.prefs.lockHash) ? "Lock Orbit now (L)" : "Set up app lock (PIN)", run:()=>{ (state.prefs && state.prefs.lockHash) ? lockNow() : openPinModal("set"); }},
     {icon:featOn("sounds")?"🔊":"🔇", label:featOn("sounds")?"Mute sounds":"Unmute sounds", run:toggleSound},
     {icon:"⌨️", label:"Keyboard shortcuts", run:openShortcuts},
     {icon:"📋", label:"Paste to add many tasks", run:openPasteImport},
@@ -4622,24 +4724,30 @@ function openPasteImport(){
     '<div class="m-foot"><span class="grow"></span><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button type="button" class="btn primary" data-act="paste-go">Add tasks</button></div>');
   setTimeout(()=>{ const b = $("#paste-box"); if(b) b.focus(); }, 40);
 }
-function openShortcuts(){
+function shortcutRows(){
   const row = (k, l)=>'<div class="sc-row"><span class="kbd">'+k+'</span><span>'+l+'</span></div>';
+  return row(IS_APPLE?"⌘ K":"Ctrl K","Command palette + universal search")+
+    row("N","New task")+
+    row("/","Search")+
+    row("T","Today")+
+    row("W","Week planner")+
+    row("H","Habits")+
+    row("P","Notepad")+
+    row("F","Start a focus session")+
+    row("M","Mute / unmute sounds")+
+    row("O","Chat with Orbie")+
+    row("A","Launchpad — your apps grid")+
+    row("L","Lock Orbit (when a PIN is set)")+
+    row("+ − 0","Zoom an open app in / out / reset")+
+    row(IS_APPLE?"⌘ ↵":"Ctrl ↵","Save any open sheet")+
+    row("↵","Next checklist item (inside a task sheet)")+
+    row("?","This list, from anywhere")+
+    row("Esc","Close anything");
+}
+function openShortcuts(){
   modalShell(
     '<h2>Keyboard shortcuts</h2>'+
-    '<div class="sc-grid">'+
-      row(IS_APPLE?"⌘ K":"Ctrl K","Command palette")+
-      row("N","New task")+
-      row("/","Search")+
-      row("T","Today")+
-      row("W","Week planner")+
-      row("H","Habits")+
-      row("P","Notepad")+
-      row("F","Start a focus session")+
-      row("M","Mute / unmute sounds")+
-      row("O","Chat with Orbie")+
-      row(IS_APPLE?"⌘ ↵":"Ctrl ↵","Save open sheet")+
-      row("Esc","Close anything")+
-    '</div>'+
+    '<div class="sc-grid">'+shortcutRows()+'</div>'+
     '<div class="m-foot"><span class="grow"></span><button type="button" class="btn primary" data-act="close-modal">Done</button></div>');
 }
 
@@ -4650,6 +4758,7 @@ function openShortcuts(){
    can pin it beside Orbit and use both at the same time.
    ================================================================ */
 const getApp = id=>(state.apps||[]).find(a=>a.id===id);
+const appIconHtml = a=>a && a.iconUrl ? '<img class="favi" src="'+esc(a.iconUrl)+'" alt="">' : esc((a && a.icon) || "🧩");
 let extFrames = {};
 let pinnedApp = null;
 try{ pinnedApp = localStorage.getItem("orbit-app-pin") || null; }catch(e){}
@@ -4669,6 +4778,23 @@ function mountApp(app){
     wrap.appendChild(f);
   }
   Object.keys(extFrames).forEach(k=>extFrames[k].classList.toggle("on", k===app.id));
+  applyAppZoom(app);
+}
+function applyAppZoom(app){
+  const f = extFrames[app.id]; if(!f) return;
+  const z = Math.min(1.6, Math.max(0.5, +app.zoom || 1));
+  f.style.transform = z===1 ? "" : "scale("+z+")";
+  f.style.width = z===1 ? "" : (100/z).toFixed(4)+"%";
+  f.style.height = z===1 ? "" : (100/z).toFixed(4)+"%";
+  const lb = document.getElementById("af-zoom");
+  if(lb && currentAppId()===app.id) lb.textContent = Math.round(z*100)+"%";
+}
+function bumpAppZoom(delta){
+  const a = getApp(currentAppId()); if(!a) return;
+  const cur = +a.zoom || 1;
+  a.zoom = delta===0 ? 1 : Math.min(1.6, Math.max(0.5, Math.round((cur+delta)*10)/10));
+  applyAppZoom(a);
+  save();
 }
 function renderAppframes(){
   const host = $("#appframes"); if(!host) return;
@@ -4683,6 +4809,9 @@ function renderAppframes(){
       '<div class="af-bar">'+
         '<span class="ttl" id="af-ttl"></span><span class="hint" id="af-hint"></span><span class="sp"></span>'+
         '<button class="icon-btn" data-act="app-edit" title="Edit app">✏️</button>'+
+        '<button class="icon-btn" data-act="app-zoom-out" title="Zoom out">−</button>'+
+        '<button class="af-zoom" data-act="app-zoom-reset" id="af-zoom" title="Reset zoom">100%</button>'+
+        '<button class="icon-btn" data-act="app-zoom-in" title="Zoom in">＋</button>'+
         '<button class="icon-btn" data-act="app-reload" title="Reload app">↻</button>'+
         '<button class="icon-btn" id="af-pin" data-act="app-pin" title="Pin beside Orbit (side by side)">◫</button>'+
         '<button class="icon-btn" data-act="app-open" title="Open in a new tab">↗</button>'+
@@ -4691,11 +4820,62 @@ function renderAppframes(){
       '<div class="af-frames" id="af-frames"></div>';
     host.dataset.built = "1";
   }
-  const t2 = $("#af-ttl"); if(t2) t2.innerHTML = esc(app.icon||"🧩")+" "+esc(app.name);
+  const t2 = $("#af-ttl"); if(t2) t2.innerHTML = appIconHtml(app)+" "+esc(app.name);
   const h2 = $("#af-hint"); if(h2) h2.textContent = pinnedMode ? "pinned · Orbit and the app, side by side" : "runs live inside Orbit · state is kept";
   const pb = $("#af-pin"); if(pb) pb.classList.toggle("on", pinnedMode);
   mountApp(app);
 }
+function openLaunchpad(){
+  let lp = document.getElementById("lpad");
+  if(!lp){ lp = document.createElement("div"); lp.id = "lpad"; document.body.appendChild(lp); }
+  const apps = state.apps || [];
+  lp.innerHTML =
+    '<div class="lp-back" data-act="lpad-close"></div>'+
+    '<div class="lp-wrap"><div class="lp-title">Apps</div><div class="lp-grid">'+
+      apps.map((a,i)=>'<button type="button" class="lp-tile" style="--lc:'+esc(a.color||"#2ab1dd")+';animation-delay:'+(i*35)+'ms" data-act="lp-open" data-id="'+a.id+'">'+
+        '<span class="lp-ico">'+appIconHtml(a)+'</span>'+
+        '<span class="lp-name">'+esc(a.name)+'</span>'+
+        '<span class="lp-edit" data-act="app-edit-id" data-id="'+a.id+'" title="Edit app">✎</span>'+
+      '</button>').join("")+
+      '<button type="button" class="lp-tile add" style="animation-delay:'+(apps.length*35)+'ms" data-act="new-app"><span class="lp-ico">＋</span><span class="lp-name">Add app</span></button>'+
+    '</div></div>';
+  document.body.classList.add("lpad-open");
+  playSound("sparkle");
+  bindLpadDnD();
+}
+function bindLpadDnD(){
+  const grid = document.querySelector("#lpad .lp-grid"); if(!grid) return;
+  let drag = null;
+  $$(".lp-tile[data-id]", grid).forEach(t=>{
+    t.setAttribute("draggable","true");
+    t.addEventListener("dragstart", e=>{
+      drag = t; ui._intDrag = true;
+      t.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      try{ e.dataTransfer.setData("text/plain", t.dataset.id); }catch(_){}
+    });
+    t.addEventListener("dragend", ()=>{
+      ui._intDrag = false;
+      if(!drag) return;
+      drag.classList.remove("dragging"); drag = null;
+      const ids = $$(".lp-tile[data-id]", grid).map(x=>x.dataset.id);
+      const before = (state.apps||[]).map(a=>a.id).join(",");
+      state.apps.sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+      if(state.apps.map(a=>a.id).join(",") !== before){
+        playSound("move");
+        save(); renderSidebar();
+        showToast("Apps rearranged");
+      }
+    });
+    t.addEventListener("dragover", e=>{
+      if(!drag || drag===t) return;
+      e.preventDefault();
+      const r = t.getBoundingClientRect();
+      grid.insertBefore(drag, (e.clientX - r.left) < r.width/2 ? t : t.nextSibling);
+    });
+  });
+}
+function closeLaunchpad(){ document.body.classList.remove("lpad-open"); }
 function openAppModal(appId){
   const a = appId ? getApp(appId) : null;
   const color = a ? a.color : "#2ab1dd";
@@ -4707,12 +4887,19 @@ function openAppModal(appId){
     '<form data-form="app" data-id="'+(a?a.id:"")+'">'+
       '<input class="f-title" name="name" placeholder="App name (e.g. Trip calculator)" value="'+esc(a?a.name:"")+'" required autocomplete="off">'+
       '<label class="f-field" style="margin-top:12px"><span>Web address (URL)</span><input name="url" placeholder="https://…" value="'+esc(a?a.url:"")+'" required autocomplete="off"></label>'+
-      '<div class="fsec"><div class="fsec-t">😀 Icon</div>'+
+      '<div class="fsec"><div class="fsec-t">😀 Icon <span class="cnt2">emoji, or the real site icon</span></div>'+
+        '<div class="pick-row" style="margin-bottom:9px">'+
+          '<button type="button" class="pick'+(a&&a.iconUrl?"":" on")+'" data-act="app-emoji-mode">😀 Emoji</button>'+
+          '<button type="button" class="pick'+(a&&a.iconUrl?" on":"")+'" data-act="app-favicon">✨ Site icon</button>'+
+          '<span id="app-favprev">'+(a&&a.iconUrl?'<img class="favi" src="'+esc(a.iconUrl)+'" alt="">':'')+'</span>'+
+        '</div>'+
         '<div class="emoji-grid" id="emoji-grid">'+APP_EMOJIS.map(e2=>'<button type="button" data-act="pick-emoji" data-e="'+e2+'" class="'+(e2===icon0?"on":"")+'">'+e2+'</button>').join("")+'</div>'+
         '<input type="hidden" name="icon" value="'+esc(icon0)+'">'+
+        '<input type="hidden" name="iconurl" value="'+esc(a&&a.iconUrl?a.iconUrl:"")+'">'+
       '</div>'+
-      '<div class="fsec"><div class="fsec-t">🎨 Color</div><div class="swatches">'+
+      '<div class="fsec"><div class="fsec-t">🎨 Color <span class="cnt2">or dial in any exact color</span></div><div class="swatches">'+
         SPACE_COLORS.map(c=>'<button type="button" class="swatch'+(c===color?" active":"")+'" style="background:'+c+';--swc:'+c+'" data-act="swatch" data-c="'+c+'"></button>').join("")+
+        '<button type="button" class="swatch custom'+(SPACE_COLORS.indexOf(color)<0?" active":"")+'" title="Exact color" style="--swc:'+esc(color)+'"><input type="color" id="app-custom" value="'+esc(SPACE_COLORS.indexOf(color)<0?color:"#2ab1dd")+'"></button>'+
       '</div><input type="hidden" name="color" value="'+esc(color)+'"></div>'+
       '<div class="m-foot">'+
         (a?'<button type="button" class="btn danger" data-act="del-app" data-id="'+a.id+'">Delete</button>':"")+
@@ -4922,6 +5109,23 @@ document.addEventListener("click", e=>{
    THE ORBIT GUIDE · the full manual, sliding up from below with
    staggered sections. Opened from Settings, ⌘K, or Orbie.
    ================================================================ */
+function openPinModal(mode){
+  const isOff = mode==="off", isChange = mode==="change";
+  modalShell(
+    '<h2>'+(isOff?"Turn off app lock":isChange?"Change PIN":"Set app lock")+'</h2>'+
+    '<div class="info">'+(isOff
+      ? "Enter your current PIN to turn the lock off."
+      : isChange
+      ? "Enter your current PIN, then pick a new 4–8 digit one. The change syncs to every device."
+      : "Pick a 4–8 digit PIN. Orbit asks for it on open and after a minute in the background, on every synced device. It is a privacy screen for shoulder-surfers and shared screens — your data itself stays unencrypted in your browser and Puter account.")+'</div>'+
+    '<form data-form="'+(isOff?"pin-off":isChange?"pin-change":"pin-set")+'">'+
+      (isChange?'<label class="f-field" style="margin-top:12px"><span>Current PIN</span><input name="p0" type="password" inputmode="numeric" maxlength="8" required autocomplete="off"></label>':'')+
+      '<label class="f-field" style="margin-top:'+(isChange?'10':'12')+'px"><span>'+(isOff?"Current PIN":"New PIN")+'</span><input name="p1" type="password" inputmode="numeric" maxlength="8" required autocomplete="off"></label>'+
+      (isOff?"":'<label class="f-field" style="margin-top:10px"><span>Repeat '+(isChange?"new ":"")+'PIN</span><input name="p2" type="password" inputmode="numeric" maxlength="8" required autocomplete="off"></label>')+
+      '<div class="m-foot"><span class="grow"></span><button type="button" class="btn ghost" data-act="close-modal">Cancel</button><button type="submit" class="btn primary">'+(isOff?"Turn off":isChange?"Update PIN":"Enable lock")+'</button></div>'+
+    '</form>');
+  setTimeout(()=>{ const i = $('#modal-root input[name="'+(isChange?'p0':'p1')+'"]'); if(i) i.focus(); }, 40);
+}
 function openGuide(){
   let g = document.getElementById("guide");
   if(!g){ g = document.createElement("div"); g.id = "guide"; document.body.appendChild(g); }
@@ -4938,7 +5142,7 @@ function openGuide(){
     ["✨","Your galaxy","Every task you have ever finished is a star on a real golden-angle spiral — oldest at the center, colored by space, sized by priority. <b>Click a star</b> to remember it. Below: your last 6 months as a heatmap, and your week wrapped with one-tap copy.","the soul"],
     ["🎨","Make it yours","Settings holds five <b>design languages</b> (Liquid Glass, Zen, Pro, Pop, Journal), three glass intensities, an accent that recolors the whole atmosphere, Auto theme that follows your system, compact density, 19 synthesized sounds with volume + hover ticks (🔊 in the topbar mutes all, "+K("M")+") — and every single feature has a switch."],
     ["☁️","Sync & data","One tap in the sidebar signs into <b>Puter</b> — free, private, no card. Everything follows you: tasks, notes, habits, hours, preferences, even your theme. Merges are duplicate-proof and self-healing. Settings → Data has Export/Import backups and a full calendar .ics."],
-    ["📱","Install & integrations","Install as a real app (Add to Home Screen / Install). Share any link or text <b>to</b> Orbit and it becomes a task. Siri/Shortcuts: <b>?add=Buy milk tomorrow</b>, <b>?view=work</b>, <b>?focus=1</b>. Right-click a task for Google/Outlook/Apple calendar. Paste a whole list via ⌘K, drag text in from anywhere, and embed your own apps (like Sipit) in the Apps hub."],
+    ["📱","Install & integrations","Install as a real app (Add to Home Screen / Install). Share any link or text <b>to</b> Orbit and it becomes a task. Siri/Shortcuts: <b>?add=Buy milk tomorrow</b>, <b>?view=work</b>, <b>?focus=1</b>. Right-click a task for Google/Outlook/Apple calendar. Paste a whole list via ⌘K, drag text in from anywhere, and embed your own apps (like Sipit) in the Apps hub — open the Launchpad via the ⣿ button up top, "+K("A")+", a double-click on any empty space, or a swipe up from the bottom edge on phones — then give each app its real site icon and any exact color, and drag them into order in the sidebar."],
     ["⌨️","Keyboard","Fly without the mouse: "+K("⌘K")+" palette · "+K("N")+" new task · "+K("/")+" search · "+K("T")+" Today · "+K("W")+" Week · "+K("H")+" Habits · "+K("P")+" Notepad · "+K("F")+" focus · "+K("M")+" mute · "+K("O")+" Orbie · "+K("?")+" shortcuts · "+K("Esc")+" closes anything · "+K("⌘↵")+" saves any sheet."]
   ];
   g.innerHTML =
@@ -5016,7 +5220,7 @@ function maybeBriefing(){
     if(!featOn("briefing")) return;
     if(localStorage.getItem("orbit-brief")===todayStr()) return;
     setTimeout(()=>{
-      if(document.querySelector("#modal-root .overlay") || document.body.classList.contains("orbie-open") || document.body.classList.contains("galaxy-open")) return;
+      if(document.querySelector("#modal-root .overlay") || document.body.classList.contains("orbie-open") || document.body.classList.contains("galaxy-open") || document.body.classList.contains("locked")) return;
       showBriefing();
     }, 800);
   }catch(e){}
@@ -5199,8 +5403,8 @@ document.addEventListener("click", e=>{
   const act = el.dataset.act;
   if(fromPopover) closePopover();
   /* interaction sounds, centralized: navigation ticks + control clicks */
-  if(act.indexOf("nav-")===0 || act==="tab" || act==="stat-go") playSound("nav");
-  else if(["collapse","ftog","ttog","den-tog","motion-tog","glass-mode","app-accent","app-theme","set-start","set-flen","set-goal","set-svol","set-style","app-mascot","seg-pri","pick-space","pick-stage","pick-rep","pick-emoji","swatch","due-quick","cl-toggle","stage-color","space-tpl","app-pin","work-setup","work-pick","work-pick-go","open-page-go","work-notes","work-board","work-space","wk-mini","wk-fold"].indexOf(act) > -1) playSound("switch");
+  if(act.indexOf("nav-")===0 || act==="tab" || act==="stat-go" || act==="lp-open" || act==="lpad") playSound("nav");
+  else if(["collapse","ftog","ttog","den-tog","motion-tog","glass-mode","app-accent","app-theme","set-start","set-flen","set-goal","set-svol","set-style","app-mascot","seg-pri","pick-space","pick-stage","pick-rep","pick-emoji","swatch","due-quick","cl-toggle","stage-color","space-tpl","app-pin","app-favicon","app-emoji-mode","app-zoom-in","app-zoom-out","app-zoom-reset","lock-tog","work-setup","work-pick","work-pick-go","open-page-go","work-notes","work-board","work-space","wk-mini","wk-fold"].indexOf(act) > -1) playSound("switch");
   switch(act){
     case "nav-today": ui.view="today"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
     case "nav-pad": ui.view="pad"; ui.spaceId=null; ui.search=""; closeSb(); render(); break;
@@ -5582,10 +5786,37 @@ document.addEventListener("click", e=>{
       closeSb(); render();
       break;
     }
-    case "new-app": openAppModal(null); break;
+    case "new-app": closeLaunchpad(); openAppModal(null); break;
+    case "lpad": openLaunchpad(); break;
+    case "lpad-close": closeLaunchpad(); break;
+    case "lp-open": closeLaunchpad(); if(pinnedApp===el.dataset.id){ pinnedApp = null; try{ localStorage.removeItem("orbit-app-pin"); }catch(e){} } ui.view = "ext"; ui.appId = el.dataset.id; ui.search = ""; render(); break;
+    case "app-edit-id": closeLaunchpad(); openAppModal(el.dataset.id); break;
+    case "app-favicon": {
+      const form = el.closest("form"); if(!form) break;
+      let u2 = form.elements["url"].value.trim();
+      if(!u2){ playSound("error"); showToast("Type the web address first"); break; }
+      if(!/^https?:\/\//i.test(u2)) u2 = "https://"+u2;
+      try{
+        const host = new URL(u2).hostname;
+        form.elements["iconurl"].value = "https://www.google.com/s2/favicons?domain="+host+"&sz=64";
+        const pv2 = $("#app-favprev"); if(pv2) pv2.innerHTML = '<img class="favi" src="'+form.elements["iconurl"].value+'" alt="">';
+        $$('.pick[data-act="app-favicon"],.pick[data-act="app-emoji-mode"]', form).forEach(b=>b.classList.toggle("on", b===el));
+      }catch(e){ playSound("error"); showToast("That URL does not look right"); }
+      break;
+    }
+    case "app-emoji-mode": {
+      const form = el.closest("form"); if(!form) break;
+      form.elements["iconurl"].value = "";
+      const pv3 = $("#app-favprev"); if(pv3) pv3.innerHTML = "";
+      $$('.pick[data-act="app-favicon"],.pick[data-act="app-emoji-mode"]', form).forEach(b=>b.classList.toggle("on", b===el));
+      break;
+    }
     case "app-edit": openAppModal(currentAppId()); break;
     case "app-open": { const a = getApp(currentAppId()); if(a) window.open(a.url, "_blank"); break; }
     case "app-reload": { const f = extFrames[currentAppId()]; if(f){ f.src = f.src; showToast("App reloaded"); } break; }
+    case "app-zoom-in": bumpAppZoom(0.1); break;
+    case "app-zoom-out": bumpAppZoom(-0.1); break;
+    case "app-zoom-reset": bumpAppZoom(0); break;
     case "app-pin": {
       if(pinnedApp){
         ui.appId = pinnedApp; ui.view = "ext";
@@ -5754,6 +5985,9 @@ document.addEventListener("click", e=>{
       applyLook(); save();
       break;
     }
+    case "lock-tog": { if(state.prefs.lockHash) openPinModal("off"); else openPinModal("set"); break; }
+    case "pin-change-open": openPinModal("change"); break;
+    case "unlock": unlockTry(); break;
     case "notif-tog": toggleNotif(); break;
     case "set-start": {
       state.prefs.startView = el.dataset.v;
@@ -5782,10 +6016,16 @@ document.addEventListener("click", e=>{
     }
     case "ics-all": exportICS(); break;
     case "erase-all": {
-      if(confirm("Erase ALL Orbit data in this browser? Your cloud copy (if signed in) is not touched.") && confirm("Really erase everything here? This cannot be undone locally.")){
-        try{ localStorage.clear(); }catch(e){}
-        location.reload();
-      }
+      if(!confirm("Erase ALL Orbit data in this browser?")) break;
+      if(!confirm("Really erase? This cannot be undone.")) break;
+      const wipeCloud = cloud.on && window.puter && confirm("Also erase the cloud copy in your Puter account?\n\nOK = cloud copy is deleted too (gone everywhere).\nCancel = cloud copy stays and will sync back next sign-in.");
+      const finish = ()=>{ try{ localStorage.clear(); }catch(e){} location.reload(); };
+      if(wipeCloud){
+        try{
+          Promise.allSettled([puter.kv.del(KV_KEY), puter.kv.del(REV_KEY)]).then(finish);
+          setTimeout(finish, 4000); /* never hang on a slow network */
+        }catch(e){ finish(); }
+      } else finish();
       break;
     }
     case "focus-task-close": { const fid = el.dataset.id; closeModal(); startFocus(fid); break; }
@@ -5822,6 +6062,33 @@ document.addEventListener("submit", e=>{
     playSound("add");
     save(); ui._focusQA = true; render();
   }
+  else if(kind==="pin-set"){
+    const p1 = f.elements["p1"].value.trim(), p2 = f.elements["p2"].value.trim();
+    if(!/^\d{4,8}$/.test(p1)){ playSound("error"); showToast("PIN must be 4–8 digits"); return; }
+    if(p1 !== p2){ playSound("error"); showToast("PINs do not match"); return; }
+    hashPin(p1).then(h=>{ state.prefs.lockHash = h; save(); closeModal(); playSound("done"); showToast("🔒 App lock is on — L locks instantly"); });
+  }
+  else if(kind==="pin-change"){
+    const p0 = f.elements["p0"].value.trim(), p1 = f.elements["p1"].value.trim(), p2 = f.elements["p2"].value.trim();
+    if(!/^\d{4,8}$/.test(p1)){ playSound("error"); showToast("New PIN must be 4–8 digits"); return; }
+    if(p1 !== p2){ playSound("error"); showToast("New PINs do not match"); return; }
+    hashPin(p0).then(h=>{
+      if(h !== state.prefs.lockHash){ playSound("error"); showToast("Current PIN is wrong"); return; }
+      const wasTrusted = deviceTrusted();
+      hashPin(p1).then(h2=>{
+        state.prefs.lockHash = h2;
+        try{ if(wasTrusted) localStorage.setItem("orbit-trusted", h2); }catch(e){}
+        save(); closeModal(); playSound("done");
+        showToast("🔒 PIN updated everywhere — other devices will need it once");
+      });
+    });
+  }
+  else if(kind==="pin-off"){
+    hashPin(f.elements["p1"].value.trim()).then(h=>{
+      if(h === state.prefs.lockHash){ state.prefs.lockHash = null; try{ localStorage.removeItem("orbit-trusted"); }catch(e){} save(); closeModal(); showToast("App lock is off"); }
+      else { playSound("error"); showToast("Wrong PIN"); }
+    });
+  }
   else if(kind==="app"){
     const name = f.elements["name"].value.trim();
     let url = f.elements["url"].value.trim();
@@ -5831,15 +6098,16 @@ document.addEventListener("submit", e=>{
     const id = f.dataset.id;
     const icon = f.elements["icon"].value || "🧩";
     const color = f.elements["color"].value;
+    const iconUrl = (f.elements["iconurl"] && f.elements["iconurl"].value.trim()) || null;
     if(id){
       const a = getApp(id);
       if(a){
         const changed = a.url !== url;
-        Object.assign(a, {name:name, url:url, icon:icon, color:color});
+        Object.assign(a, {name:name, url:url, icon:icon, color:color, iconUrl:iconUrl});
         if(changed && extFrames[id]) extFrames[id].src = url;
       }
     } else {
-      const a = {id:uid(), name:name, url:url, icon:icon, color:color, createdAt:Date.now()};
+      const a = {id:uid(), name:name, url:url, icon:icon, color:color, iconUrl:iconUrl, createdAt:Date.now()};
       state.apps.push(a);
       ui.view = "ext"; ui.appId = a.id;
     }
@@ -5892,6 +6160,15 @@ document.addEventListener("input", e=>{
     }
     return;
   }
+  if(t.id==="app-custom"){
+    const form = t.closest("form");
+    if(form){
+      form.elements["color"].value = t.value;
+      $$(".swatches .swatch", form).forEach(b=>b.classList.toggle("active", b.contains(t)));
+      const cw = t.closest(".swatch"); if(cw) cw.style.setProperty("--swc", t.value);
+    }
+    return;
+  }
   if(t.id==="acc-custom"){
     state.prefs.accent = t.value;
     const wrap = t.closest(".swatches");
@@ -5914,8 +6191,12 @@ document.addEventListener("input", e=>{
 });
 
 document.addEventListener("keydown", e=>{
+  if(document.body.classList.contains("locked")){
+    if(e.key==="Enter"){ e.preventDefault(); unlockTry(); }
+    return;
+  }
   if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); openCmd(); return; }
-  if(e.key==="Escape"){ closeModal(); closeOrbieChat(); closePopover(); closeGalaxy(); closeBriefing(); closeGuide(); return; }
+  if(e.key==="Escape"){ closeModal(); closeOrbieChat(); closePopover(); closeGalaxy(); closeBriefing(); closeGuide(); closeLaunchpad(); return; }
   if((e.key==="Enter" || e.key===" ") && e.target && e.target.getAttribute && e.target.getAttribute("role")==="button" && e.target.dataset && e.target.dataset.act){
     e.preventDefault(); e.target.click(); return;
   }
@@ -5932,6 +6213,7 @@ document.addEventListener("keydown", e=>{
   const tag = (e.target.tagName||"").toLowerCase();
   if(tag==="input" || tag==="textarea" || tag==="select" || e.target.isContentEditable) return;
   if(document.querySelector("#modal-root .overlay")) return;
+  if(document.body.classList.contains("lpad-open") && e.key.toLowerCase()!=="a") return;
   if(document.body.classList.contains("orbie-open") && e.key.toLowerCase()!=="o") return;
   if(e.key==="?"){ e.preventDefault(); openShortcuts(); return; }
   if(e.key==="/"){ e.preventDefault(); const s=$("#search"); if(s) s.focus(); }
@@ -5945,6 +6227,11 @@ document.addEventListener("keydown", e=>{
     else if(k==="f"){ e.preventDefault(); if(!fsess) startFocus(null); }
     else if(k==="m"){ e.preventDefault(); toggleSound(); }
     else if(k==="o"){ e.preventDefault(); if(orbieChatOpen) closeOrbieChat(); else openOrbiePanel(); }
+    else if(k==="a"){ e.preventDefault(); document.body.classList.contains("lpad-open") ? closeLaunchpad() : openLaunchpad(); }
+    else if(k==="l"){ if(state.prefs && state.prefs.lockHash){ e.preventDefault(); lockNow(); } }
+    else if(ui.view==="ext" && (e.key==="+" || e.key==="=")){ e.preventDefault(); bumpAppZoom(0.1); }
+    else if(ui.view==="ext" && e.key==="-"){ e.preventDefault(); bumpAppZoom(-0.1); }
+    else if(ui.view==="ext" && e.key==="0"){ e.preventDefault(); bumpAppZoom(0); }
   }
 });
 
@@ -5956,24 +6243,36 @@ document.addEventListener("visibilitychange", ()=>{ if(document.hidden) flushPus
 addEventListener("pagehide", flushPush);
 
 /* swipe gestures on phones: swipe in from the left edge to open, swipe left to close */
-let touchX = null, touchY = null, edgeSwipe = false;
+let touchX = null, touchY = null, edgeSwipe = false, bottomSwipe = false;
 document.addEventListener("touchstart", e=>{
   const t = e.touches && e.touches[0]; if(!t) return;
   touchX = t.clientX; touchY = t.clientY;
   edgeSwipe = t.clientX < 28 && !document.body.classList.contains("sb-open");
+  bottomSwipe = t.clientY > innerHeight - 30 && !document.body.classList.contains("lpad-open") && !document.body.classList.contains("locked");
 }, {passive:true});
 document.addEventListener("touchend", e=>{
   if(touchX===null) return;
   if(ui._spaceLift){ touchX = null; edgeSwipe = false; return; }
   const t = e.changedTouches && e.changedTouches[0];
+  if(t && isMobile() && bottomSwipe && (touchY - t.clientY) > 55 && Math.abs(t.clientX - touchX) < 80){
+    openLaunchpad();
+    touchX = null; edgeSwipe = false; bottomSwipe = false;
+    return;
+  }
   if(t && isMobile() && Math.abs(t.clientY - touchY) < 80){
     const dx = t.clientX - touchX;
     if(edgeSwipe && dx > 55){ document.body.classList.add("sb-open"); updateFab(); }
     else if(document.body.classList.contains("sb-open") && dx < -55){ closeSb(); }
   }
-  touchX = null; edgeSwipe = false;
+  touchX = null; edgeSwipe = false; bottomSwipe = false;
 }, {passive:true});
 addEventListener("resize", ()=>{ if(!isMobile()) closeSb(); });
+
+/* double-click any empty canvas to open the Launchpad */
+document.addEventListener("dblclick", e=>{
+  if(document.body.classList.contains("locked")) return;
+  if(e.target && (e.target.id==="view" || (e.target.classList && e.target.classList.contains("view-inner")))) openLaunchpad();
+});
 
 /* drop text from anywhere (another app, an email, a webpage) to create a task */
 document.addEventListener("dragover", e=>{
@@ -6012,7 +6311,7 @@ if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* version notice: installed phone app auto updates on next open with internet */
-const APP_VERSION = "8.3";
+const APP_VERSION = "8.7";
 try{
   const pv = localStorage.getItem("orbit-ver");
   if(pv && pv !== APP_VERSION) setTimeout(()=>{ showToast("Orbit updated to the latest version ✨"); mascotSay("I got an upgrade! 🪐", 3000); }, 900);
@@ -6032,6 +6331,23 @@ if(fsess){ document.body.classList.add("focus-on"); renderFocusPill(); }
 maybeNotify();
 updateBadge();
 maybeOnboard();
+/* default PIN 110523 — applied once; change or disable it in Settings → Privacy.
+   The lock guards the public URL: unknown devices see the PIN screen,
+   remembered devices go straight in. */
+function maybeBootLock(){
+  if(!(state.prefs && state.prefs.lockHash)) return;
+  if(deviceTrusted()) return;
+  lockNow();
+}
+if(state.prefs && !state.prefs.lockHash && !state.prefs.pinInit){
+  state.prefs.pinInit = true;
+  hashPin("110523").then(h=>{
+    state.prefs.lockHash = h;
+    save();
+    maybeBootLock();
+    setTimeout(()=>showToast("🔒 Locked with the default PIN 110523 — change it in Settings → Privacy"), 400);
+  });
+} else maybeBootLock();
 maybeBriefing();
 
 /* last line of defense: never die silently */
